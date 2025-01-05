@@ -24,10 +24,13 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     try {
       final recentDocs = await repository.getRecentDocuments();
       final categories = await repository.getCategories();
+      final initialCategory = categories.first;
+      final documents = await repository.getDocumentsByCategory(initialCategory);
       emit(DocumentLoaded(
         recentDocuments: recentDocs,
         categories: categories,
-        selectedCategory: categories.first,
+        selectedCategory: initialCategory,
+        documents: documents,
       ));
     } catch (e) {
       emit(DocumentError(message: e.toString()));
