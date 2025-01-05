@@ -344,6 +344,8 @@ class DocumentDetailView extends StatelessWidget {
                                           'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
                                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                             fontWeight: FontWeight.w600,
+                                            fontSize: readingSettings.fontSize,
+                                            fontFamily: readingSettings.fontFamily,
                                           ),
                                         ),
                                       ),
