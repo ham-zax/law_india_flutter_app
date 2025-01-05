@@ -21,6 +21,14 @@ class DocumentDetailView extends StatelessWidget {
   Widget build(BuildContext context) {
     final readingSettings = Provider.of<ReadingSettings>(context);
     
+    // Ensure we have either document or chapter
+    if (document == null && chapter == null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: Center(child: Text('No document or chapter selected')),
+      );
+    }
+    
     // Build reading controls overlay
     Widget buildReadingControls() {
       return Positioned(
@@ -131,9 +139,8 @@ class DocumentDetailView extends StatelessWidget {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text(document != null 
-            ? document!.title 
-            : 'Chapter ${chapter!.chapterNumber} - ${chapter!.chapterTitle}'),
+        title: Text(document?.title ?? 
+            'Chapter ${chapter?.chapterNumber ?? ''} - ${chapter?.chapterTitle ?? ''}'),
         actions: [
           IconButton(
             icon: Icon(Icons.format_size),
@@ -233,13 +240,15 @@ class DocumentDetailView extends StatelessWidget {
                 padding: EdgeInsets.all(settings.margins),
                 child: Column(
                   children: [
-                    LinearProgressIndicator(
-                      value: chapter != null 
-                        ? (int.parse(chapter!.chapterNumber) / document!.chapters.length)
-                        : 0.0,
+                    if (document != null && chapter != null)
+                      LinearProgressIndicator(
+                        value: (int.parse(chapter!.chapterNumber) / document!.chapters.length),
+                      ),
+                    if (document == null || chapter == null)
+                      SizedBox(height: 16),
                     ),
                     SizedBox(height: 16),
-                    if (document != null)
+                    if (document != null && document!.chapters.isNotEmpty)
                       ListView.builder(
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
@@ -280,7 +289,7 @@ class DocumentDetailView extends StatelessWidget {
                           );
                         },
                       )
-                    else
+                    else if (chapter != null && chapter!.sections.isNotEmpty)
                       ListView.builder(
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
