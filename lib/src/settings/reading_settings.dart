@@ -6,26 +6,26 @@ class ReadingSettings extends ChangeNotifier {
   String _fontFamily = 'Roboto';
   ThemeMode _themeMode = ThemeMode.system;
   double _margins = 16.0;
-  final Set<String> _favorites = {};
+  final Set<String> _favoriteSections = {};
 
   double get fontSize => _fontSize;
   double get lineHeight => _lineHeight;
   String get fontFamily => _fontFamily;
   ThemeMode get themeMode => _themeMode;
   double get margins => _margins;
-  Set<String> get favorites => _favorites;
+  Set<String> get favoriteSections => _favoriteSections;
 
-  void toggleFavorite(String id) {
-    if (_favorites.contains(id)) {
-      _favorites.remove(id);
+  void toggleSectionFavorite(String sectionId) {
+    if (_favoriteSections.contains(sectionId)) {
+      _favoriteSections.remove(sectionId);
     } else {
-      _favorites.add(id);
+      _favoriteSections.add(sectionId);
     }
     notifyListeners();
   }
 
-  bool isFavorite(String id) {
-    return _favorites.contains(id);
+  bool isSectionFavorite(String sectionId) {
+    return _favoriteSections.contains(sectionId);
   }
 
   void updateFontSize(double size) {

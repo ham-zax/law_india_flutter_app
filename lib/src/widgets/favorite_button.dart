@@ -7,14 +7,14 @@ class FavoriteButton extends StatefulWidget {
   final int favoriteCount;
   final Function(bool)? onChanged;
 
-  final String itemId;
+  final String sectionId;
 
   const FavoriteButton({
     super.key,
     this.isFavorited = false,
     this.favoriteCount = 0,
     this.onChanged,
-    required this.itemId,
+    required this.sectionId,
   });
 
   @override
@@ -38,7 +38,7 @@ class _FavoriteButtonState extends State<FavoriteButton> {
       _isFavorited = !_isFavorited;
       _favoriteCount += _isFavorited ? 1 : -1;
     });
-    settings.toggleFavorite(widget.itemId);
+    settings.toggleSectionFavorite(widget.sectionId);
     widget.onChanged?.call(_isFavorited);
   }
 

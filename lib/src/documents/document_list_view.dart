@@ -130,49 +130,69 @@ class DocumentListView extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
 
-                      // Favorites Section
+                      // Favorite Sections
                       Text(
-                        'Favorites',
+                        'Favorite Sections',
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
                       const SizedBox(height: 12),
                       Consumer<ReadingSettings>(
                         builder: (context, settings, child) {
-                          final favoriteChapters = state.documents
+                          final favoriteSections = state.documents
                               .expand((doc) => doc.chapters)
-                              .where((chapter) => settings.isFavorite(chapter.id))
+                              .expand((chapter) => chapter.sections)
+                              .where((section) => settings.isSectionFavorite('${section.sectionNumber}'))
                               .toList();
                           
-                          if (favoriteChapters.isEmpty) {
+                          if (favoriteSections.isEmpty) {
                             return Padding(
                               padding: const EdgeInsets.all(16),
                               child: Text(
-                                'No favorites yet',
+                                'No favorite sections yet',
                                 style: Theme.of(context).textTheme.bodyMedium,
                               ),
                             );
                           }
 
                           return Column(
-                            children: favoriteChapters
-                                .map((chapter) => Padding(
-                                      padding: const EdgeInsets.only(bottom: 12),
-                                      child: InkWell(
-                                        onTap: () {
-                                          Navigator.pushNamed(
-                                            context,
-                                            DocumentDetailView.routeName,
-                                            arguments: chapter,
-                                          );
-                                        },
-                                        child: _buildDocumentCard(
-                                          context: context,
-                                          title: 'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
-                                          subtitle: '${chapter.sections.length} Sections',
-                                          chapter: chapter,
+                            children: favoriteSections
+                                .map((section) {
+                                  // Find the chapter this section belongs to
+                                  final chapter = state.documents
+                                      .expand((doc) => doc.chapters)
+                                      .firstWhere((chapter) => chapter.sections.contains(section));
+                                  
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 12),
+                                    child: InkWell(
+                                      onTap: () {
+                                        Navigator.pushNamed(
+                                          context,
+                                          DocumentDetailView.routeName,
+                                          arguments: chapter,
+                                        );
+                                      },
+                                      child: Card(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
+                                                style: Theme.of(context).textTheme.titleMedium,
+                                              ),
+                                              Text(
+                                                'Section ${section.sectionNumber} - ${section.sectionTitle}',
+                                                style: Theme.of(context).textTheme.bodyMedium,
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
-                                    ))
+                                    ),
+                                  );
+                                })
                                 .toList(),
                           );
                         },

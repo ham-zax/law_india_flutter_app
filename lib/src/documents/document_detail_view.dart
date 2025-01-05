@@ -318,9 +318,23 @@ class DocumentDetailView extends StatelessWidget {
                                 children: [
                                   Padding(
                                     padding: EdgeInsets.all(settings.margins),
-                                    child: EnhancedReadingView(
-                                      content: section.content,
-                                      settings: settings,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: [
+                                            FavoriteButton(
+                                              sectionId: '${chapter.id}_${section.sectionNumber}',
+                                              isFavorited: settings.isSectionFavorite('${chapter.id}_${section.sectionNumber}'),
+                                            ),
+                                          ],
+                                        ),
+                                        EnhancedReadingView(
+                                          content: section.content,
+                                          settings: settings,
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
