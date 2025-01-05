@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import '../data/models/document_model.dart';
 
 class DocumentDetailView extends StatelessWidget {
-  final dynamic document;
+  final Document? document;
+  final DocumentChapter? chapter;
   
-  const DocumentDetailView({super.key, required this.document});
+  const DocumentDetailView({
+    super.key,
+    this.document,
+    this.chapter,
+  }) : assert(document != null || chapter != null);
 
   static const routeName = '/document-detail';
 
@@ -12,16 +17,16 @@ class DocumentDetailView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(document is Document 
-            ? document.title 
-            : 'Chapter ${document.chapterNumber} - ${document.chapterTitle}'),
+        title: Text(document != null 
+            ? document!.title 
+            : 'Chapter ${chapter!.chapterNumber} - ${chapter!.chapterTitle}'),
       ),
-      body: document is Document
+      body: document != null
           ? ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: document.chapters.length,
+              itemCount: document!.chapters.length,
               itemBuilder: (context, index) {
-                final chapter = document.chapters[index];
+                final chapter = document!.chapters[index];
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: InkWell(
@@ -59,9 +64,9 @@ class DocumentDetailView extends StatelessWidget {
             )
           : ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: document.sections.length,
+              itemCount: chapter!.sections.length,
               itemBuilder: (context, index) {
-                final section = document.sections[index];
+                final section = chapter!.sections[index];
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
             shape: RoundedRectangleBorder(
@@ -73,7 +78,7 @@ class DocumentDetailView extends StatelessWidget {
               ),
               child: ExpansionTile(
                 title: Text(
-                  '${chapter.chapterNumber} - ${section.sectionTitle}',
+                  '${chapter!.chapterNumber} - ${section.sectionTitle}',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,

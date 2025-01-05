@@ -170,8 +170,11 @@ class MyApp extends StatelessWidget {
                   case DocumentListView.routeName:
                     return const DocumentListView();
                   case DocumentDetailView.routeName:
-                    final chapter = routeSettings.arguments as DocumentChapter;
-                    return DocumentDetailView(chapter: chapter);
+                    if (routeSettings.arguments is Document) {
+                      return DocumentDetailView(document: routeSettings.arguments as Document);
+                    } else {
+                      return DocumentDetailView(chapter: routeSettings.arguments as DocumentChapter);
+                    }
                   default:
                     // Redirect any unknown routes to the document list
                     return const DocumentListView();
