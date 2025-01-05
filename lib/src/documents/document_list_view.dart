@@ -308,9 +308,8 @@ class DocumentListView extends StatelessWidget {
                   Consumer<ReadingSettings>(
                     builder: (context, settings, child) {
                       return FavoriteButton(
-                        isFavorited: settings.isFavorite(chapter.id),
-                        favoriteCount: 0,
-                        itemId: chapter.id,
+                        sectionId: chapter.id,
+                        isFavorited: settings.isSectionFavorite(chapter.id),
                       );
                     },
                   ),

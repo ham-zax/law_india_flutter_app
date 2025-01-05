@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../data/models/document_model.dart';
 import '../bloc/document/document_bloc.dart';
 import '../settings/reading_settings.dart';
+import '../widgets/favorite_button.dart';
 
 class EnhancedReadingView extends StatelessWidget {
   final String content;
@@ -324,10 +325,11 @@ class DocumentDetailView extends StatelessWidget {
                                         Row(
                                           mainAxisAlignment: MainAxisAlignment.end,
                                           children: [
-                                            FavoriteButton(
-                                              sectionId: '${chapter.id}_${section.sectionNumber}',
-                                              isFavorited: settings.isSectionFavorite('${chapter.id}_${section.sectionNumber}'),
-                                            ),
+                                            if (chapter != null)
+                                              FavoriteButton(
+                                                sectionId: '${chapter.id}_${section.sectionNumber}',
+                                                isFavorited: settings.isSectionFavorite('${chapter.id}_${section.sectionNumber}'),
+                                              ),
                                           ],
                                         ),
                                         EnhancedReadingView(
