@@ -156,9 +156,15 @@ class DocumentListView extends StatelessWidget {
     bool showChevron = false,
   }) {
     return Card(
-      elevation: 2,
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: Theme.of(context).brightness == Brightness.light
+              ? Colors.grey.shade300
+              : Colors.grey.shade700,
+          width: 1,
+        ),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
