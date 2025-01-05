@@ -28,11 +28,12 @@ class LocalDocumentRepository implements DocumentRepository {
         final jsonString = await rootBundle.loadString('assets/data/chapter_$i.json');
         final jsonData = jsonDecode(jsonString) as List;
         
-        final chapterTitle = jsonData.first['ct']; // Get chapter title from first section
+        final firstSection = jsonData.first;
+        final chapterTitle = firstSection['ct'] ?? 'Chapter $i'; // Default title if null
         final sections = jsonData.map((section) => DocumentSection(
-          sectionNumber: section['sn'],
-          sectionTitle: section['st'],
-          content: section['s'],
+          sectionNumber: section['sn']?.toString() ?? '0', // Convert to string and provide default
+          sectionTitle: section['st'] ?? 'Untitled Section', // Default if null
+          content: section['s'] ?? '', // Default empty content
         )).toList();
 
         chapters.add(DocumentChapter(
