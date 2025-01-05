@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../bloc/document/document_bloc.dart';
+import '../bloc/document/document_bloc.dart';
 
 class DocumentListView extends StatelessWidget {
   const DocumentListView({super.key});
