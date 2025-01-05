@@ -57,6 +57,57 @@ class EnhancedReadingView extends StatelessWidget {
   }
 }
 
+class SectionContentView extends StatelessWidget {
+  final String chapterNumber;
+  final String sectionTitle;
+  final String content;
+  final ReadingSettings settings;
+  final String sectionId;
+  final bool isFavorited;
+
+  const SectionContentView({
+    Key? key,
+    required this.chapterNumber,
+    required this.sectionTitle,
+    required this.content,
+    required this.settings,
+    required this.sectionId,
+    required this.isFavorited,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(sectionTitle),
+        actions: [
+          IconButton(
+            icon: Icon(
+              isFavorited ? Icons.bookmark : Icons.bookmark_outline,
+            ),
+            onPressed: () {
+              // Toggle favorite
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.share_outlined),
+            onPressed: () {
+              // Share functionality
+            },
+          ),
+        ],
+      ),
+      body: EnhancedReadingView(
+        content: content,
+        settings: settings,
+      ),
+    );
+  }
+}
+
 class DocumentDetailView extends StatefulWidget {
   static const routeName = '/document-detail';
   final DocumentDetailArguments arguments;
@@ -66,7 +117,6 @@ class DocumentDetailView extends StatefulWidget {
     required this.arguments,
   });
 
-  // Add back the static route method
   static Route<dynamic> route(RouteSettings settings) {
     final args = settings.arguments;
     DocumentDetailArguments arguments;
@@ -133,7 +183,8 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
       }
     });
   }
-Widget _buildChapterCard({
+
+  Widget _buildChapterCard({
     required BuildContext context,
     required DocumentChapter chapter,
     required bool isSelected,
@@ -142,15 +193,14 @@ Widget _buildChapterCard({
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    // Helper function to clean the title
-     String cleanTitle(String fullTitle) {
-      // Remove everything up to and including the first dash/hyphen and trim
+    String cleanTitle(String fullTitle) {
       final parts = fullTitle.split('-');
       if (parts.length > 1) {
         return parts.sublist(1).join('-').trim();
       }
       return fullTitle;
     }
+
     final Color surfaceColor = isSelected
         ? Color.alphaBlend(
             colorScheme.primary.withOpacity(0.08),
@@ -189,7 +239,7 @@ Widget _buildChapterCard({
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      cleanTitle(chapter.chapterTitle), // Clean the title here
+                      cleanTitle(chapter.chapterTitle),
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: isSelected
                             ? colorScheme.onPrimaryContainer
@@ -221,136 +271,82 @@ Widget _buildChapterCard({
       ),
     );
   }
-class SectionContentView extends StatelessWidget {
-  final String chapterNumber;
-  final String sectionTitle;
-  final String content;
-  final ReadingSettings settings;
-  final String sectionId;
-  final bool isFavorited;
 
-  const SectionContentView({
+  Widget _buildSectionCard({
+    required BuildContext context,
     Key? key,
-    required this.chapterNumber,
-    required this.sectionTitle,
-    required this.content,
-    required this.settings,
-    required this.sectionId,
-    required this.isFavorited,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
+    required String chapterNumber,
+    required String sectionTitle,
+    required String content,
+    required ReadingSettings settings,
+    required String sectionId,
+    required bool isFavorited,
+  }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    
+    String cleanTitle(String title) {
+      final regex = RegExp(r'^\d+[\.\s-]*\s*');
+      return title.replaceFirst(regex, '');
+    }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(sectionTitle),
-        actions: [
-          IconButton(
-            icon: Icon(
-              isFavorited ? Icons.bookmark : Icons.bookmark_outline,
-              color: colorScheme.onSurfaceVariant,
-            ),
-            onPressed: () {
-              // Toggle favorite
-            },
-          ),
-          IconButton(
-            icon: Icon(
-              Icons.share_outlined,
-              color: colorScheme.onSurfaceVariant,
-            ),
-            onPressed: () {
-              // Share functionality
-            },
-          ),
-        ],
+    return Card(
+      key: key,
+      elevation: 0,
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(4),
       ),
-      body: EnhancedReadingView(
-        content: content,
-        settings: settings,
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => SectionContentView(
+                chapterNumber: chapterNumber,
+                sectionTitle: sectionTitle,
+                content: content,
+                settings: settings,
+                sectionId: sectionId,
+                isFavorited: isFavorited,
+              ),
+            ),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: colorScheme.secondaryContainer,
+                child: Text(
+                  sectionId.split('_').last,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: colorScheme.onSecondaryContainer,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  cleanTitle(sectionTitle),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: colorScheme.onSurface,
+                    letterSpacing: 0.15,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.chevron_right,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
-}
 
-Widget _buildSectionCard({
-  required BuildContext context,
-  Key? key,
-  required String chapterNumber,
-  required String sectionTitle,
-  required String content,
-  required ReadingSettings settings,
-  required String sectionId,
-  required bool isFavorited,
-}) {
-  final theme = Theme.of(context);
-  final colorScheme = theme.colorScheme;
-  
-  String cleanTitle(String title) {
-    final regex = RegExp(r'^\d+[\.\s-]*\s*');
-    return title.replaceFirst(regex, '');
-  }
-
-  return Card(
-    key: key,
-    elevation: 0,
-    margin: const EdgeInsets.only(bottom: 12),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(4),
-    ),
-    child: InkWell(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => SectionContentView(
-              chapterNumber: chapterNumber,
-              sectionTitle: sectionTitle,
-              content: content,
-              settings: settings,
-              sectionId: sectionId,
-              isFavorited: isFavorited,
-            ),
-          ),
-        );
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Row(
-          children: [
-            CircleAvatar(
-              backgroundColor: colorScheme.secondaryContainer,
-              child: Text(
-                sectionId.split('_').last,
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: colorScheme.onSecondaryContainer,
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                cleanTitle(sectionTitle),
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: colorScheme.onSurface,
-                  letterSpacing: 0.15,
-                  height: 1.4,
-                ),
-              ),
-            ),
-            Icon(
-              Icons.chevron_right,
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
-  // Getters for convenience
   Document? get document => widget.arguments.document;
   DocumentChapter? get chapter => widget.arguments.chapter;
   String? get scrollToSectionId => widget.arguments.scrollToSectionId;
@@ -373,8 +369,7 @@ Widget _buildSectionCard({
         actions: [
           IconButton(
             icon: Icon(Icons.format_size),
-            onPressed: () =>
-                _showSettingsBottomSheet(context), // Updated method name
+            onPressed: () => _showSettingsBottomSheet(context),
           ),
         ],
       ),
@@ -409,7 +404,7 @@ Widget _buildSectionCard({
     );
   }
 
-Widget _buildContent(BuildContext context, ReadingSettings settings) {
+  Widget _buildContent(BuildContext context, ReadingSettings settings) {
     return Stack(
       children: [
         ScrollablePositionedList.builder(
@@ -434,7 +429,6 @@ Widget _buildContent(BuildContext context, ReadingSettings settings) {
                 context: context,
                 chapterNumber: widget.arguments.chapter!.chapterNumber,
                 sectionTitle: section.sectionTitle,
-                isExpanded: scrollToSectionId == sectionId,
                 content: section.content,
                 settings: settings,
                 sectionId: sectionId,
@@ -448,7 +442,8 @@ Widget _buildContent(BuildContext context, ReadingSettings settings) {
       ],
     );
   }
-    Widget _buildNavigationControls() {
+
+  Widget _buildNavigationControls() {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -487,6 +482,7 @@ Widget _buildContent(BuildContext context, ReadingSettings settings) {
       ),
     );
   }
+
   void _showSettingsBottomSheet(BuildContext context) {
     final settings = Provider.of<ReadingSettings>(context, listen: false);
     showModalBottomSheet(
@@ -495,7 +491,7 @@ Widget _buildContent(BuildContext context, ReadingSettings settings) {
     );
   }
 
-  Widget _buildSettingsSheet(ReadingSettings settings) {
+Widget _buildSettingsSheet(ReadingSettings settings) {
     return Container(
       padding: EdgeInsets.all(16),
       child: Column(
@@ -653,7 +649,4 @@ Widget _buildContent(BuildContext context, ReadingSettings settings) {
       );
     }
   }
-
-  // The rest of your widget building methods (_buildChapterCard, _buildSectionCard) remain unchanged
-  // Just make sure to use widget.arguments where needed
 }
