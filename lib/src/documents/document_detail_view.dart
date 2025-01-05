@@ -7,6 +7,7 @@ import '../bloc/document/document_bloc.dart';
 import '../settings/reading_settings.dart';
 import '../widgets/favorite_button.dart';
 import '../navigation/document_detail_arguments.dart';
+import 'package:provider/provider.dart';
 
 class EnhancedReadingView extends StatelessWidget {
   final String content;
@@ -84,12 +85,12 @@ class SectionContentView extends StatelessWidget {
       appBar: AppBar(
         title: Text(sectionTitle),
         actions: [
-          IconButton(
-            icon: Icon(
-              isFavorited ? Icons.bookmark : Icons.bookmark_outline,
-            ),
-            onPressed: () {
-              // Toggle favorite
+          Consumer<ReadingSettings>(
+            builder: (context, settings, child) {
+              return FavoriteButton(
+                sectionId: sectionId,
+                isFavorited: settings.isSectionFavorite(sectionId),
+              );
             },
           ),
           IconButton(
