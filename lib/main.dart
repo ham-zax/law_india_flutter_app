@@ -16,13 +16,13 @@ void main() async {
   runApp(
     MultiRepositoryProvider(
       providers: [
-        RepositoryProvider.value(value: documentRepository),
+        RepositoryProvider<DocumentRepository>.value(value: documentRepository),
       ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
             create: (context) => DocumentBloc(
-              repository: context.read<DocumentRepository>(),
+              repository: RepositoryProvider.of<DocumentRepository>(context),
             )..add(LoadDocuments()),
           ),
         ],
