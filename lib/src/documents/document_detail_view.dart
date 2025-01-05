@@ -240,13 +240,14 @@ class DocumentDetailView extends StatelessWidget {
                 padding: EdgeInsets.all(settings.margins),
                 child: Column(
                   children: [
-                    if (document != null && chapter != null)
+                    if (document != null && chapter != null) {
                       LinearProgressIndicator(
                         value: (int.parse(chapter!.chapterNumber) / document!.chapters.length),
                       ),
-                    if (document == null || chapter == null)
-                      SizedBox(height: 16),
-                    ),
+                    }
+                    if (document == null || chapter == null) {
+                      SizedBox(height: 16);
+                    }
                     SizedBox(height: 16),
                     if (document != null && document!.chapters.isNotEmpty) {
                       return ListView.builder(
