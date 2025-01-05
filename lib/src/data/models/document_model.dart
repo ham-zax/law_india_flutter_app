@@ -1,20 +1,26 @@
+class DocumentSection {
+  final String chapterNumber;
+  final String sectionTitle;
+  final String content;
+
+  DocumentSection({
+    required this.chapterNumber,
+    required this.sectionTitle,
+    required this.content,
+  });
+}
+
 class Document {
   final String id;
   final String title;
-  final String? subtitle;
-  final DateTime lastAccessed;
   final String category;
-  final List<String> sections;
-  final List<DocumentVersion> versions;
+  final List<DocumentSection> sections;
 
   Document({
     required this.id,
     required this.title,
-    this.subtitle,
-    required this.lastAccessed,
     required this.category,
     required this.sections,
-    this.versions = const [],
   });
 }
 

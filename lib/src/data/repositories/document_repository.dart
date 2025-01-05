@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:flutter/services.dart';
 import '../models/document_model.dart';
 
 abstract class DocumentRepository {
@@ -12,13 +14,31 @@ abstract class DocumentRepository {
 class LocalDocumentRepository implements DocumentRepository {
   @override
   Future<List<Document>> getRecentDocuments() async {
-    // TODO: Implement local storage logic
-    return [];
+    // For now return BNS as recent document
+    return await getDocumentsByCategory('BNS');
   }
 
   @override
   Future<List<Document>> getDocumentsByCategory(String category) async {
-    // TODO: Implement local storage logic
+    if (category == 'BNS') {
+      final jsonString = await rootBundle.loadString('assets/data/chapter_1.json');
+      final jsonData = jsonDecode(jsonString) as List;
+      
+      final sections = jsonData.map((section) => DocumentSection(
+        chapterNumber: section['cn'],
+        sectionTitle: section['st'],
+        content: section['s'],
+      )).toList();
+
+      return [
+        Document(
+          id: 'bns-1',
+          title: 'Bharatiya Nyaya Sanhita',
+          category: 'BNS',
+          sections: sections,
+        )
+      ];
+    }
     return [];
   }
 
@@ -35,12 +55,12 @@ class LocalDocumentRepository implements DocumentRepository {
 
   @override
   Future<void> updateDocument(Document document) async {
-    // TODO: Implement update logic
+    // Not needed for BNS document
   }
 
   @override
   Future<List<DocumentVersion>> getDocumentVersions(String documentId) async {
-    // TODO: Implement version history logic
+    // Not needed for BNS document
     return [];
   }
 }
