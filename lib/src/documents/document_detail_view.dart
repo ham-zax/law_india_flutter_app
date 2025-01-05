@@ -150,7 +150,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
   }
 
 
-  Widget _buildChapterCard({
+Widget _buildChapterCard({
     required BuildContext context,
     required DocumentChapter chapter,
     required bool isSelected,
@@ -159,19 +159,14 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    String cleanTitle(String fullTitle) {
-      final parts = fullTitle.split('-');
-      if (parts.length > 1) {
-        return parts.sublist(1).join('-').trim();
-      }
-      return fullTitle;
-    }
+    // Split title into main title and subtitles
+    List<String> titleParts = chapter.chapterTitle.split(' - ');
+    String mainTitle = titleParts[0].trim();
+    List<String> subtitles = titleParts.length > 1 ? titleParts.sublist(1) : [];
 
     final Color surfaceColor = isSelected
-        ? Color.alphaBlend(
-            colorScheme.primary.withOpacity(0.08),
-            colorScheme.surface,
-          )
+        ? Color.fromRGBO(colorScheme.primary.red, colorScheme.primary.green,
+            colorScheme.primary.blue, 0.08)
         : colorScheme.surface;
 
     return Card(
@@ -188,6 +183,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CircleAvatar(
                 backgroundColor: colorScheme.primaryContainer,
@@ -205,7 +201,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      cleanTitle(chapter.chapterTitle),
+                      mainTitle,
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: isSelected
                             ? colorScheme.onPrimaryContainer
@@ -215,13 +211,26 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+                    if (subtitles.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      ...subtitles.map((subtitle) => Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              subtitle,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: isSelected
+                                    ? colorScheme.onPrimaryContainer
+                                    : colorScheme.onSurfaceVariant,
+                                height: 1.4,
+                              ),
+                            ),
+                          )),
+                    ],
+                    const SizedBox(height: 8),
                     Text(
                       '${chapter.sections.length} sections',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: isSelected
-                            ? colorScheme.onPrimaryContainer.withOpacity(0.8)
-                            : colorScheme.onSurfaceVariant,
-                        height: 1.4,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -237,7 +246,6 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
       ),
     );
   }
-
   Widget _buildSectionCard({
     required BuildContext context,
     Key? key,
