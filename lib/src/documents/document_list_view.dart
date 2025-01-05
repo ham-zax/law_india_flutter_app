@@ -46,10 +46,19 @@ class DocumentListView extends StatelessWidget {
                         children: state.recentDocuments
                             .map((doc) => Padding(
                                   padding: const EdgeInsets.only(bottom: 12),
-                                  child: _buildDocumentCard(
-                                    title: doc.title,
-                                    subtitle: '${doc.category} • ${doc.sections.length} Sections',
-                                    showChevron: true,
+                                  child: InkWell(
+                                    onTap: () {
+                                      Navigator.pushNamed(
+                                        context,
+                                        DocumentDetailView.routeName,
+                                        arguments: doc,
+                                      );
+                                    },
+                                    child: _buildDocumentCard(
+                                      title: doc.title,
+                                      subtitle: '${doc.category} • ${doc.sections.length} Sections',
+                                      showChevron: true,
+                                    ),
                                   ),
                                 ))
                             .toList(),
