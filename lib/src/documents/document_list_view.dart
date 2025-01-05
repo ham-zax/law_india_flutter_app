@@ -15,6 +15,37 @@ class DocumentListView extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Documents'),
       ),
+      drawer: NavigationDrawer(
+        selectedIndex: 0,
+        onDestinationSelected: (index) {
+          if (index == 1) {
+            Navigator.pushNamed(context, SettingsView.routeName);
+          }
+        },
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text(
+              'Menu',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const Divider(),
+          NavigationDrawerDestination(
+            icon: const Icon(Icons.article_outlined),
+            selectedIcon: const Icon(Icons.article),
+            label: const Text('Documents'),
+          ),
+          NavigationDrawerDestination(
+            icon: const Icon(Icons.settings_outlined),
+            selectedIcon: const Icon(Icons.settings),
+            label: const Text('Settings'),
+          ),
+        ],
+      ),
       body: BlocBuilder<DocumentBloc, DocumentState>(
         builder: (context, state) {
           if (state is DocumentLoading) {

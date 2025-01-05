@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' show NavigationDrawer, NavigationDrawerDestination;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'documents/document_detail_view.dart';
@@ -61,6 +62,23 @@ class MyApp extends StatelessWidget {
           // preferred ThemeMode (light, dark, or system default) from the
           // SettingsController to display the correct theme.
           theme: ThemeData(
+            navigationDrawerTheme: NavigationDrawerThemeData(
+              backgroundColor: Colors.white,
+              indicatorColor: Colors.blue.shade800,
+              labelTextStyle: MaterialStateProperty.resolveWith<TextStyle>(
+                (Set<MaterialState> states) {
+                  if (states.contains(MaterialState.selected)) {
+                    return const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    );
+                  }
+                  return const TextStyle(
+                    fontSize: 14,
+                  );
+                },
+              ),
+            ),
             colorScheme: ColorScheme.light(
               primary: Colors.blue.shade800,
               secondary: Colors.blue.shade600,
@@ -109,6 +127,23 @@ class MyApp extends StatelessWidget {
             ),
           ),
           darkTheme: ThemeData.dark().copyWith(
+            navigationDrawerTheme: NavigationDrawerThemeData(
+              backgroundColor: Colors.grey.shade900,
+              indicatorColor: Colors.blue.shade300,
+              labelTextStyle: MaterialStateProperty.resolveWith<TextStyle>(
+                (Set<MaterialState> states) {
+                  if (states.contains(MaterialState.selected)) {
+                    return const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    );
+                  }
+                  return const TextStyle(
+                    fontSize: 14,
+                  );
+                },
+              ),
+            ),
             colorScheme: ColorScheme.dark(
               primary: Colors.blue.shade300,
               secondary: Colors.blue.shade200,
