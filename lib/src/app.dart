@@ -106,7 +106,6 @@ class MyApp extends StatelessWidget {
                 side: BorderSide.none,
               ),
               checkmarkColor: Colors.transparent,
-              visualDensity: VisualDensity.compact,
             ),
           ),
           darkTheme: ThemeData.dark().copyWith(
@@ -149,7 +148,6 @@ class MyApp extends StatelessWidget {
                 side: BorderSide.none,
               ),
               checkmarkColor: Colors.transparent,
-              visualDensity: VisualDensity.compact,
             ),
           ),
           themeMode: settingsController.themeMode,
