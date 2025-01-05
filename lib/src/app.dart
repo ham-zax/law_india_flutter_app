@@ -71,10 +71,22 @@ class MyApp extends StatelessWidget {
             ),
             chipTheme: ChipThemeData(
               selectedColor: Colors.blue.shade800,
-              checkmarkColor: Colors.white,
+              secondarySelectedColor: Colors.blue.shade800,
+              disabledColor: Colors.grey.shade300,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               labelStyle: const TextStyle(
                 color: Colors.white,
                 fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+              secondaryLabelStyle: const TextStyle(
+                color: Colors.black87,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+              backgroundColor: Colors.grey.shade200,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
               ),
             ),
           ),
@@ -92,10 +104,22 @@ class MyApp extends StatelessWidget {
             ),
             chipTheme: ChipThemeData(
               selectedColor: Colors.blue.shade300,
-              checkmarkColor: Colors.black,
+              secondarySelectedColor: Colors.blue.shade300,
+              disabledColor: Colors.grey.shade700,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               labelStyle: const TextStyle(
-                color: Colors.black,
+                color: Colors.black87,
                 fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+              secondaryLabelStyle: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+              backgroundColor: Colors.grey.shade800,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
               ),
             ),
           ),
