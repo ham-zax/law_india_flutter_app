@@ -358,14 +358,9 @@ class DocumentDetailView extends StatelessWidget {
                                 children: [
                                   Padding(
                                     padding: EdgeInsets.all(settings.margins),
-                                    child: SelectableText(
-                                      section.content,
-                                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                        fontSize: settings.fontSize,
-                                        height: settings.lineHeight,
-                                        fontFamily: settings.fontFamily,
-                                      ),
-                                      selectionControls: MaterialTextSelectionControls(),
+                                    child: EnhancedReadingView(
+                                      content: section.content,
+                                      settings: settings,
                                     ),
                                   ),
                                 ],
