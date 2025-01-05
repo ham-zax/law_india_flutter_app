@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart' show NavigationDrawer, NavigationDrawerDestination;
+import 'package:flutter/material.dart'
+    show NavigationDrawer, NavigationDrawerDestination;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'documents/document_detail_view.dart';
 import 'data/models/document_model.dart';
 
-import 'sample_feature/sample_item_details_view.dart';
-import 'sample_feature/sample_item_list_view.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
 import 'documents/document_list_view.dart';
-import 'documents/document_detail_view.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
@@ -67,14 +65,21 @@ class MyApp extends StatelessWidget {
               seedColor: Colors.blue.shade800,
               brightness: Brightness.light,
             ),
-            typography: Typography.material2021(platform: TargetPlatform.android),
+            typography:
+                Typography.material2021(platform: TargetPlatform.android),
             textTheme: TextTheme(
-              displayLarge: TextStyle(fontSize: 57, fontWeight: FontWeight.w400),
-              displayMedium: TextStyle(fontSize: 45, fontWeight: FontWeight.w400),
-              displaySmall: TextStyle(fontSize: 36, fontWeight: FontWeight.w400),
-              headlineLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.w400),
-              headlineMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.w400),
-              headlineSmall: TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
+              displayLarge:
+                  TextStyle(fontSize: 57, fontWeight: FontWeight.w400),
+              displayMedium:
+                  TextStyle(fontSize: 45, fontWeight: FontWeight.w400),
+              displaySmall:
+                  TextStyle(fontSize: 36, fontWeight: FontWeight.w400),
+              headlineLarge:
+                  TextStyle(fontSize: 32, fontWeight: FontWeight.w400),
+              headlineMedium:
+                  TextStyle(fontSize: 28, fontWeight: FontWeight.w400),
+              headlineSmall:
+                  TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
               titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w400),
               titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               titleSmall: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
@@ -175,29 +180,37 @@ class MyApp extends StatelessWidget {
 
           // Set DocumentListView as the default home route
           initialRoute: DocumentListView.routeName,
-          
+
           // Define a function to handle named routes in order to support
           // Flutter web url navigation and deep linking.
           onGenerateRoute: (RouteSettings routeSettings) {
+            switch (routeSettings.name) {
+              case SettingsView.routeName:
+                return MaterialPageRoute<void>(
+                    settings: routeSettings,
+                    builder: (BuildContext context) =>
+                        SettingsView(controller: settingsController));
+              case DocumentListView.routeName:
+                return MaterialPageRoute<void>(
+                    settings: routeSettings,
+                    builder: (BuildContext context) =>
+                        const DocumentListView());
+              case DocumentDetailView.routeName:
+                return DocumentDetailView.route(
+                    routeSettings); // Use the route method
+              default:
+                return MaterialPageRoute<void>(
+                    settings: routeSettings,
+                    builder: (BuildContext context) =>
+                        const DocumentListView());
+            }
+          },
+
+          // Provide a function to handle unknown routes
+          onUnknownRoute: (RouteSettings routeSettings) {
             return MaterialPageRoute<void>(
               settings: routeSettings,
-              builder: (BuildContext context) {
-                switch (routeSettings.name) {
-                  case SettingsView.routeName:
-                    return SettingsView(controller: settingsController);
-                  case DocumentListView.routeName:
-                    return const DocumentListView();
-                  case DocumentDetailView.routeName:
-                    if (routeSettings.arguments is Document) {
-                      return DocumentDetailView(document: routeSettings.arguments as Document);
-                    } else {
-                      return DocumentDetailView(chapter: routeSettings.arguments as DocumentChapter);
-                    }
-                  default:
-                    // Redirect any unknown routes to the document list
-                    return const DocumentListView();
-                }
-              },
+              builder: (BuildContext context) => const DocumentListView(),
             );
           },
         );

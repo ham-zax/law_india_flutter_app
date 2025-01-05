@@ -70,20 +70,39 @@ class DocumentDetailView extends StatelessWidget {
 
   static const routeName = '/document-detail';
 
-  static Route<dynamic> route(RouteSettings settings) {
+static Route<dynamic> route(RouteSettings settings) {
     final args = settings.arguments;
     return MaterialPageRoute(
       builder: (context) {
+        // Handle Map arguments (from favorites)
+        if (args is Map<String, dynamic>) {
+          return DocumentDetailView(
+            chapter: args['chapter'] as DocumentChapter?,
+            scrollToSectionId: args['scrollToSectionId'] as String?,
+          );
+        }
+        // Handle direct Document navigation
         if (args is Document) {
           return DocumentDetailView(document: args);
-        } else if (args is DocumentChapter) {
+        }
+        // Handle direct Chapter navigation
+        if (args is DocumentChapter) {
           return DocumentDetailView(chapter: args);
         }
-        return DocumentDetailView(); // Fallback for invalid arguments
+        // Handle invalid arguments
+        return Scaffold(
+          appBar: AppBar(
+            leading: BackButton(
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+          body: Center(
+            child: Text('Invalid navigation arguments'),
+          ),
+        );
       },
     );
   }
-
   @override
   Widget build(BuildContext context) {
     final readingSettings = Provider.of<ReadingSettings>(context);

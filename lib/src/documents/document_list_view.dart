@@ -243,12 +243,14 @@ class DocumentListView extends StatelessWidget {
     );
   }
 
-  void _showFavoriteSections(BuildContext context, List<Document> documents) {
+void _showFavoriteSections(BuildContext context, List<Document> documents) {
     final settings = Provider.of<ReadingSettings>(context, listen: false);
     final favoriteSections = documents
         .expand((doc) => doc.chapters)
         .expand((chapter) => chapter.sections
-            .where((section) => settings.isSectionFavorite('${chapter.id}_${section.sectionNumber}')))
+            .where((section) => settings
+                .isSectionFavorite('${chapter.id}_${section.sectionNumber}'))
+            .map((section) => (chapter: chapter, section: section)))
         .toList();
 
     showModalBottomSheet(
@@ -278,21 +280,19 @@ class DocumentListView extends StatelessWidget {
                   child: ListView.builder(
                     itemCount: favoriteSections.length,
                     itemBuilder: (context, index) {
-                      final section = favoriteSections[index];
-                      // Find the chapter this section belongs to
-                      final chapter = documents
-                          .expand((doc) => doc.chapters)
-                          .firstWhere((chapter) => chapter.sections.contains(section));
-                      
+                      final favorite = favoriteSections[index];
                       return Card(
                         margin: EdgeInsets.only(bottom: 12),
                         child: ListTile(
-                          title: Text('Section ${section.sectionNumber} - ${section.sectionTitle}'),
-                          subtitle: Text('Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}'),
+                          title: Text(
+                              'Section ${favorite.section.sectionNumber} - ${favorite.section.sectionTitle}'),
+                          subtitle: Text(
+                              'Chapter ${favorite.chapter.chapterNumber} - ${favorite.chapter.chapterTitle}'),
                           trailing: IconButton(
                             icon: Icon(Icons.favorite, color: Colors.red),
                             onPressed: () {
-                              settings.toggleSectionFavorite('${chapter.id}_${section.sectionNumber}');
+                              settings.toggleSectionFavorite(
+                                  '${favorite.chapter.id}_${favorite.section.sectionNumber}');
                               Navigator.pop(context);
                               _showFavoriteSections(context, documents);
                             },
@@ -302,10 +302,11 @@ class DocumentListView extends StatelessWidget {
                             Navigator.pushNamed(
                               context,
                               DocumentDetailView.routeName,
-                              arguments: DocumentDetailView(
-                                chapter: chapter,
-                                scrollToSectionId: '${chapter.id}_${section.sectionNumber}',
-                              ),
+                              arguments: {
+                                'chapter': favorite.chapter,
+                                'scrollToSectionId':
+                                    '${favorite.chapter.id}_${favorite.section.sectionNumber}',
+                              },
                             );
                           },
                         ),
@@ -319,7 +320,6 @@ class DocumentListView extends StatelessWidget {
       },
     );
   }
-
   Widget _buildDocumentCard({
     required BuildContext context,
     required String title,
