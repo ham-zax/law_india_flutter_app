@@ -11,46 +11,41 @@ class DocumentListView extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Documents'),
       ),
-      body: Column(
-        children: [
-          // Recent Documents Section
-          Padding(
-            padding: const EdgeInsets.all(16.0),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Recent Documents Section (Top 20%)
                 const Text(
                   'Recent Documents',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  height: 160,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: 3,
-                    separatorBuilder: (context, index) => const SizedBox(width: 12),
-                    itemBuilder: (context, index) {
-                      return _buildDocumentCard(
-                        title: 'Document ${index + 1}',
-                        lastAccessed: 'Last accessed 2 days ago',
-                      );
-                    },
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ],
-            ),
-          ),
-          
-          // Categories Filter
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+                const SizedBox(height: 12),
+                Column(
+                  children: List.generate(3, (index) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _buildDocumentCard(
+                      title: 'Document ${index + 1}',
+                      lastAccessed: 'Last accessed 2 days ago',
+                    ),
+                  )),
+                ),
+                const SizedBox(height: 16),
+
+                // Categories Section (Middle 20%)
                 const Text(
                   'Categories',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 SizedBox(
@@ -67,34 +62,42 @@ class DocumentListView extends StatelessWidget {
                         'Corporate',
                         'Tax'
                       ];
-                      return FilterChip(
+                      return ChoiceChip(
                         label: Text(categories[index]),
                         selected: index == 0,
                         onSelected: (selected) {},
+                        labelStyle: TextStyle(
+                          color: index == 0 ? Colors.white : null,
+                        ),
                       );
                     },
                   ),
                 ),
+                const SizedBox(height: 16),
+
+                // All Documents Section (Bottom 60%)
+                const Text(
+                  'All Documents',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Column(
+                  children: List.generate(10, (index) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _buildDocumentCard(
+                      title: 'Document ${index + 1}',
+                      subtitle: 'Corporate Law • 5 Sections',
+                      showChevron: true,
+                    ),
+                  )),
+                ),
               ],
             ),
           ),
-          
-          // All Documents Section
-          Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: 10,
-              separatorBuilder: (context, index) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                return _buildDocumentCard(
-                  title: 'Document ${index + 1}',
-                  subtitle: 'Corporate Law • 5 Sections',
-                  showChevron: true,
-                );
-              },
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -107,10 +110,10 @@ class DocumentListView extends StatelessWidget {
   }) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            const Icon(Icons.article, size: 32),
+            const Icon(Icons.article, size: 24),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -124,25 +127,31 @@ class DocumentListView extends StatelessWidget {
                     ),
                   ),
                   if (lastAccessed != null)
-                    Text(
-                      lastAccessed,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        lastAccessed,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                        ),
                       ),
                     ),
                   if (subtitle != null)
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                        ),
                       ),
                     ),
                 ],
               ),
             ),
-            if (showChevron) const Icon(Icons.chevron_right),
+            if (showChevron) const Icon(Icons.chevron_right, size: 24),
           ],
         ),
       ),
