@@ -11,11 +11,13 @@ class DocumentSection {
 }
 
 class DocumentChapter {
+  final String id;
   final String chapterNumber;
   final String chapterTitle;
   final List<DocumentSection> sections;
 
   DocumentChapter({
+    required this.id,
     required this.chapterNumber,
     required this.chapterTitle,
     required this.sections,

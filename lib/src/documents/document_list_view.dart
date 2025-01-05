@@ -169,6 +169,7 @@ class DocumentListView extends StatelessWidget {
                                           context: context,
                                           title: 'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
                                           subtitle: '${chapter.sections.length} Sections',
+                                          chapter: chapter,
                                         ),
                                       ),
                                     ))
