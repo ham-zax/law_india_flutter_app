@@ -233,7 +233,7 @@ class DocumentDetailView extends StatelessWidget {
   }
 
 
-  final GlobalKey _scrollKey = GlobalKey();
+  final GlobalKey<State<StatefulWidget>> _scrollKey = const GlobalKey<State<StatefulWidget>>();
 
   Widget _buildContent(BuildContext context, ReadingSettings settings) {
     return Stack(
@@ -254,6 +254,7 @@ class DocumentDetailView extends StatelessWidget {
             return true;
           },
           child: CustomScrollView(
+            key: _scrollKey,
             slivers: [
             SliverToBoxAdapter(
               child: Padding(
@@ -373,7 +374,7 @@ class DocumentDetailView extends StatelessWidget {
             ),
           ],
         ),
-        
+      ),
       ],
     );
   }
