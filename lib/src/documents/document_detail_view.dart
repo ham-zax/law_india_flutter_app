@@ -133,11 +133,10 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
       }
     });
   }
-Widget _buildChapterCard({
+  Widget _buildChapterCard({
     required BuildContext context,
-    required String title,
-    String? subtitle,
-    bool isSelected = false,
+    required DocumentChapter chapter,
+    required bool isSelected,
     required VoidCallback onTap,
   }) {
     final theme = Theme.of(context);
@@ -153,28 +152,33 @@ Widget _buildChapterCard({
     return Card(
       elevation: 0,
       color: surfaceColor,
+      margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(4),
       ),
-      margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
         borderRadius: BorderRadius.circular(4),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 24,
-            vertical: 16,
-          ),
+          padding: const EdgeInsets.all(20),
           child: Row(
             children: [
-              const Icon(Icons.article, size: 24),
+              CircleAvatar(
+                backgroundColor: colorScheme.secondaryContainer,
+                child: Text(
+                  chapter.chapterNumber,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: colorScheme.onSecondaryContainer,
+                  ),
+                ),
+              ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      title,
+                      chapter.chapterTitle,
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: isSelected
                             ? colorScheme.onPrimaryContainer
@@ -183,22 +187,22 @@ Widget _buildChapterCard({
                         height: 1.4,
                       ),
                     ),
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        subtitle,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: isSelected
-                              ? colorScheme.onPrimaryContainer.withOpacity(0.8)
-                              : colorScheme.onSurfaceVariant,
-                          height: 1.4,
-                        ),
+                    Text(
+                      '${chapter.sections.length} sections',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: isSelected
+                            ? colorScheme.onPrimaryContainer.withOpacity(0.8)
+                            : colorScheme.onSurfaceVariant,
+                        height: 1.4,
                       ),
-                    ],
+                    ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, size: 24),
+              Icon(
+                Icons.chevron_right,
+                color: colorScheme.onSurfaceVariant,
+              ),
             ],
           ),
         ),
@@ -231,45 +235,89 @@ Widget _buildChapterCard({
         data: theme.copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
           initiallyExpanded: isExpanded,
-          tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+          tilePadding: const EdgeInsets.symmetric(horizontal: 20),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(4),
           ),
-          title: Row(
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.article, size: 24),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  '$chapterNumber - $sectionTitle',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: colorScheme.onSurface,
-                    letterSpacing: 0.15,
-                    height: 1.4,
+              Row(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: colorScheme.secondaryContainer,
+                    child: Text(
+                      chapterNumber,
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: colorScheme.onSecondaryContainer,
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          sectionTitle,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: colorScheme.onSurface,
+                            letterSpacing: 0.15,
+                            height: 1.4,
+                          ),
+                        ),
+                        Text(
+                          'Section $sectionId',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
           children: [
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      FavoriteButton(
-                        sectionId: sectionId,
-                        isFavorited: isFavorited,
+                      IconButton(
+                        icon: Icon(
+                          isFavorited ? Icons.bookmark : Icons.bookmark_outline,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                        onPressed: () {
+                          // Toggle favorite
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.share_outlined,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                        onPressed: () {
+                          // Share functionality
+                        },
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  EnhancedReadingView(
-                    content: content,
-                    settings: settings,
+                  Text(
+                    content,
+                    style: TextStyle(
+                      fontSize: settings.fontSize,
+                      height: settings.lineHeight,
+                      fontFamily: settings.fontFamily,
+                      color: colorScheme.onSurface,
+                    ),
                   ),
                 ],
               ),
@@ -338,7 +386,7 @@ Widget _buildChapterCard({
     );
   }
 
-  Widget _buildContent(BuildContext context, ReadingSettings settings) {
+Widget _buildContent(BuildContext context, ReadingSettings settings) {
     return Stack(
       children: [
         ScrollablePositionedList.builder(
@@ -351,9 +399,7 @@ Widget _buildChapterCard({
               final chapter = widget.arguments.document!.chapters[index];
               return _buildChapterCard(
                 context: context,
-                title:
-                    'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
-                subtitle: null,
+                chapter: chapter,
                 isSelected: false,
                 onTap: () => _navigateToChapter(context, index),
               );
@@ -372,25 +418,52 @@ Widget _buildChapterCard({
                 isFavorited: settings.isSectionFavorite(sectionId),
               );
             }
-            return SizedBox.shrink();
+            return const SizedBox.shrink();
           },
         ),
-        _buildReadingControls(),
+        _buildNavigationControls(),
       ],
     );
   }
+    Widget _buildNavigationControls() {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
-  Widget _buildReadingControls() {
     return Positioned(
       bottom: 16,
+      left: 16,
       right: 16,
-      child: FloatingActionButton(
-        child: Icon(Icons.settings),
-        onPressed: () => _showSettingsBottomSheet(context),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          TextButton.icon(
+            style: TextButton.styleFrom(
+              backgroundColor: colorScheme.surface,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+            ),
+            onPressed: () => _navigateToPreviousChapter(context),
+            icon: Icon(Icons.arrow_back, size: 20),
+            label: Text('Previous'),
+          ),
+          TextButton.icon(
+            style: TextButton.styleFrom(
+              backgroundColor: colorScheme.surface,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+            ),
+            onPressed: () => _navigateToNextChapter(context),
+            icon: Icon(Icons.arrow_forward, size: 20),
+            label: Text('Next'),
+          ),
+        ],
       ),
     );
   }
-
   void _showSettingsBottomSheet(BuildContext context) {
     final settings = Provider.of<ReadingSettings>(context, listen: false);
     showModalBottomSheet(
