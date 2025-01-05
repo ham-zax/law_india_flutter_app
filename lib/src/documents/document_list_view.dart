@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../widgets/favorite_button.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'document_detail_view.dart';
 import '../settings/settings_view.dart';
@@ -163,72 +162,15 @@ class DocumentListView extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
 
-                      // Favorite Sections
-                      Text(
-                        'Favorite Sections',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                      const SizedBox(height: 12),
-                      Consumer<ReadingSettings>(
-                        builder: (context, settings, child) {
-                          final favoriteSections = state.documents
-                              .expand((doc) => doc.chapters)
-                              .expand((chapter) => chapter.sections)
-                              .where((section) => settings.isSectionFavorite('${section.sectionNumber}'))
-                              .toList();
-                          
-                          if (favoriteSections.isEmpty) {
-                            return Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Text(
-                                'No favorite sections yet',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                            );
-                          }
-
-                          return Column(
-                            children: favoriteSections
-                                .map((section) {
-                                  // Find the chapter this section belongs to
-                                  final chapter = state.documents
-                                      .expand((doc) => doc.chapters)
-                                      .firstWhere((chapter) => chapter.sections.contains(section));
-                                  
-                                  return Padding(
-                                    padding: const EdgeInsets.only(bottom: 12),
-                                    child: InkWell(
-                                      onTap: () {
-                                        Navigator.pushNamed(
-                                          context,
-                                          DocumentDetailView.routeName,
-                                          arguments: chapter,
-                                        );
-                                      },
-                                      child: Card(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(16),
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
-                                                style: Theme.of(context).textTheme.titleMedium,
-                                              ),
-                                              Text(
-                                                'Section ${section.sectionNumber} - ${section.sectionTitle}',
-                                                style: Theme.of(context).textTheme.bodyMedium,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                })
-                                .toList(),
-                          );
-                        },
+                      // Favorite Button
+                      Center(
+                        child: FloatingActionButton.extended(
+                          icon: Icon(Icons.favorite),
+                          label: Text('Favorites'),
+                          onPressed: () {
+                            _showFavoriteSections(context, state.documents);
+                          },
+                        ),
                       ),
                       const SizedBox(height: 16),
                     ],
@@ -297,6 +239,80 @@ class DocumentListView extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _showFavoriteSections(BuildContext context, List<Document> documents) {
+    final settings = Provider.of<ReadingSettings>(context, listen: false);
+    final favoriteSections = documents
+        .expand((doc) => doc.chapters)
+        .expand((chapter) => chapter.sections
+            .where((section) => settings.isSectionFavorite('${chapter.id}_${section.sectionNumber}')))
+        .toList();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return Container(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Favorite Sections',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 16),
+              if (favoriteSections.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                    'No favorite sections yet',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                )
+              else
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: favoriteSections.length,
+                    itemBuilder: (context, index) {
+                      final section = favoriteSections[index];
+                      // Find the chapter this section belongs to
+                      final chapter = documents
+                          .expand((doc) => doc.chapters)
+                          .firstWhere((chapter) => chapter.sections.contains(section));
+                      
+                      return Card(
+                        margin: EdgeInsets.only(bottom: 12),
+                        child: ListTile(
+                          title: Text('Section ${section.sectionNumber} - ${section.sectionTitle}'),
+                          subtitle: Text('Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}'),
+                          trailing: IconButton(
+                            icon: Icon(Icons.favorite, color: Colors.red),
+                            onPressed: () {
+                              settings.toggleSectionFavorite('${chapter.id}_${section.sectionNumber}');
+                              Navigator.pop(context);
+                              _showFavoriteSections(context, documents);
+                            },
+                          ),
+                          onTap: () {
+                            Navigator.pop(context);
+                            Navigator.pushNamed(
+                              context,
+                              DocumentDetailView.routeName,
+                              arguments: chapter,
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 

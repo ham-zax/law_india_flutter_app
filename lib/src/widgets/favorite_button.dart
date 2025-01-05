@@ -4,7 +4,6 @@ import '../settings/reading_settings.dart';
 
 class FavoriteButton extends StatefulWidget {
   final bool isFavorited;
-  final int favoriteCount;
   final Function(bool)? onChanged;
 
   final String sectionId;
@@ -44,18 +43,12 @@ class _FavoriteButtonState extends State<FavoriteButton> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        IconButton(
-          icon: Icon(
-            _isFavorited ? Icons.favorite : Icons.favorite_border,
-            color: _isFavorited ? Colors.red : null,
-          ),
-          onPressed: _toggleFavorite,
-        ),
-        Text('$_favoriteCount'),
-      ],
+    return IconButton(
+      icon: Icon(
+        _isFavorited ? Icons.favorite : Icons.favorite_border,
+        color: _isFavorited ? Colors.red : null,
+      ),
+      onPressed: _toggleFavorite,
     );
   }
 }
