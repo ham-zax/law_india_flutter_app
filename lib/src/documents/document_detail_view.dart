@@ -134,181 +134,271 @@ class DocumentDetailView extends StatelessWidget {
         title: Text(document != null 
             ? document!.title 
             : 'Chapter ${chapter!.chapterNumber} - ${chapter!.chapterTitle}'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.format_size),
+            onPressed: () => _showQuickSettings(context, readingSettings),
+          ),
+        ],
       ),
-      body: document != null
-          ? ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: document!.chapters.length,
-              itemBuilder: (context, index) {
-                final chapter = document!.chapters[index];
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.pushNamed(
-                        context,
-                        DocumentDetailView.routeName,
-                        arguments: chapter,
-                      );
-                    },
-                    child: Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.article, size: 24),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Text(
-                                'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                            const Icon(Icons.chevron_right, size: 24),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: chapter!.sections.length,
-              itemBuilder: (context, index) {
-                final section = chapter!.sections[index];
-          return Card(
-            margin: EdgeInsets.only(bottom: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Theme(
-              data: Theme.of(context).copyWith(
-                dividerColor: Colors.transparent,
-              ),
-              child: ExpansionTile(
-                title: Text(
-                  '${chapter!.chapterNumber} - ${section.sectionTitle}',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    fontSize: readingSettings.fontSize,
-                    fontFamily: readingSettings.fontFamily,
-                  ),
-                ),
-                children: [
-                  Padding(
-                    padding: EdgeInsets.all(readingSettings.margins),
-                    child: Text(
-                      section.content,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontSize: readingSettings.fontSize,
-                        height: readingSettings.lineHeight,
-                        fontFamily: readingSettings.fontFamily,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
+      body: GestureDetector(
+        onHorizontalDragEnd: (details) {
+          if (details.primaryVelocity! > 0) {
+            _navigateToPreviousChapter(context);
+          } else if (details.primaryVelocity! < 0) {
+            _navigateToNextChapter(context);
+          }
         },
+        child: _buildContent(context, readingSettings),
       ),
     );
+  }
+
+  Widget _buildQuickSettingsPanel(BuildContext context, ReadingSettings settings) {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 200),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 8,
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: Icon(Icons.text_decrease),
+            onPressed: () => settings.updateFontSize(settings.fontSize - 1),
+          ),
+          Text('${settings.fontSize.toInt()}'),
+          IconButton(
+            icon: Icon(Icons.text_increase),
+            onPressed: () => settings.updateFontSize(settings.fontSize + 1),
+          ),
+          VerticalDivider(),
+          IconButton(
+            icon: Icon(Icons.height),
+            onPressed: () => settings.updateLineHeight(settings.lineHeight - 0.1),
+          ),
+          Text('${settings.lineHeight.toStringAsFixed(1)}'),
+          IconButton(
+            icon: Icon(Icons.height),
+            onPressed: () => settings.updateLineHeight(settings.lineHeight + 0.1),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContent(BuildContext context, ReadingSettings settings) {
     return Stack(
       children: [
-        Scaffold(
-          appBar: AppBar(
-            title: Text(document != null 
-                ? document!.title 
-                : 'Chapter ${chapter!.chapterNumber} - ${chapter!.chapterTitle}'),
-          ),
-          body: document != null
-              ? ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: document!.chapters.length,
-                  itemBuilder: (context, index) {
-                    final chapter = document!.chapters[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            DocumentDetailView.routeName,
-                            arguments: chapter,
-                          );
-                        },
-                        child: Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.article, size: 24),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Text(
-                                    'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
-                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                    ),
+        CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.all(settings.margins),
+                child: Column(
+                  children: [
+                    LinearProgressIndicator(
+                      value: 0.3, // TODO: Calculate actual progress
+                    ),
+                    SizedBox(height: 16),
+                    if (document != null)
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: document!.chapters.length,
+                        itemBuilder: (context, index) {
+                          final chapter = document!.chapters[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.pushNamed(
+                                  context,
+                                  DocumentDetailView.routeName,
+                                  arguments: chapter,
+                                );
+                              },
+                              child: Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.article, size: 24),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Text(
+                                          'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
+                                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                      const Icon(Icons.chevron_right, size: 24),
+                                    ],
                                   ),
-                                ),
-                                const Icon(Icons.chevron_right, size: 24),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: chapter!.sections.length,
-                  itemBuilder: (context, index) {
-                    final section = chapter!.sections[index];
-                    return Card(
-                      margin: EdgeInsets.only(bottom: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Theme(
-                        data: Theme.of(context).copyWith(
-                          dividerColor: Colors.transparent,
-                        ),
-                        child: ExpansionTile(
-                          title: Text(
-                            '${chapter!.chapterNumber} - ${section.sectionTitle}',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              fontSize: readingSettings.fontSize,
-                              fontFamily: readingSettings.fontFamily,
-                            ),
-                          ),
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.all(readingSettings.margins),
-                              child: Text(
-                                section.content,
-                                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                  fontSize: readingSettings.fontSize,
-                                  height: readingSettings.lineHeight,
-                                  fontFamily: readingSettings.fontFamily,
                                 ),
                               ),
                             ),
-                          ],
-                        ),
+                          );
+                        },
+                      )
+                    else
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: chapter!.sections.length,
+                        itemBuilder: (context, index) {
+                          final section = chapter!.sections[index];
+                          return Card(
+                            margin: EdgeInsets.only(bottom: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Theme(
+                              data: Theme.of(context).copyWith(
+                                dividerColor: Colors.transparent,
+                              ),
+                              child: ExpansionTile(
+                                title: Text(
+                                  '${chapter!.chapterNumber} - ${section.sectionTitle}',
+                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: settings.fontSize,
+                                    fontFamily: settings.fontFamily,
+                                  ),
+                                ),
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.all(settings.margins),
+                                    child: SelectableText(
+                                      section.content,
+                                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                        fontSize: settings.fontSize,
+                                        height: settings.lineHeight,
+                                        fontFamily: settings.fontFamily,
+                                      ),
+                                      selectionControls: MaterialTextSelectionControls(),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
+                  ],
                 ),
+              ),
+            ),
+          ],
         ),
-        buildReadingControls(),
+        
+        Positioned(
+          bottom: 16,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: _buildQuickSettingsPanel(context, settings),
+          ),
+        ),
       ],
     );
+  }
+
+  void _showQuickSettings(BuildContext context, ReadingSettings settings) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Reading Settings', style: Theme.of(context).textTheme.titleLarge),
+              Divider(),
+              ListTile(
+                title: Text('Font Size'),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.text_decrease),
+                      onPressed: () {
+                        settings.updateFontSize(settings.fontSize - 1);
+                      },
+                    ),
+                    Text('${settings.fontSize.toInt()}'),
+                    IconButton(
+                      icon: Icon(Icons.text_increase),
+                      onPressed: () {
+                        settings.updateFontSize(settings.fontSize + 1);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              ListTile(
+                title: Text('Line Height'),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.height),
+                      onPressed: () {
+                        settings.updateLineHeight(settings.lineHeight - 0.1);
+                      },
+                    ),
+                    Text('${settings.lineHeight.toStringAsFixed(1)}'),
+                    IconButton(
+                      icon: Icon(Icons.height),
+                      onPressed: () {
+                        settings.updateLineHeight(settings.lineHeight + 0.1);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              ListTile(
+                title: Text('Margins'),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.format_indent_decrease),
+                      onPressed: () {
+                        settings.updateMargins(settings.margins - 4);
+                      },
+                    ),
+                    Text('${settings.margins.toInt()}'),
+                    IconButton(
+                      icon: Icon(Icons.format_indent_increase),
+                      onPressed: () {
+                        settings.updateMargins(settings.margins + 4);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _navigateToPreviousChapter(BuildContext context) {
+    // TODO: Implement chapter navigation
+  }
+
+  void _navigateToNextChapter(BuildContext context) {
+    // TODO: Implement chapter navigation
   }
 }
