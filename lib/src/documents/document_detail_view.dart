@@ -30,7 +30,7 @@ class DocumentDetailView extends StatelessWidget {
               ),
               child: ExpansionTile(
                 title: Text(
-                  '${section.chapterNumber} - ${section.sectionTitle}',
+                  '${chapter.chapterNumber} - ${section.sectionTitle}',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,

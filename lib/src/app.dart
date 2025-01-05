@@ -175,7 +175,7 @@ class MyApp extends StatelessWidget {
                     return const DocumentListView();
                   case DocumentDetailView.routeName:
                     final document = routeSettings.arguments as Document;
-                    return DocumentDetailView(document: document);
+                    return DocumentDetailView(chapter: document);
                   default:
                     return const DocumentListView();
                 }

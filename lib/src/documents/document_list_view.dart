@@ -129,7 +129,7 @@ class DocumentListView extends StatelessWidget {
                                     child: _buildDocumentCard(
                                       context: context,
                                       title: doc.title,
-                                      subtitle: '${doc.category} • ${doc.sections.length} Sections',
+                                      subtitle: '${doc.category} • ${doc.chapters.length} Chapters',
                                       showChevron: true,
                                     ),
                                   ),
