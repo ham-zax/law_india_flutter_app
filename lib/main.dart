@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:animations/animations.dart';
 
 import 'src/app.dart';
 import 'src/settings/settings_controller.dart';
@@ -14,19 +15,38 @@ void main() async {
   final documentRepository = LocalDocumentRepository();
 
   runApp(
-    MultiRepositoryProvider(
-      providers: [
-        RepositoryProvider<DocumentRepository>.value(value: documentRepository),
-      ],
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            create: (context) => DocumentBloc(
-              repository: RepositoryProvider.of<DocumentRepository>(context),
-            )..add(LoadDocuments()),
+    MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Animation Test')),
+        body: Center(
+          child: OpenContainer(
+            transitionDuration: const Duration(seconds: 1),
+            closedBuilder: (_, openContainer) {
+              return GestureDetector(
+                onTap: openContainer,
+                child: Container(
+                  width: 200,
+                  height: 100,
+                  color: Colors.blue,
+                  child: const Center(
+                    child: Text(
+                      'Tap Me',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              );
+            },
+            openBuilder: (_, __) {
+              return Scaffold(
+                appBar: AppBar(title: const Text('Expanded View')),
+                body: const Center(
+                  child: Text('This is the expanded view!'),
+                ),
+              );
+            },
           ),
-        ],
-        child: MyApp(settingsController: settingsController),
+        ),
       ),
     ),
   );
