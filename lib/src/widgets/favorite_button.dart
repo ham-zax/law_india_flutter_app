@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../settings/reading_settings.dart';
 
 class FavoriteButton extends StatefulWidget {
   final bool isFavorited;
