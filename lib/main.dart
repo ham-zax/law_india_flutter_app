@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:animations/animations.dart';
+import 'package:provider/provider.dart';
 
 import 'src/app.dart';
 import 'src/settings/settings_controller.dart';
 import 'src/settings/settings_service.dart';
+import 'src/settings/reading_settings.dart';
 import 'src/data/repositories/document_repository.dart';
 import 'src/bloc/document/document_bloc.dart';
 
@@ -15,20 +17,27 @@ void main() async {
   final documentRepository = LocalDocumentRepository();
 
   runApp(
-    MultiRepositoryProvider(
+    MultiProvider(
       providers: [
-        RepositoryProvider<DocumentRepository>.value(value: documentRepository),
-      ],
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            create: (context) => DocumentBloc(
-              repository: RepositoryProvider.of<DocumentRepository>(context),
-            )..add(LoadDocuments()),
+        ChangeNotifierProvider(
+          create: (_) => ReadingSettings(),
+        ),
+        MultiRepositoryProvider(
+          providers: [
+            RepositoryProvider<DocumentRepository>.value(value: documentRepository),
+          ],
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (context) => DocumentBloc(
+                  repository: RepositoryProvider.of<DocumentRepository>(context),
+                )..add(LoadDocuments()),
+              ),
+            ],
+            child: MyApp(settingsController: settingsController),
           ),
-        ],
-        child: MyApp(settingsController: settingsController),
-      ),
+        ),
+      ],
     ),
   );
 }

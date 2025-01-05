@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import '../data/models/document_model.dart';
 import '../bloc/document/document_bloc.dart';
+import '../settings/reading_settings.dart';
 
 class DocumentDetailView extends StatelessWidget {
   final Document? document;
@@ -17,6 +19,110 @@ class DocumentDetailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final readingSettings = Provider.of<ReadingSettings>(context);
+    
+    // Build reading controls overlay
+    Widget buildReadingControls() {
+      return Positioned(
+        bottom: 16,
+        right: 16,
+        child: FloatingActionButton(
+          child: Icon(Icons.settings),
+          onPressed: () {
+            showModalBottomSheet(
+              context: context,
+              builder: (context) {
+                return Container(
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Reading Settings', style: Theme.of(context).textTheme.titleLarge),
+                      Divider(),
+                      ListTile(
+                        title: Text('Font Size'),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.text_decrease),
+                              onPressed: () {
+                                readingSettings.updateFontSize(
+                                  readingSettings.fontSize - 1.0
+                                );
+                              },
+                            ),
+                            Text('${readingSettings.fontSize.toInt()}'),
+                            IconButton(
+                              icon: Icon(Icons.text_increase),
+                              onPressed: () {
+                                readingSettings.updateFontSize(
+                                  readingSettings.fontSize + 1.0
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      ListTile(
+                        title: Text('Line Height'),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.height),
+                              onPressed: () {
+                                readingSettings.updateLineHeight(
+                                  readingSettings.lineHeight - 0.1
+                                );
+                              },
+                            ),
+                            Text('${readingSettings.lineHeight.toStringAsFixed(1)}'),
+                            IconButton(
+                              icon: Icon(Icons.height),
+                              onPressed: () {
+                                readingSettings.updateLineHeight(
+                                  readingSettings.lineHeight + 0.1
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      ListTile(
+                        title: Text('Margins'),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.format_indent_decrease),
+                              onPressed: () {
+                                readingSettings.updateMargins(
+                                  readingSettings.margins - 4.0
+                                );
+                              },
+                            ),
+                            Text('${readingSettings.margins.toInt()}'),
+                            IconButton(
+                              icon: Icon(Icons.format_indent_increase),
+                              onPressed: () {
+                                readingSettings.updateMargins(
+                                  readingSettings.margins + 4.0
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      );
+    }
     // Notify bloc that this chapter was viewed
     if (chapter != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -75,7 +181,7 @@ class DocumentDetailView extends StatelessWidget {
               itemBuilder: (context, index) {
                 final section = chapter!.sections[index];
           return Card(
-            margin: const EdgeInsets.only(bottom: 12),
+            margin: EdgeInsets.only(bottom: 12),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -88,15 +194,19 @@ class DocumentDetailView extends StatelessWidget {
                   '${chapter!.chapterNumber} - ${section.sectionTitle}',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w600,
+                    fontSize: readingSettings.fontSize,
+                    fontFamily: readingSettings.fontFamily,
                   ),
                 ),
                 children: [
                   Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(readingSettings.margins),
                     child: Text(
                       section.content,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        height: 1.6,
+                        fontSize: readingSettings.fontSize,
+                        height: readingSettings.lineHeight,
+                        fontFamily: readingSettings.fontFamily,
                       ),
                     ),
                   ),
@@ -106,6 +216,12 @@ class DocumentDetailView extends StatelessWidget {
           );
         },
       ),
+    );
+    return Stack(
+      children: [
+        scaffold,
+        buildReadingControls(),
+      ],
     );
   }
 }
