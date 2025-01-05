@@ -133,7 +133,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
       }
     });
   }
-  Widget _buildChapterCard({
+Widget _buildChapterCard({
     required BuildContext context,
     required DocumentChapter chapter,
     required bool isSelected,
@@ -142,6 +142,15 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    // Helper function to clean the title
+     String cleanTitle(String fullTitle) {
+      // Remove everything up to and including the first dash/hyphen and trim
+      final parts = fullTitle.split('-');
+      if (parts.length > 1) {
+        return parts.sublist(1).join('-').trim();
+      }
+      return fullTitle;
+    }
     final Color surfaceColor = isSelected
         ? Color.alphaBlend(
             colorScheme.primary.withOpacity(0.08),
@@ -178,7 +187,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      chapter.chapterTitle,
+                      cleanTitle(chapter.chapterTitle), // Clean the title here
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: isSelected
                             ? colorScheme.onPrimaryContainer
@@ -209,8 +218,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
       ),
     );
   }
-
-  Widget _buildSectionCard({
+Widget _buildSectionCard({
     required BuildContext context,
     Key? key,
     required String chapterNumber,
@@ -223,7 +231,11 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-
+    String cleanTitle(String title) {
+      // Remove section number and any separator (like ". " or " - ") from start of title
+      final regex = RegExp(r'^\d+[\.\s-]*\s*');
+      return title.replaceFirst(regex, '');
+    }
     return Card(
       key: key,
       elevation: 0,
@@ -247,7 +259,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
                   CircleAvatar(
                     backgroundColor: colorScheme.secondaryContainer,
                     child: Text(
-                      chapterNumber,
+                      sectionId.split('_').last, // Use section number instead
                       style: theme.textTheme.labelMedium?.copyWith(
                         color: colorScheme.onSecondaryContainer,
                       ),
@@ -259,17 +271,10 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          sectionTitle,
+                          cleanTitle(sectionTitle), // Clean the title here,
                           style: theme.textTheme.titleMedium?.copyWith(
                             color: colorScheme.onSurface,
                             letterSpacing: 0.15,
-                            height: 1.4,
-                          ),
-                        ),
-                        Text(
-                          'Section $sectionId',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
                             height: 1.4,
                           ),
                         ),
