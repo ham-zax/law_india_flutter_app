@@ -64,8 +64,7 @@ class DocumentListView extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       Column(
-                        children: state.recentDocuments
-                            .expand((doc) => doc.chapters.take(3)) // Show first 3 chapters
+                        children: state.recentChapters
                             .map((chapter) => Padding(
                                   padding: const EdgeInsets.only(bottom: 12),
                                   child: InkWell(

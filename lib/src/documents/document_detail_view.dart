@@ -15,6 +15,12 @@ class DocumentDetailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Notify bloc that this chapter was viewed
+    if (chapter != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<DocumentBloc>().add(ChapterViewed(chapter!));
+      });
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text(document != null 

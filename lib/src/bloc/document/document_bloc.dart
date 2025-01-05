@@ -14,6 +14,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     on<SearchDocuments>(_onSearchDocuments);
     on<UpdateDocument>(_onUpdateDocument);
     on<ChangeCategory>(_onChangeCategory);
+    on<ChapterViewed>(_onChapterViewed);
   }
 
   Future<void> _onLoadDocuments(
@@ -78,6 +79,30 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       } catch (e) {
         emit(DocumentError(message: e.toString()));
       }
+    }
+  }
+
+  void _onChapterViewed(
+    ChapterViewed event,
+    Emitter<DocumentState> emit,
+  ) {
+    if (state is DocumentLoaded) {
+      final currentState = state as DocumentLoaded;
+      
+      // Remove if already exists to avoid duplicates
+      final updatedChapters = currentState.recentChapters
+        .where((c) => c.chapterNumber != event.chapter.chapterNumber)
+        .toList();
+      
+      // Add to beginning of list
+      updatedChapters.insert(0, event.chapter);
+      
+      // Keep only last 3 chapters
+      final recentChapters = updatedChapters.take(3).toList();
+      
+      emit(currentState.copyWith(
+        recentChapters: recentChapters,
+      ));
     }
   }
 }
