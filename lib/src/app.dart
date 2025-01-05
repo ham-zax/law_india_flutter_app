@@ -133,10 +133,6 @@ class MyApp extends StatelessWidget {
                 },
               ),
             ),
-            colorScheme: ColorScheme.dark(
-              primary: Colors.blue.shade300,
-              secondary: Colors.blue.shade200,
-            ),
             cardTheme: CardTheme(
               elevation: 0,
               shape: RoundedRectangleBorder(
