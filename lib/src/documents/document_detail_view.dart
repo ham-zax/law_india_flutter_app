@@ -312,52 +312,16 @@ final GlobalKey<State<StatefulWidget>> _scrollKey =
                         itemBuilder: (context, index) {
                           final section = chapter!.sections[index];
                           final sectionId = '${chapter!.id}_${section.sectionNumber}';
-                          return Card(
+                          return _buildSectionCard(
+                            context: context,
                             key: scrollToSectionId == sectionId ? _scrollKey : null,
-                            margin: EdgeInsets.only(bottom: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Theme(
-                              data: Theme.of(context).copyWith(
-                                dividerColor: Colors.transparent,
-                              ),
-                              child: ExpansionTile(
-                                initiallyExpanded: scrollToSectionId == sectionId,
-                                title: Text(
-                                  '${chapter!.chapterNumber} - ${section.sectionTitle}',
-                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: settings.fontSize,
-                                    fontFamily: settings.fontFamily,
-                                  ),
-                                ),
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsets.all(settings.margins),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          children: [
-                                            if (chapter != null)
-                                              FavoriteButton(
-                                                sectionId: '${chapter!.id}_${section.sectionNumber}',
-                                                isFavorited: settings.isSectionFavorite('${chapter!.id}_${section.sectionNumber}'),
-                                              ),
-                                          ],
-                                        ),
-                                        EnhancedReadingView(
-                                          content: section.content,
-                                          settings: settings,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            chapterNumber: chapter!.chapterNumber,
+                            sectionTitle: section.sectionTitle,
+                            isExpanded: scrollToSectionId == sectionId,
+                            content: section.content,
+                            settings: settings,
+                            sectionId: sectionId,
+                            isFavorited: settings.isSectionFavorite(sectionId),
                           );
                         },
                       ),
@@ -553,6 +517,80 @@ final GlobalKey<State<StatefulWidget>> _scrollKey =
               const Icon(Icons.chevron_right, size: 24),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionCard({
+    required BuildContext context,
+    Key? key,
+    required String chapterNumber,
+    required String sectionTitle,
+    required bool isExpanded,
+    required String content,
+    required ReadingSettings settings,
+    required String sectionId,
+    required bool isFavorited,
+  }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Card(
+      key: key,
+      elevation: 0,
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Theme(
+        data: theme.copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          initiallyExpanded: isExpanded,
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4),
+          ),
+          title: Row(
+            children: [
+              const Icon(Icons.article, size: 24),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  '$chapterNumber - $sectionTitle',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: colorScheme.onSurface,
+                    letterSpacing: 0.15,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      FavoriteButton(
+                        sectionId: sectionId,
+                        isFavorited: isFavorited,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  EnhancedReadingView(
+                    content: content,
+                    settings: settings,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
