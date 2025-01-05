@@ -143,34 +143,38 @@ class DocumentDetailView extends StatelessWidget {
       ),
       body: GestureDetector(
         onHorizontalDragEnd: (details) {
-          if (details.primaryVelocity! > 0) {
-            _navigateToPreviousChapter(context);
-          } else if (details.primaryVelocity! < 0) {
-            _navigateToNextChapter(context);
+          if (details.primaryVelocity != null) {
+            if (details.primaryVelocity! > 0) {
+              _navigateToPreviousChapter(context);
+            } else if (details.primaryVelocity! < 0) {
+              _navigateToNextChapter(context);
+            }
           }
         },
         onHorizontalDragUpdate: (details) {
-          // Add visual feedback during swipe
-          if (details.primaryDelta! > 0) {
-            // Swiping right
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Previous chapter'),
-                duration: Duration(milliseconds: 100),
-                behavior: SnackBarBehavior.floating,
-                margin: EdgeInsets.only(bottom: 16, left: 16, right: 16),
-              ),
-            );
-          } else if (details.primaryDelta! < 0) {
-            // Swiping left
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Next chapter'),
-                duration: Duration(milliseconds: 100),
-                behavior: SnackBarBehavior.floating,
-                margin: EdgeInsets.only(bottom: 16, left: 16, right: 16),
-              ),
-            );
+          if (details.primaryDelta != null) {
+            // Add visual feedback during swipe
+            if (details.primaryDelta! > 0) {
+              // Swiping right
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Previous chapter'),
+                  duration: Duration(milliseconds: 100),
+                  behavior: SnackBarBehavior.floating,
+                  margin: EdgeInsets.only(bottom: 16, left: 16, right: 16),
+                ),
+              );
+            } else if (details.primaryDelta! < 0) {
+              // Swiping left
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Next chapter'),
+                  duration: Duration(milliseconds: 100),
+                  behavior: SnackBarBehavior.floating,
+                  margin: EdgeInsets.only(bottom: 16, left: 16, right: 16),
+                ),
+              );
+            }
           }
         },
         child: _buildContent(context, readingSettings),
