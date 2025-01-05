@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'document_detail_view.dart';
 
 import '../bloc/document/document_bloc.dart';
 
