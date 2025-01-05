@@ -58,23 +58,55 @@ class EnhancedReadingView extends StatelessWidget {
 
 }
 
-class DocumentDetailView extends StatelessWidget {
+class DocumentDetailView extends StatefulWidget {
   static const routeName = '/document-detail';
 
   final DocumentDetailArguments arguments;
 
-  final ItemScrollController _scrollController = ItemScrollController();
-  final ItemPositionsListener _positionsListener = ItemPositionsListener.create();
+  final DocumentDetailArguments arguments;
 
-  DocumentDetailView({
+  const DocumentDetailView({
     super.key,
     required this.arguments,
   });
 
+  @override
+  State<DocumentDetailView> createState() => _DocumentDetailViewState();
+}
+
+class _DocumentDetailViewState extends State<DocumentDetailView> {
+  late final ItemScrollController _scrollController;
+  late final ItemPositionsListener _positionsListener;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ItemScrollController();
+    _positionsListener = ItemPositionsListener.create();
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.scrollToSectionId != null) {
+        _scrollToSection(widget.scrollToSectionId!);
+      }
+      _handleScrollPositionChange();
+    });
+  }
+
+  void _handleScrollPositionChange() {
+    _positionsListener.itemPositions.addListener(() {
+      final positions = _positionsListener.itemPositions.value;
+      if (positions.isNotEmpty) {
+        // Store the first visible item index for position restoration
+        final firstIndex = positions.first.index;
+        // Could save this to your state management solution
+      }
+    });
+  }
+
   // Add getters to fix undefined properties
-  Document? get document => arguments.document;
-  DocumentChapter? get chapter => arguments.chapter;
-  String? get scrollToSectionId => arguments.scrollToSectionId;
+  Document? get document => widget.arguments.document;
+  DocumentChapter? get chapter => widget.arguments.chapter;
+  String? get scrollToSectionId => widget.arguments.scrollToSectionId;
 
   static Route<dynamic> route(RouteSettings settings) {
     final args = settings.arguments;
@@ -325,12 +357,18 @@ class DocumentDetailView extends StatelessWidget {
   }
 
   void _navigateToChapter(BuildContext context, int index) {
-    final chapter = arguments.document!.chapters[index];
+    final chapter = widget.arguments.document!.chapters[index];
     Navigator.pushReplacementNamed(
       context,
       DocumentDetailView.routeName,
-      arguments: DocumentDetailArguments(chapter: chapter),
-    );
+      arguments: DocumentDetailArguments(
+        chapter: chapter,
+        scrollToSectionId: null, // Reset scroll position for new chapter
+      ),
+    ).then((_) {
+      // Restore scroll position if needed
+      _scrollController.jumpTo(index: 0);
+    });
   }
 
   void _showQuickSettings(BuildContext context, ReadingSettings settings) {
