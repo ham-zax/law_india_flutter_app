@@ -86,16 +86,19 @@ class MyApp extends StatelessWidget {
               selectedColor: Colors.blue.shade800,
               secondarySelectedColor: Colors.blue.shade800,
               disabledColor: Colors.grey.shade300,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              labelPadding: const EdgeInsets.symmetric(horizontal: 4),
               labelStyle: TextStyle(
                 color: Colors.black87,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
+                height: 1.2,
               ),
               secondaryLabelStyle: const TextStyle(
                 color: Colors.white,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
+                height: 1.2,
               ),
               backgroundColor: Colors.grey.shade200,
               shape: RoundedRectangleBorder(
@@ -103,6 +106,7 @@ class MyApp extends StatelessWidget {
                 side: BorderSide.none,
               ),
               checkmarkColor: Colors.transparent,
+              visualDensity: VisualDensity.compact,
             ),
           ),
           darkTheme: ThemeData.dark().copyWith(
@@ -125,16 +129,19 @@ class MyApp extends StatelessWidget {
               selectedColor: Colors.blue.shade300,
               secondarySelectedColor: Colors.blue.shade300,
               disabledColor: Colors.grey.shade700,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              labelPadding: const EdgeInsets.symmetric(horizontal: 4),
               labelStyle: TextStyle(
                 color: Colors.white,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
+                height: 1.2,
               ),
               secondaryLabelStyle: const TextStyle(
                 color: Colors.black87,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
+                height: 1.2,
               ),
               backgroundColor: Colors.grey.shade800,
               shape: RoundedRectangleBorder(
@@ -142,6 +149,7 @@ class MyApp extends StatelessWidget {
                 side: BorderSide.none,
               ),
               checkmarkColor: Colors.transparent,
+              visualDensity: VisualDensity.compact,
             ),
           ),
           themeMode: settingsController.themeMode,
