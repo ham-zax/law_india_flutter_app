@@ -21,7 +21,7 @@ class EnhancedReadingView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: settings.margins,
@@ -55,14 +55,10 @@ class EnhancedReadingView extends StatelessWidget {
       ),
     );
   }
-
 }
 
 class DocumentDetailView extends StatefulWidget {
   static const routeName = '/document-detail';
-
-  final DocumentDetailArguments arguments;
-
   final DocumentDetailArguments arguments;
 
   const DocumentDetailView({
@@ -70,44 +66,7 @@ class DocumentDetailView extends StatefulWidget {
     required this.arguments,
   });
 
-  @override
-  State<DocumentDetailView> createState() => _DocumentDetailViewState();
-}
-
-class _DocumentDetailViewState extends State<DocumentDetailView> {
-  late final ItemScrollController _scrollController;
-  late final ItemPositionsListener _positionsListener;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController = ItemScrollController();
-    _positionsListener = ItemPositionsListener.create();
-    
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.scrollToSectionId != null) {
-        _scrollToSection(widget.scrollToSectionId!);
-      }
-      _handleScrollPositionChange();
-    });
-  }
-
-  void _handleScrollPositionChange() {
-    _positionsListener.itemPositions.addListener(() {
-      final positions = _positionsListener.itemPositions.value;
-      if (positions.isNotEmpty) {
-        // Store the first visible item index for position restoration
-        final firstIndex = positions.first.index;
-        // Could save this to your state management solution
-      }
-    });
-  }
-
-  // Add getters to fix undefined properties
-  Document? get document => widget.arguments.document;
-  DocumentChapter? get chapter => widget.arguments.chapter;
-  String? get scrollToSectionId => widget.arguments.scrollToSectionId;
-
+  // Add back the static route method
   static Route<dynamic> route(RouteSettings settings) {
     final args = settings.arguments;
     DocumentDetailArguments arguments;
@@ -129,362 +88,52 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
       builder: (context) => DocumentDetailView(arguments: arguments),
     );
   }
+
   @override
-  Widget build(BuildContext context) {
-    final readingSettings = Provider.of<ReadingSettings>(context);
-    
-    // Ensure we have either document or chapter
-    if (arguments.document == null && arguments.chapter == null) {
-      return Scaffold(
-        appBar: AppBar(),
-        body: Center(child: Text('No document or chapter selected')),
-      );
-    }
-    
-    // Build reading controls overlay
-    Widget buildReadingControls() {
-      return Positioned(
-        bottom: 16,
-        right: 16,
-        child: FloatingActionButton(
-          child: Icon(Icons.settings),
-          onPressed: () {
-            showModalBottomSheet(
-              context: context,
-              builder: (context) {
-                return Container(
-                  padding: EdgeInsets.all(16),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('Reading Settings', style: Theme.of(context).textTheme.titleLarge),
-                      Divider(),
-                      ListTile(
-                        title: Text('Font Size'),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.text_decrease),
-                              onPressed: () {
-                                readingSettings.updateFontSize(
-                                  readingSettings.fontSize - 1.0
-                                );
-                              },
-                            ),
-                            Text('${readingSettings.fontSize.toInt()}'),
-                            IconButton(
-                              icon: Icon(Icons.text_increase),
-                              onPressed: () {
-                                readingSettings.updateFontSize(
-                                  readingSettings.fontSize + 1.0
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                      ListTile(
-                        title: Text('Line Height'),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.height),
-                              onPressed: () {
-                                readingSettings.updateLineHeight(
-                                  readingSettings.lineHeight - 0.1
-                                );
-                              },
-                            ),
-                            Text('${readingSettings.lineHeight.toStringAsFixed(1)}'),
-                            IconButton(
-                              icon: Icon(Icons.height),
-                              onPressed: () {
-                                readingSettings.updateLineHeight(
-                                  readingSettings.lineHeight + 0.1
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                      ListTile(
-                        title: Text('Margins'),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.format_indent_decrease),
-                              onPressed: () {
-                                readingSettings.updateMargins(
-                                  readingSettings.margins - 4.0
-                                );
-                              },
-                            ),
-                            Text('${readingSettings.margins.toInt()}'),
-                            IconButton(
-                              icon: Icon(Icons.format_indent_increase),
-                              onPressed: () {
-                                readingSettings.updateMargins(
-                                  readingSettings.margins + 4.0
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
-        ),
-      );
-    }
-    // Notify bloc that this chapter was viewed
-    if (arguments.chapter != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        context.read<DocumentBloc>().add(ChapterViewed(arguments.chapter!));
-      });
-    }
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(arguments.document?.title ?? 
-            'Chapter ${arguments.chapter?.chapterNumber ?? ''} - ${arguments.chapter?.chapterTitle ?? ''}'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.format_size),
-            onPressed: () => _showQuickSettings(context, readingSettings),
-          ),
-        ],
-      ),
-      body: GestureDetector(
-        onHorizontalDragEnd: (details) {
-          if (details.primaryVelocity != null) {
-            if (details.primaryVelocity! > 0) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Previous chapter'),
-                  duration: Duration(milliseconds: 300),
-                  behavior: SnackBarBehavior.floating,
-                  margin: EdgeInsets.only(bottom: 16, left: 16, right: 16),
-                ),
-              );
-              _navigateToPreviousChapter(context);
-            } else if (details.primaryVelocity! < 0) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Next chapter'),
-                  duration: Duration(milliseconds: 300),
-                  behavior: SnackBarBehavior.floating,
-                  margin: EdgeInsets.only(bottom: 16, left: 16, right: 16),
-                ),
-              );
-              _navigateToNextChapter(context);
-            }
-          }
-        },
-        child: _buildContent(context, readingSettings),
-      ),
-    );
-  }
+  State<DocumentDetailView> createState() => _DocumentDetailViewState();
+}
 
+class _DocumentDetailViewState extends State<DocumentDetailView> {
+  late final ItemScrollController _scrollController;
+  late final ItemPositionsListener _positionsListener;
 
-  Widget _buildContent(BuildContext context, ReadingSettings settings) {
-    return Stack(
-      children: [
-        ScrollablePositionedList.builder(
-          padding: EdgeInsets.all(settings.margins),
-          itemCount: _getItemCount(),
-          itemScrollController: _scrollController,
-          itemPositionsListener: _positionsListener,
-          itemBuilder: (context, index) {
-            if (arguments.document != null) {
-              final chapter = arguments.document!.chapters[index];
-              return _buildChapterCard(
-                context: context,
-                title: 'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
-                subtitle: null,
-                isSelected: false,
-                onTap: () => _navigateToChapter(context, index),
-              );
-            } else if (arguments.chapter != null) {
-              final section = arguments.chapter!.sections[index];
-              final sectionId = '${arguments.chapter!.id}_${section.sectionNumber}';
-              return _buildSectionCard(
-                context: context,
-                chapterNumber: arguments.chapter!.chapterNumber,
-                sectionTitle: section.sectionTitle,
-                isExpanded: scrollToSectionId == sectionId,
-                content: section.content,
-                settings: settings,
-                sectionId: sectionId,
-                isFavorited: settings.isSectionFavorite(sectionId),
-              );
-            }
-            return SizedBox.shrink();
-          },
-        ),
-        buildReadingControls(),
-      ],
-    );
-  }
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ItemScrollController();
+    _positionsListener = ItemPositionsListener.create();
 
-  int _getItemCount() {
-    if (arguments.document != null) {
-      return arguments.document!.chapters.length;
-    } else if (arguments.chapter != null) {
-      return arguments.chapter!.sections.length;
-    }
-    return 0;
-  }
-
-  void _scrollToSection(String sectionId) {
-    if (arguments.chapter != null) {
-      final index = arguments.chapter!.sections.indexWhere(
-        (section) => '${arguments.chapter!.id}_${section.sectionNumber}' == sectionId
-      );
-      if (index != -1) {
-        _scrollController.scrollTo(
-          index: index,
-          duration: Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-        );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.arguments.scrollToSectionId != null) {
+        _scrollToSection(widget.arguments.scrollToSectionId!);
       }
-    }
-  }
+      _handleScrollPositionChange();
 
-  void _navigateToChapter(BuildContext context, int index) {
-    final chapter = widget.arguments.document!.chapters[index];
-    Navigator.pushReplacementNamed(
-      context,
-      DocumentDetailView.routeName,
-      arguments: DocumentDetailArguments(
-        chapter: chapter,
-        scrollToSectionId: null, // Reset scroll position for new chapter
-      ),
-    ).then((_) {
-      // Restore scroll position if needed
-      _scrollController.jumpTo(index: 0);
+      if (widget.arguments.chapter != null) {
+        context
+            .read<DocumentBloc>()
+            .add(ChapterViewed(widget.arguments.chapter!));
+      }
     });
   }
 
-  void _showQuickSettings(BuildContext context, ReadingSettings settings) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return Container(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Reading Settings', style: Theme.of(context).textTheme.titleLarge),
-              Divider(),
-              ListTile(
-                title: Text('Font Size'),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.text_decrease),
-                      onPressed: () {
-                        settings.updateFontSize(settings.fontSize - 1);
-                      },
-                    ),
-                    Text('${settings.fontSize.toInt()}'),
-                    IconButton(
-                      icon: Icon(Icons.text_increase),
-                      onPressed: () {
-                        settings.updateFontSize(settings.fontSize + 1);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              ListTile(
-                title: Text('Line Height'),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.height),
-                      onPressed: () {
-                        settings.updateLineHeight(settings.lineHeight - 0.1);
-                      },
-                    ),
-                    Text('${settings.lineHeight.toStringAsFixed(1)}'),
-                    IconButton(
-                      icon: Icon(Icons.height),
-                      onPressed: () {
-                        settings.updateLineHeight(settings.lineHeight + 0.1);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              ListTile(
-                title: Text('Margins'),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.format_indent_decrease),
-                      onPressed: () {
-                        settings.updateMargins(settings.margins - 4);
-                      },
-                    ),
-                    Text('${settings.margins.toInt()}'),
-                    IconButton(
-                      icon: Icon(Icons.format_indent_increase),
-                      onPressed: () {
-                        settings.updateMargins(settings.margins + 4);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+  @override
+  void dispose() {
+    _positionsListener.itemPositions
+        .removeListener(_handleScrollPositionChange);
+    super.dispose();
   }
 
-  void _navigateToPreviousChapter(BuildContext context) {
-    final doc = arguments.document;
-    if (doc == null) return;
-    
-    final currentChapter = arguments.chapter;
-    if (currentChapter == null) {
-      // If we're at the document level, do nothing
-      return;
-    }
-    
-    final currentIndex = doc.chapters.indexWhere(
-      (c) => c.chapterNumber == currentChapter.chapterNumber
-    );
-    
-    if (currentIndex > 0) {
-      final prevChapter = doc.chapters[currentIndex - 1];
-      Navigator.pushReplacementNamed(
-        context,
-        DocumentDetailView.routeName,
-        arguments: prevChapter,
-      );
-    } else {
-      // Show feedback when at first chapter
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('You\'re at the first chapter'),
-          duration: Duration(milliseconds: 300),
-        ),
-      );
-    }
+  void _handleScrollPositionChange() {
+    _positionsListener.itemPositions.addListener(() {
+      final positions = _positionsListener.itemPositions.value;
+      if (positions.isNotEmpty) {
+        final firstIndex = positions.first.index;
+        // Save position if needed
+      }
+    });
   }
-
-  Widget _buildChapterCard({
+Widget _buildChapterCard({
     required BuildContext context,
     required String title,
     String? subtitle,
@@ -493,7 +142,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     final Color surfaceColor = isSelected
         ? Color.alphaBlend(
             colorScheme.primary.withOpacity(0.08),
@@ -527,7 +176,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
                     Text(
                       title,
                       style: theme.textTheme.titleMedium?.copyWith(
-                        color: isSelected 
+                        color: isSelected
                             ? colorScheme.onPrimaryContainer
                             : colorScheme.onSurface,
                         letterSpacing: 0.15,
@@ -630,21 +279,268 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
       ),
     );
   }
+  // Getters for convenience
+  Document? get document => widget.arguments.document;
+  DocumentChapter? get chapter => widget.arguments.chapter;
+  String? get scrollToSectionId => widget.arguments.scrollToSectionId;
+
+  @override
+  Widget build(BuildContext context) {
+    final readingSettings = Provider.of<ReadingSettings>(context);
+
+    if (widget.arguments.document == null && widget.arguments.chapter == null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: Center(child: Text('No document or chapter selected')),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.arguments.document?.title ??
+            'Chapter ${widget.arguments.chapter?.chapterNumber ?? ''} - ${widget.arguments.chapter?.chapterTitle ?? ''}'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.format_size),
+            onPressed: () =>
+                _showSettingsBottomSheet(context), // Updated method name
+          ),
+        ],
+      ),
+      body: GestureDetector(
+        onHorizontalDragEnd: (details) {
+          if (details.primaryVelocity != null) {
+            if (details.primaryVelocity! > 0) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Previous chapter'),
+                  duration: Duration(milliseconds: 300),
+                  behavior: SnackBarBehavior.floating,
+                  margin: EdgeInsets.only(bottom: 16, left: 16, right: 16),
+                ),
+              );
+              _navigateToPreviousChapter(context);
+            } else if (details.primaryVelocity! < 0) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Next chapter'),
+                  duration: Duration(milliseconds: 300),
+                  behavior: SnackBarBehavior.floating,
+                  margin: EdgeInsets.only(bottom: 16, left: 16, right: 16),
+                ),
+              );
+              _navigateToNextChapter(context);
+            }
+          }
+        },
+        child: _buildContent(context, readingSettings),
+      ),
+    );
+  }
+
+  Widget _buildContent(BuildContext context, ReadingSettings settings) {
+    return Stack(
+      children: [
+        ScrollablePositionedList.builder(
+          padding: EdgeInsets.all(settings.margins),
+          itemCount: _getItemCount(),
+          itemScrollController: _scrollController,
+          itemPositionsListener: _positionsListener,
+          itemBuilder: (context, index) {
+            if (widget.arguments.document != null) {
+              final chapter = widget.arguments.document!.chapters[index];
+              return _buildChapterCard(
+                context: context,
+                title:
+                    'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
+                subtitle: null,
+                isSelected: false,
+                onTap: () => _navigateToChapter(context, index),
+              );
+            } else if (widget.arguments.chapter != null) {
+              final section = widget.arguments.chapter!.sections[index];
+              final sectionId =
+                  '${widget.arguments.chapter!.id}_${section.sectionNumber}';
+              return _buildSectionCard(
+                context: context,
+                chapterNumber: widget.arguments.chapter!.chapterNumber,
+                sectionTitle: section.sectionTitle,
+                isExpanded: scrollToSectionId == sectionId,
+                content: section.content,
+                settings: settings,
+                sectionId: sectionId,
+                isFavorited: settings.isSectionFavorite(sectionId),
+              );
+            }
+            return SizedBox.shrink();
+          },
+        ),
+        _buildReadingControls(),
+      ],
+    );
+  }
+
+  Widget _buildReadingControls() {
+    return Positioned(
+      bottom: 16,
+      right: 16,
+      child: FloatingActionButton(
+        child: Icon(Icons.settings),
+        onPressed: () => _showSettingsBottomSheet(context),
+      ),
+    );
+  }
+
+  void _showSettingsBottomSheet(BuildContext context) {
+    final settings = Provider.of<ReadingSettings>(context, listen: false);
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => _buildSettingsSheet(settings),
+    );
+  }
+
+  Widget _buildSettingsSheet(ReadingSettings settings) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('Reading Settings',
+              style: Theme.of(context).textTheme.titleLarge),
+          Divider(),
+          _buildSettingsTile(
+            title: 'Font Size',
+            value: settings.fontSize.toInt().toString(),
+            onDecrease: () => settings.updateFontSize(settings.fontSize - 1),
+            onIncrease: () => settings.updateFontSize(settings.fontSize + 1),
+            decreaseIcon: Icons.text_decrease,
+            increaseIcon: Icons.text_increase,
+          ),
+          _buildSettingsTile(
+            title: 'Line Height',
+            value: settings.lineHeight.toStringAsFixed(1),
+            onDecrease: () =>
+                settings.updateLineHeight(settings.lineHeight - 0.1),
+            onIncrease: () =>
+                settings.updateLineHeight(settings.lineHeight + 0.1),
+            decreaseIcon: Icons.height,
+            increaseIcon: Icons.height,
+          ),
+          _buildSettingsTile(
+            title: 'Margins',
+            value: settings.margins.toInt().toString(),
+            onDecrease: () => settings.updateMargins(settings.margins - 4),
+            onIncrease: () => settings.updateMargins(settings.margins + 4),
+            decreaseIcon: Icons.format_indent_decrease,
+            increaseIcon: Icons.format_indent_increase,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingsTile({
+    required String title,
+    required String value,
+    required VoidCallback onDecrease,
+    required VoidCallback onIncrease,
+    required IconData decreaseIcon,
+    required IconData increaseIcon,
+  }) {
+    return ListTile(
+      title: Text(title),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: Icon(decreaseIcon),
+            onPressed: onDecrease,
+          ),
+          Text(value),
+          IconButton(
+            icon: Icon(increaseIcon),
+            onPressed: onIncrease,
+          ),
+        ],
+      ),
+    );
+  }
+
+  int _getItemCount() {
+    if (widget.arguments.document != null) {
+      return widget.arguments.document!.chapters.length;
+    } else if (widget.arguments.chapter != null) {
+      return widget.arguments.chapter!.sections.length;
+    }
+    return 0;
+  }
+
+  void _scrollToSection(String sectionId) {
+    if (widget.arguments.chapter != null) {
+      final index = widget.arguments.chapter!.sections.indexWhere((section) =>
+          '${widget.arguments.chapter!.id}_${section.sectionNumber}' ==
+          sectionId);
+      if (index != -1) {
+        _scrollController.scrollTo(
+          index: index,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+    }
+  }
+
+  void _navigateToChapter(BuildContext context, int index) {
+    final chapter = widget.arguments.document!.chapters[index];
+    Navigator.pushReplacementNamed(
+      context,
+      DocumentDetailView.routeName,
+      arguments: DocumentDetailArguments(
+        chapter: chapter,
+        scrollToSectionId: null,
+      ),
+    ).then((_) {
+      _scrollController.jumpTo(index: 0);
+    });
+  }
+
+  void _navigateToPreviousChapter(BuildContext context) {
+    final doc = widget.arguments.document;
+    if (doc == null) return;
+
+    final currentChapter = widget.arguments.chapter;
+    if (currentChapter == null) return;
+
+    final currentIndex = doc.chapters
+        .indexWhere((c) => c.chapterNumber == currentChapter.chapterNumber);
+
+    if (currentIndex > 0) {
+      final prevChapter = doc.chapters[currentIndex - 1];
+      Navigator.pushReplacementNamed(
+        context,
+        DocumentDetailView.routeName,
+        arguments: prevChapter,
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('You\'re at the first chapter'),
+          duration: Duration(milliseconds: 300),
+        ),
+      );
+    }
+  }
 
   void _navigateToNextChapter(BuildContext context) {
     final doc = document;
     if (doc == null) return;
-    
+
     final currentChapter = chapter;
-    if (currentChapter == null) {
-      // If we're at the document level, do nothing
-      return;
-    }
-    
-    final currentIndex = doc.chapters.indexWhere(
-      (c) => c.chapterNumber == currentChapter.chapterNumber
-    );
-    
+    if (currentChapter == null) return;
+
+    final currentIndex = doc.chapters
+        .indexWhere((c) => c.chapterNumber == currentChapter.chapterNumber);
+
     if (currentIndex < doc.chapters.length - 1) {
       final nextChapter = doc.chapters[currentIndex + 1];
       Navigator.pushReplacementNamed(
@@ -653,7 +549,6 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
         arguments: nextChapter,
       );
     } else {
-      // Show feedback when at last chapter
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('You\'ve reached the last chapter'),
@@ -662,4 +557,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
       );
     }
   }
+
+  // The rest of your widget building methods (_buildChapterCard, _buildSectionCard) remain unchanged
+  // Just make sure to use widget.arguments where needed
 }
