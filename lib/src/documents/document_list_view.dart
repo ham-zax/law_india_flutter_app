@@ -30,7 +30,12 @@ class DocumentListView extends StatelessWidget {
           ),
         ],
       ),
-      body: BlocBuilder<DocumentBloc, DocumentState>(
+      body: WillPopScope(
+        onWillPop: () async {
+          // Prevent going back to the sample items view
+          return false;
+        },
+        child: BlocBuilder<DocumentBloc, DocumentState>(
         builder: (context, state) {
           if (state is DocumentLoading) {
             return const Center(child: CircularProgressIndicator());

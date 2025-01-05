@@ -167,16 +167,13 @@ class MyApp extends StatelessWidget {
                 switch (routeSettings.name) {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
-                  case SampleItemDetailsView.routeName:
-                    return const SampleItemDetailsView();
-                  case SampleItemListView.routeName:
-                    return const SampleItemListView();
                   case DocumentListView.routeName:
                     return const DocumentListView();
                   case DocumentDetailView.routeName:
                     final chapter = routeSettings.arguments as DocumentChapter;
                     return DocumentDetailView(chapter: chapter);
                   default:
+                    // Redirect any unknown routes to the document list
                     return const DocumentListView();
                 }
               },
