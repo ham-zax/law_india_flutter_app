@@ -65,20 +65,21 @@ class DocumentListView extends StatelessWidget {
                       const SizedBox(height: 12),
                       Column(
                         children: state.recentDocuments
-                            .map((doc) => Padding(
+                            .expand((doc) => doc.chapters.take(3)) // Show first 3 chapters
+                            .map((chapter) => Padding(
                                   padding: const EdgeInsets.only(bottom: 12),
                                   child: InkWell(
                                     onTap: () {
                                       Navigator.pushNamed(
                                         context,
                                         DocumentDetailView.routeName,
-                                        arguments: doc,
+                                        arguments: chapter,
                                       );
                                     },
                                     child: _buildDocumentCard(
                                       context: context,
-                                      title: doc.title,
-                                      subtitle: '${doc.category} • ${doc.chapters.length} Chapters',
+                                      title: 'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
+                                      subtitle: '${chapter.sections.length} Sections',
                                       showChevron: true,
                                     ),
                                   ),

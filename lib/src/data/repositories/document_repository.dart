@@ -15,7 +15,7 @@ abstract class DocumentRepository {
 class LocalDocumentRepository implements DocumentRepository {
   @override
   Future<List<Document>> getRecentDocuments() async {
-    // For now return BNS as recent document
+    // Return BNS document with all chapters
     return await getDocumentsByCategory('BNS');
   }
 
