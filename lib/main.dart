@@ -4,6 +4,8 @@ import 'package:animations/animations.dart';
 import 'package:provider/provider.dart';
 
 import 'src/app.dart';
+import 'src/documents/document_detail_view.dart';
+import 'src/documents/document_list_view.dart';
 import 'src/settings/settings_controller.dart';
 import 'src/settings/settings_service.dart';
 import 'src/settings/reading_settings.dart';
@@ -65,7 +67,7 @@ class MyApp extends StatelessWidget {
             );
         }
       },
-      home: const AppHome(),
+      home: const DocumentListView(),
     );
   }
 }
