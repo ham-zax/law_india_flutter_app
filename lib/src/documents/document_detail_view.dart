@@ -61,7 +61,7 @@ class DocumentDetailView extends StatelessWidget {
   final DocumentChapter? chapter;
   final String? scrollToSectionId;
   
-  const DocumentDetailView({
+  DocumentDetailView({
     super.key,
     this.document,
     this.chapter,
@@ -233,8 +233,8 @@ class DocumentDetailView extends StatelessWidget {
   }
 
 
-  final GlobalKey<State<StatefulWidget>> _scrollKey = const GlobalKey<State<StatefulWidget>>();
-
+final GlobalKey<State<StatefulWidget>> _scrollKey =
+      GlobalKey<State<StatefulWidget>>();
   Widget _buildContent(BuildContext context, ReadingSettings settings) {
     return Stack(
       children: [
