@@ -66,37 +66,25 @@ class DocumentDetailView extends StatelessWidget {
 
   static const routeName = '/document-detail';
 
-static Route<dynamic> route(RouteSettings settings) {
+  static Route<dynamic> route(RouteSettings settings) {
     final args = settings.arguments;
+    DocumentDetailArguments arguments;
+
+    if (args is DocumentDetailArguments) {
+      arguments = args;
+    } else if (args is Map<String, dynamic>) {
+      arguments = DocumentDetailArguments.fromMap(args);
+    } else if (args is Document) {
+      arguments = DocumentDetailArguments(document: args);
+    } else if (args is DocumentChapter) {
+      arguments = DocumentDetailArguments(chapter: args);
+    } else {
+      throw ArgumentError('Invalid arguments for DocumentDetailView');
+    }
+
     return MaterialPageRoute(
-      builder: (context) {
-        // Handle Map arguments (from favorites)
-        if (args is Map<String, dynamic>) {
-          return DocumentDetailView(
-            chapter: args['chapter'] as DocumentChapter?,
-            scrollToSectionId: args['scrollToSectionId'] as String?,
-          );
-        }
-        // Handle direct Document navigation
-        if (args is Document) {
-          return DocumentDetailView(document: args);
-        }
-        // Handle direct Chapter navigation
-        if (args is DocumentChapter) {
-          return DocumentDetailView(chapter: args);
-        }
-        // Handle invalid arguments
-        return Scaffold(
-          appBar: AppBar(
-            leading: BackButton(
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ),
-          body: Center(
-            child: Text('Invalid navigation arguments'),
-          ),
-        );
-      },
+      settings: settings,
+      builder: (context) => DocumentDetailView(arguments: arguments),
     );
   }
   @override
