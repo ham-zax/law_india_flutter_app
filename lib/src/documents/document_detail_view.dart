@@ -144,21 +144,12 @@ class DocumentDetailView extends StatefulWidget {
 }
 
 class _DocumentDetailViewState extends State<DocumentDetailView> {
-  late final ItemScrollController _scrollController;
-  late final ItemPositionsListener _positionsListener;
-
+  final ScrollController _scrollController = ScrollController();
   @override
   void initState() {
     super.initState();
-    _scrollController = ItemScrollController();
-    _positionsListener = ItemPositionsListener.create();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.arguments.scrollToSectionId != null) {
-        _scrollToSection(widget.arguments.scrollToSectionId!);
-      }
-      _handleScrollPositionChange();
-
       if (widget.arguments.chapter != null) {
         context
             .read<DocumentBloc>()
@@ -169,20 +160,10 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
 
   @override
   void dispose() {
-    _positionsListener.itemPositions
-        .removeListener(_handleScrollPositionChange);
+    _scrollController.dispose();
     super.dispose();
   }
 
-  void _handleScrollPositionChange() {
-    _positionsListener.itemPositions.addListener(() {
-      final positions = _positionsListener.itemPositions.value;
-      if (positions.isNotEmpty) {
-        final firstIndex = positions.first.index;
-        // Save position if needed
-      }
-    });
-  }
 
   Widget _buildChapterCard({
     required BuildContext context,
@@ -404,14 +385,13 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
     );
   }
 
-  Widget _buildContent(BuildContext context, ReadingSettings settings) {
+ Widget _buildContent(BuildContext context, ReadingSettings settings) {
     return Stack(
       children: [
-        ScrollablePositionedList.builder(
+        ListView.builder(
+          controller: _scrollController,
           padding: EdgeInsets.all(settings.margins),
           itemCount: _getItemCount(),
-          itemScrollController: _scrollController,
-          itemPositionsListener: _positionsListener,
           itemBuilder: (context, index) {
             if (widget.arguments.document != null) {
               final chapter = widget.arguments.document!.chapters[index];
@@ -442,7 +422,6 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
       ],
     );
   }
-
   Widget _buildNavigationControls() {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -567,22 +546,8 @@ Widget _buildSettingsSheet(ReadingSettings settings) {
     return 0;
   }
 
-  void _scrollToSection(String sectionId) {
-    if (widget.arguments.chapter != null) {
-      final index = widget.arguments.chapter!.sections.indexWhere((section) =>
-          '${widget.arguments.chapter!.id}_${section.sectionNumber}' ==
-          sectionId);
-      if (index != -1) {
-        _scrollController.scrollTo(
-          index: index,
-          duration: Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-        );
-      }
-    }
-  }
 
-  void _navigateToChapter(BuildContext context, int index) {
+   void _navigateToChapter(BuildContext context, int index) {
     final chapter = widget.arguments.document!.chapters[index];
     Navigator.pushReplacementNamed(
       context,
@@ -591,9 +556,7 @@ Widget _buildSettingsSheet(ReadingSettings settings) {
         chapter: chapter,
         scrollToSectionId: null,
       ),
-    ).then((_) {
-      _scrollController.jumpTo(index: 0);
-    });
+    );
   }
 
   void _navigateToPreviousChapter(BuildContext context) {
