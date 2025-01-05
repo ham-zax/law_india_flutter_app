@@ -302,7 +302,10 @@ class DocumentListView extends StatelessWidget {
                             Navigator.pushNamed(
                               context,
                               DocumentDetailView.routeName,
-                              arguments: chapter,
+                              arguments: DocumentDetailView(
+                                chapter: chapter,
+                                scrollToSectionId: '${chapter.id}_${section.sectionNumber}',
+                              ),
                             );
                           },
                         ),

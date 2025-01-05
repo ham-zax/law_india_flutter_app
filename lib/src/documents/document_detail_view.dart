@@ -59,11 +59,13 @@ class EnhancedReadingView extends StatelessWidget {
 class DocumentDetailView extends StatelessWidget {
   final Document? document;
   final DocumentChapter? chapter;
+  final String? scrollToSectionId;
   
   const DocumentDetailView({
     super.key,
     this.document,
     this.chapter,
+    this.scrollToSectionId,
   }) : assert(document != null || chapter != null);
 
   static const routeName = '/document-detail';
@@ -231,11 +233,28 @@ class DocumentDetailView extends StatelessWidget {
   }
 
 
+  final GlobalKey _scrollKey = GlobalKey();
+
   Widget _buildContent(BuildContext context, ReadingSettings settings) {
     return Stack(
       children: [
-        CustomScrollView(
-          slivers: [
+        NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            if (widget.scrollToSectionId != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                final context = _scrollKey.currentContext;
+                if (context != null) {
+                  Scrollable.ensureVisible(context,
+                    duration: Duration(milliseconds: 500),
+                    curve: Curves.easeInOut,
+                  );
+                }
+              });
+            }
+            return true;
+          },
+          child: CustomScrollView(
+            slivers: [
             SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.all(settings.margins),
@@ -298,7 +317,9 @@ class DocumentDetailView extends StatelessWidget {
                         itemCount: chapter!.sections.length,
                         itemBuilder: (context, index) {
                           final section = chapter!.sections[index];
+                          final sectionId = '${chapter!.id}_${section.sectionNumber}';
                           return Card(
+                            key: widget.scrollToSectionId == sectionId ? _scrollKey : null,
                             margin: EdgeInsets.only(bottom: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -308,6 +329,7 @@ class DocumentDetailView extends StatelessWidget {
                                 dividerColor: Colors.transparent,
                               ),
                               child: ExpansionTile(
+                                initiallyExpanded: widget.scrollToSectionId == sectionId,
                                 title: Text(
                                   '${chapter!.chapterNumber} - ${section.sectionTitle}',
                                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
