@@ -106,26 +106,34 @@ class DocumentListView extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      Column(
-                        children: state.documents
-                            .map((doc) => Padding(
-                                  padding: const EdgeInsets.only(bottom: 12),
-                                  child: InkWell(
-                                    onTap: () {
-                                      Navigator.pushNamed(
-                                        context,
-                                        DocumentDetailView.routeName,
-                                        arguments: doc,
-                                      );
-                                    },
-                                    child: _buildDocumentCard(
-                                      title: doc.title,
-                                      subtitle: '${doc.category} • ${doc.sections.length} Sections',
-                                      showChevron: true,
-                                    ),
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          return ListView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: state.documents.length,
+                            itemBuilder: (context, index) {
+                              final doc = state.documents[index];
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: InkWell(
+                                  onTap: () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      DocumentDetailView.routeName,
+                                      arguments: doc,
+                                    );
+                                  },
+                                  child: _buildDocumentCard(
+                                    title: doc.title,
+                                    subtitle: '${doc.category} • ${doc.sections.length} Sections',
+                                    showChevron: true,
                                   ),
-                                ))
-                            .toList(),
+                                ),
+                              );
+                            },
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -148,50 +156,68 @@ class DocumentListView extends StatelessWidget {
     bool showChevron = false,
   }) {
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            const Icon(Icons.article, size: 24),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  if (lastAccessed != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Text(
-                        lastAccessed,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ),
-                  if (subtitle != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Text(
-                        subtitle,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ),
-                ],
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {},
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.article, size: 24, color: Colors.blue),
               ),
-            ),
-            if (showChevron) const Icon(Icons.chevron_right, size: 24),
-          ],
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (lastAccessed != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          lastAccessed,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ),
+                    if (subtitle != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          subtitle,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              if (showChevron)
+                Icon(Icons.chevron_right, size: 24, color: Colors.grey[600]),
+            ],
+          ),
         ),
       ),
     );

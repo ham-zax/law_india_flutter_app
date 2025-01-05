@@ -19,20 +19,37 @@ class DocumentDetailView extends StatelessWidget {
         itemCount: document.sections.length,
         itemBuilder: (context, index) {
           final section = document.sections[index];
-          return ExpansionTile(
-            title: Text(
-              '${section.chapterNumber} - ${section.sectionTitle}',
-              style: const TextStyle(fontWeight: FontWeight.bold),
+          return Card(
+            margin: const EdgeInsets.only(bottom: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  section.content,
-                  style: const TextStyle(fontSize: 16),
-                ),
+            child: Theme(
+              data: Theme.of(context).copyWith(
+                dividerColor: Colors.transparent,
               ),
-            ],
+              child: ExpansionTile(
+                title: Text(
+                  '${section.chapterNumber} - ${section.sectionTitle}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      section.content,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           );
         },
       ),

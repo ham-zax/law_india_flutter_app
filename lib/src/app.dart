@@ -65,6 +65,12 @@ class MyApp extends StatelessWidget {
               primary: Colors.blue.shade800,
               secondary: Colors.blue.shade600,
             ),
+            pageTransitionsTheme: const PageTransitionsTheme(
+              builders: {
+                TargetPlatform.android: ZoomPageTransitionsBuilder(),
+                TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+              },
+            ),
             cardTheme: CardTheme(
               elevation: 2,
               shape: RoundedRectangleBorder(
