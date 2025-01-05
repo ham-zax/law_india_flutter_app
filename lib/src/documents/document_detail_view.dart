@@ -248,8 +248,8 @@ class DocumentDetailView extends StatelessWidget {
                       SizedBox(height: 16),
                     ),
                     SizedBox(height: 16),
-                    if (document != null && document!.chapters.isNotEmpty)
-                      ListView.builder(
+                    if (document != null && document!.chapters.isNotEmpty) {
+                      return ListView.builder(
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
                         itemCount: document!.chapters.length,
@@ -289,8 +289,8 @@ class DocumentDetailView extends StatelessWidget {
                           );
                         },
                       )
-                    else if (chapter != null && chapter!.sections.isNotEmpty)
-                      ListView.builder(
+                    } else if (chapter != null && chapter!.sections.isNotEmpty) {
+                      return ListView.builder(
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
                         itemCount: chapter!.sections.length,
