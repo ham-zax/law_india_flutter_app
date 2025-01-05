@@ -48,7 +48,8 @@ class DocumentListView extends StatelessWidget {
                                   padding: const EdgeInsets.only(bottom: 12),
                                   child: _buildDocumentCard(
                                     title: doc.title,
-                                    lastAccessed: 'Last accessed ${_formatDate(doc.lastAccessed)}',
+                                    subtitle: '${doc.category} • ${doc.sections.length} Sections',
+                                    showChevron: true,
                                   ),
                                 ))
                             .toList(),
@@ -120,19 +121,6 @@ class DocumentListView extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
-
-    if (difference.inDays > 0) {
-      return '${difference.inDays} days ago';
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours} hours ago';
-    } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes} minutes ago';
-    }
-    return 'Just now';
-  }
 
   Widget _buildDocumentCard({
     required String title,
