@@ -171,7 +171,6 @@ class DocumentListView extends StatelessWidget {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () {},
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
