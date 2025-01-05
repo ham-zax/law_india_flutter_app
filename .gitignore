@@ -32,6 +32,10 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+pubspec.lock
+
+# Generated files
+**/generated_plugin_registrant.*
 
 # Symbolication related
 app.*.symbols
