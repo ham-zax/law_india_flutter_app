@@ -240,12 +240,12 @@ class DocumentDetailView extends StatelessWidget {
       children: [
         NotificationListener<ScrollNotification>(
           onNotification: (notification) {
-            if (widget.scrollToSectionId != null) {
+            if (scrollToSectionId != null) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 final context = _scrollKey.currentContext;
                 if (context != null) {
                   Scrollable.ensureVisible(context,
-                    duration: Duration(milliseconds: 500),
+                    duration: const Duration(milliseconds: 500),
                     curve: Curves.easeInOut,
                   );
                 }
@@ -319,7 +319,7 @@ class DocumentDetailView extends StatelessWidget {
                           final section = chapter!.sections[index];
                           final sectionId = '${chapter!.id}_${section.sectionNumber}';
                           return Card(
-                            key: widget.scrollToSectionId == sectionId ? _scrollKey : null,
+                            key: scrollToSectionId == sectionId ? _scrollKey : null,
                             margin: EdgeInsets.only(bottom: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -329,7 +329,7 @@ class DocumentDetailView extends StatelessWidget {
                                 dividerColor: Colors.transparent,
                               ),
                               child: ExpansionTile(
-                                initiallyExpanded: widget.scrollToSectionId == sectionId,
+                                initiallyExpanded: scrollToSectionId == sectionId,
                                 title: Text(
                                   '${chapter!.chapterNumber} - ${section.sectionTitle}',
                                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
