@@ -5,11 +5,14 @@ class FavoriteButton extends StatefulWidget {
   final int favoriteCount;
   final Function(bool)? onChanged;
 
+  final String itemId;
+
   const FavoriteButton({
     super.key,
     this.isFavorited = false,
     this.favoriteCount = 0,
     this.onChanged,
+    required this.itemId,
   });
 
   @override
@@ -28,10 +31,12 @@ class _FavoriteButtonState extends State<FavoriteButton> {
   }
 
   void _toggleFavorite() {
+    final settings = Provider.of<ReadingSettings>(context, listen: false);
     setState(() {
       _isFavorited = !_isFavorited;
       _favoriteCount += _isFavorited ? 1 : -1;
     });
+    settings.toggleFavorite(widget.itemId);
     widget.onChanged?.call(_isFavorited);
   }
 

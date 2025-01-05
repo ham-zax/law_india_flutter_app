@@ -126,6 +126,53 @@ class DocumentListView extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
 
+                      // Favorites Section
+                      Text(
+                        'Favorites',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      const SizedBox(height: 12),
+                      Consumer<ReadingSettings>(
+                        builder: (context, settings, child) {
+                          final favoriteChapters = state.documents
+                              .expand((doc) => doc.chapters)
+                              .where((chapter) => settings.isFavorite(chapter.id))
+                              .toList();
+                          
+                          if (favoriteChapters.isEmpty) {
+                            return Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Text(
+                                'No favorites yet',
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            );
+                          }
+
+                          return Column(
+                            children: favoriteChapters
+                                .map((chapter) => Padding(
+                                      padding: const EdgeInsets.only(bottom: 12),
+                                      child: InkWell(
+                                        onTap: () {
+                                          Navigator.pushNamed(
+                                            context,
+                                            DocumentDetailView.routeName,
+                                            arguments: chapter,
+                                          );
+                                        },
+                                        child: _buildDocumentCard(
+                                          context: context,
+                                          title: 'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
+                                          subtitle: '${chapter.sections.length} Sections',
+                                        ),
+                                      ),
+                                    ))
+                                .toList(),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 16),
                     ],
                   ),
                 ),
@@ -232,9 +279,14 @@ class DocumentListView extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const FavoriteButton(
-                    isFavorited: false,
-                    favoriteCount: 0,
+                  Consumer<ReadingSettings>(
+                    builder: (context, settings, child) {
+                      return FavoriteButton(
+                        isFavorited: settings.isFavorite(chapter.id),
+                        favoriteCount: 0,
+                        itemId: chapter.id,
+                      );
+                    },
                   ),
                 ],
               ),
