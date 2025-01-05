@@ -221,120 +221,135 @@ Widget _buildChapterCard({
       ),
     );
   }
-Widget _buildSectionCard({
-    required BuildContext context,
+class SectionContentView extends StatelessWidget {
+  final String chapterNumber;
+  final String sectionTitle;
+  final String content;
+  final ReadingSettings settings;
+  final String sectionId;
+  final bool isFavorited;
+
+  const SectionContentView({
     Key? key,
-    required String chapterNumber,
-    required String sectionTitle,
-    required bool isExpanded,
-    required String content,
-    required ReadingSettings settings,
-    required String sectionId,
-    required bool isFavorited,
-  }) {
+    required this.chapterNumber,
+    required this.sectionTitle,
+    required this.content,
+    required this.settings,
+    required this.sectionId,
+    required this.isFavorited,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    String cleanTitle(String title) {
-      // Remove section number and any separator (like ". " or " - ") from start of title
-      final regex = RegExp(r'^\d+[\.\s-]*\s*');
-      return title.replaceFirst(regex, '');
-    }
-    return Card(
-      key: key,
-      elevation: 0,
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(4),
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(sectionTitle),
+        actions: [
+          IconButton(
+            icon: Icon(
+              isFavorited ? Icons.bookmark : Icons.bookmark_outline,
+              color: colorScheme.onSurfaceVariant,
+            ),
+            onPressed: () {
+              // Toggle favorite
+            },
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.share_outlined,
+              color: colorScheme.onSurfaceVariant,
+            ),
+            onPressed: () {
+              // Share functionality
+            },
+          ),
+        ],
       ),
-      child: Theme(
-        data: theme.copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          initiallyExpanded: isExpanded,
-          tilePadding: const EdgeInsets.symmetric(horizontal: 20),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4),
+      body: EnhancedReadingView(
+        content: content,
+        settings: settings,
+      ),
+    );
+  }
+}
+
+Widget _buildSectionCard({
+  required BuildContext context,
+  Key? key,
+  required String chapterNumber,
+  required String sectionTitle,
+  required String content,
+  required ReadingSettings settings,
+  required String sectionId,
+  required bool isFavorited,
+}) {
+  final theme = Theme.of(context);
+  final colorScheme = theme.colorScheme;
+  
+  String cleanTitle(String title) {
+    final regex = RegExp(r'^\d+[\.\s-]*\s*');
+    return title.replaceFirst(regex, '');
+  }
+
+  return Card(
+    key: key,
+    elevation: 0,
+    margin: const EdgeInsets.only(bottom: 12),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(4),
+    ),
+    child: InkWell(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => SectionContentView(
+              chapterNumber: chapterNumber,
+              sectionTitle: sectionTitle,
+              content: content,
+              settings: settings,
+              sectionId: sectionId,
+              isFavorited: isFavorited,
+            ),
           ),
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  CircleAvatar(
-                    backgroundColor: colorScheme.secondaryContainer,
-                    child: Text(
-                      sectionId.split('_').last, // Use section number instead
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: colorScheme.onSecondaryContainer,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          cleanTitle(sectionTitle), // Clean the title here,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: colorScheme.onSurface,
-                            letterSpacing: 0.15,
-                            height: 1.4,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Row(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          isFavorited ? Icons.bookmark : Icons.bookmark_outline,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                        onPressed: () {
-                          // Toggle favorite
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(
-                          Icons.share_outlined,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                        onPressed: () {
-                          // Share functionality
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    content,
-                    style: TextStyle(
-                      fontSize: settings.fontSize,
-                      height: settings.lineHeight,
-                      fontFamily: settings.fontFamily,
-                      color: colorScheme.onSurface,
-                    ),
-                  ),
-                ],
+            CircleAvatar(
+              backgroundColor: colorScheme.secondaryContainer,
+              child: Text(
+                sectionId.split('_').last,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: colorScheme.onSecondaryContainer,
+                ),
               ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                cleanTitle(sectionTitle),
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: colorScheme.onSurface,
+                  letterSpacing: 0.15,
+                  height: 1.4,
+                ),
+              ),
+            ),
+            Icon(
+              Icons.chevron_right,
+              color: colorScheme.onSurfaceVariant,
             ),
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
   // Getters for convenience
   Document? get document => widget.arguments.document;
   DocumentChapter? get chapter => widget.arguments.chapter;
