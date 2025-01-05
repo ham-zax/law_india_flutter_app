@@ -220,35 +220,25 @@ class DocumentDetailView extends StatelessWidget {
         onHorizontalDragEnd: (details) {
           if (details.primaryVelocity != null) {
             if (details.primaryVelocity! > 0) {
-              _navigateToPreviousChapter(context);
-            } else if (details.primaryVelocity! < 0) {
-              _navigateToNextChapter(context);
-            }
-          }
-        },
-        onHorizontalDragUpdate: (details) {
-          if (details.primaryDelta != null) {
-            // Add visual feedback during swipe
-            if (details.primaryDelta! > 0) {
-              // Swiping right
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('Previous chapter'),
-                  duration: Duration(milliseconds: 100),
+                  duration: Duration(milliseconds: 300),
                   behavior: SnackBarBehavior.floating,
                   margin: EdgeInsets.only(bottom: 16, left: 16, right: 16),
                 ),
               );
-            } else if (details.primaryDelta! < 0) {
-              // Swiping left
+              _navigateToPreviousChapter(context);
+            } else if (details.primaryVelocity! < 0) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('Next chapter'),
-                  duration: Duration(milliseconds: 100),
+                  duration: Duration(milliseconds: 300),
                   behavior: SnackBarBehavior.floating,
                   margin: EdgeInsets.only(bottom: 16, left: 16, right: 16),
                 ),
               );
+              _navigateToNextChapter(context);
             }
           }
         },
