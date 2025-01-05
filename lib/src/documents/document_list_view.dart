@@ -118,7 +118,6 @@ class DocumentListView extends StatelessWidget {
                                       context: context,
                                       title: 'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
                                       subtitle: '${chapter.sections.length} Sections',
-                                      showChevron: true,
                                     ),
                                   ),
                                 ))
@@ -198,69 +197,46 @@ class DocumentListView extends StatelessWidget {
   Widget _buildDocumentCard({
     required BuildContext context,
     required String title,
-    String? lastAccessed,
     String? subtitle,
-    bool showChevron = false,
   }) {
     return Card(
-      elevation: 1,
+      elevation: 0, // Remove elevation for cleaner look
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.surfaceVariant,
+          width: 1,
+        ),
       ),
-      surfaceTintColor: Theme.of(context).colorScheme.surfaceVariant,
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 16,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  shape: BoxShape.circle,
+              Text(
+                title,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.1,
+                  height: 1.4,
                 ),
-                child: const Icon(Icons.article, size: 24, color: Colors.blue),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+              if (subtitle != null) 
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    subtitle,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      height: 1.4,
                     ),
-                    if (lastAccessed != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Text(
-                          lastAccessed,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
-                          ),
-                        ),
-                      ),
-                    if (subtitle != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Text(
-                          subtitle,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ),
-                  ],
+                  ),
                 ),
-              ),
-              if (showChevron)
-                Icon(Icons.chevron_right, size: 24, color: Colors.grey[600]),
             ],
           ),
         ),
