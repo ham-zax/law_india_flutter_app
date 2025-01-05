@@ -5,6 +5,48 @@ import '../data/models/document_model.dart';
 import '../bloc/document/document_bloc.dart';
 import '../settings/reading_settings.dart';
 
+class EnhancedReadingView extends StatelessWidget {
+  final String content;
+  final ReadingSettings settings;
+
+  const EnhancedReadingView({
+    super.key,
+    required this.content,
+    required this.settings,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: settings.margins,
+        vertical: 16,
+      ),
+      child: SelectableText.rich(
+        TextSpan(
+          style: TextStyle(
+            fontSize: settings.fontSize,
+            height: settings.lineHeight,
+            fontFamily: settings.fontFamily,
+            color: Theme.of(context).textTheme.bodyLarge?.color,
+          ),
+          children: [
+            TextSpan(text: content),
+          ],
+        ),
+        textAlign: TextAlign.justify,
+        textScaleFactor: MediaQuery.of(context).textScaleFactor,
+        selectionControls: MaterialTextSelectionControls(),
+        strutStyle: StrutStyle(
+          fontSize: settings.fontSize,
+          height: settings.lineHeight,
+          leading: 0.5,
+        ),
+      ),
+    );
+  }
+}
+
 class DocumentDetailView extends StatelessWidget {
   final Document? document;
   final DocumentChapter? chapter;
