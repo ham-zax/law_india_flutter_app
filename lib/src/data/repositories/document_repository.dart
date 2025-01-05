@@ -74,8 +74,8 @@ class LocalDocumentRepository implements DocumentRepository {
     return allDocs.where((doc) {
       // Search in document title
       if (extractOne(
-        query.toLowerCase(), 
-        [doc.title.toLowerCase()]
+        query: query.toLowerCase(),
+        choices: [doc.title.toLowerCase()]
       ).score > 80) {
         return true;
       }
@@ -83,8 +83,8 @@ class LocalDocumentRepository implements DocumentRepository {
       // Search in chapters
       for (final chapter in doc.chapters) {
         if (extractOne(
-          query.toLowerCase(),
-          [chapter.chapterTitle.toLowerCase()]
+          query: query.toLowerCase(),
+          choices: [chapter.chapterTitle.toLowerCase()]
         ).score > 80) {
           return true;
         }
@@ -92,13 +92,13 @@ class LocalDocumentRepository implements DocumentRepository {
         // Search in sections
         for (final section in chapter.sections) {
           final titleMatch = extractOne(
-            query.toLowerCase(),
-            [section.sectionTitle.toLowerCase()]
+            query: query.toLowerCase(),
+            choices: [section.sectionTitle.toLowerCase()]
           ).score > 80;
           
           final contentMatch = extractOne(
-            query.toLowerCase(),
-            [section.content.toLowerCase()]
+            query: query.toLowerCase(),
+            choices: [section.content.toLowerCase()]
           ).score > 80;
           
           if (titleMatch || contentMatch) {
