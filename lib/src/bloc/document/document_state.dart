@@ -38,6 +38,7 @@ class DocumentLoaded extends DocumentState {
       documents: documents ?? this.documents,
       categories: categories ?? this.categories,
       selectedCategory: selectedCategory ?? this.selectedCategory,
+      recentChapters: recentChapters ?? this.recentChapters,
     );
   }
 
