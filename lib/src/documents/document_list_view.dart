@@ -18,77 +18,17 @@ class DocumentListView extends StatelessWidget {
         title: const Text('Documents'),
         surfaceTintColor: Theme.of(context).colorScheme.surface,
         shadowColor: Theme.of(context).colorScheme.shadow,
-      ),
-      drawer: NavigationDrawer(
-        selectedIndex: 0,
-        onDestinationSelected: (index) {
-          if (index == 1) {
-            Navigator.pushNamed(context, SettingsView.routeName);
-          }
-        },
-        children: [
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
-              'Menu',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          const Divider(),
-          NavigationDrawerDestination(
-            icon: const Icon(Icons.article_outlined),
-            selectedIcon: const Icon(Icons.article),
-            label: const Text('Documents'),
-          ),
-          NavigationDrawerDestination(
-            icon: const Icon(Icons.settings_outlined),
-            selectedIcon: const Icon(Icons.settings),
-            label: const Text('Settings'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: DocumentSearchDelegate(context.read<DocumentBloc>()),
+              );
+            },
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showSearch(
-            context: context,
-            delegate: DocumentSearchDelegate(context.read<DocumentBloc>()),
-          );
-        },
-        child: const Icon(Icons.search),
-        shape: const CircleBorder(),
-        elevation: 0,
-        enableFeedback: true,
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
-      bottomNavigationBar: BottomAppBar(
-        color: Theme.of(context).colorScheme.surface,
-        surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
-        elevation: 4.0,
-        shadowColor: Theme.of(context).colorScheme.shadow,
-        height: 80,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.menu),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-              tooltip: 'Open navigation menu',
-            ),
-            IconButton(
-              icon: const Icon(Icons.more_vert),
-              onPressed: () {
-                // TODO: Implement more options
-              },
-              tooltip: 'More options',
-            ),
-          ],
-        ),
       ),
       body: BlocBuilder<DocumentBloc, DocumentState>(
         builder: (context, state) {
