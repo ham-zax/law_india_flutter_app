@@ -118,11 +118,44 @@ class DocumentListView extends StatelessWidget {
                                         arguments: chapter,
                                       );
                                     },
-                                    child: _buildDocumentCard(
-                                      context: context,
-                                      title: 'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
-                                      subtitle: '${chapter.sections.length} Sections',
-                                      chapter: chapter,
+                                    child: Card(
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        side: BorderSide(
+                                          color: Theme.of(context).colorScheme.surfaceVariant,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 20,
+                                          vertical: 16,
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
+                                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                                fontWeight: FontWeight.w500,
+                                                letterSpacing: 0.1,
+                                                height: 1.4,
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(top: 4),
+                                              child: Text(
+                                                '${chapter.sections.length} Sections',
+                                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                                  height: 1.4,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ))
