@@ -257,46 +257,6 @@ class DocumentDetailView extends StatelessWidget {
     );
   }
 
-  Widget _buildQuickSettingsPanel(BuildContext context, ReadingSettings settings) {
-    return AnimatedContainer(
-      duration: Duration(milliseconds: 200),
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 8,
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: Icon(Icons.text_decrease),
-            onPressed: () => settings.updateFontSize(settings.fontSize - 1),
-          ),
-          Text('${settings.fontSize.toInt()}'),
-          IconButton(
-            icon: Icon(Icons.text_increase),
-            onPressed: () => settings.updateFontSize(settings.fontSize + 1),
-          ),
-          VerticalDivider(),
-          IconButton(
-            icon: Icon(Icons.height),
-            onPressed: () => settings.updateLineHeight(settings.lineHeight - 0.1),
-          ),
-          Text('${settings.lineHeight.toStringAsFixed(1)}'),
-          IconButton(
-            icon: Icon(Icons.height),
-            onPressed: () => settings.updateLineHeight(settings.lineHeight + 0.1),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildContent(BuildContext context, ReadingSettings settings) {
     return Stack(
@@ -404,14 +364,6 @@ class DocumentDetailView extends StatelessWidget {
           ],
         ),
         
-        Positioned(
-          bottom: 16,
-          left: 0,
-          right: 0,
-          child: Center(
-            child: _buildQuickSettingsPanel(context, settings),
-          ),
-        ),
       ],
     );
   }
