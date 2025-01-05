@@ -44,6 +44,7 @@ class LocalDocumentRepository implements DocumentRepository {
         }).toList();
 
         chapters.add(DocumentChapter(
+          id: 'bns_chapter_$i', // Unique ID for each chapter
           chapterNumber: i.toString(),
           chapterTitle: chapterTitle,
           sections: sections,
