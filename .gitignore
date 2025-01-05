@@ -38,6 +38,7 @@ pubspec.lock
 **/generated_plugin_registrant.*
 **/GeneratedPluginRegistrant.swift
 **/generated_plugins.cmake
+/GeneratedPluginRegistrant.swift
 
 # Symbolication related
 app.*.symbols
