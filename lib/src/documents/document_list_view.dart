@@ -169,42 +169,38 @@ class DocumentListView extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
 
-                      // All Documents Section
+                      // Chapters Section
                       const Text(
-                        'All Documents',
+                        'Chapters',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 12),
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          return ListView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: state.documents.length,
-                            itemBuilder: (context, index) {
-                              final doc = state.documents[index];
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 12),
-                                child: InkWell(
-                                  onTap: () {
-                                    Navigator.pushNamed(
-                                      context,
-                                      DocumentDetailView.routeName,
-                                      arguments: doc,
-                                    );
-                                  },
-                                  child: _buildDocumentCard(
-                                    context: context,
-                                    title: doc.title,
-                                    subtitle: '${doc.category} • ${doc.sections.length} Sections',
-                                    showChevron: true,
-                                  ),
-                                ),
-                              );
-                            },
+                      ListView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: state.documents.first.chapters.length,
+                        itemBuilder: (context, index) {
+                          final chapter = state.documents.first.chapters[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.pushNamed(
+                                  context,
+                                  DocumentDetailView.routeName,
+                                  arguments: chapter,
+                                );
+                              },
+                              child: _buildDocumentCard(
+                                context: context,
+                                title: 'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
+                                subtitle: '${chapter.sections.length} Sections',
+                                showChevron: true,
+                              ),
+                            ),
                           );
                         },
                       ),

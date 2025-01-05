@@ -21,21 +21,33 @@ class LocalDocumentRepository implements DocumentRepository {
   @override
   Future<List<Document>> getDocumentsByCategory(String category) async {
     if (category == 'BNS') {
-      final jsonString = await rootBundle.loadString('assets/data/chapter_1.json');
-      final jsonData = jsonDecode(jsonString) as List;
+      final List<DocumentChapter> chapters = [];
       
-      final sections = jsonData.map((section) => DocumentSection(
-        chapterNumber: section['cn'],
-        sectionTitle: section['st'],
-        content: section['s'],
-      )).toList();
+      // Load all 20 chapters
+      for (int i = 1; i <= 20; i++) {
+        final jsonString = await rootBundle.loadString('assets/data/chapter_$i.json');
+        final jsonData = jsonDecode(jsonString) as List;
+        
+        final chapterTitle = jsonData.first['ct']; // Get chapter title from first section
+        final sections = jsonData.map((section) => DocumentSection(
+          sectionNumber: section['sn'],
+          sectionTitle: section['st'],
+          content: section['s'],
+        )).toList();
+
+        chapters.add(DocumentChapter(
+          chapterNumber: i.toString(),
+          chapterTitle: chapterTitle,
+          sections: sections,
+        ));
+      }
 
       return [
         Document(
-          id: 'bns-1',
+          id: 'bns',
           title: 'Bharatiya Nyaya Sanhita',
           category: 'BNS',
-          sections: sections,
+          chapters: chapters,
         )
       ];
     }

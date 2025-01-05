@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import '../data/models/document_model.dart';
 
 class DocumentDetailView extends StatelessWidget {
-  final Document document;
+  final DocumentChapter chapter;
   
-  const DocumentDetailView({super.key, required this.document});
+  const DocumentDetailView({super.key, required this.chapter});
 
   static const routeName = '/document-detail';
 
@@ -12,13 +12,13 @@ class DocumentDetailView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(document.title),
+        title: Text('Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}'),
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: document.sections.length,
+        itemCount: chapter.sections.length,
         itemBuilder: (context, index) {
-          final section = document.sections[index];
+          final section = chapter.sections[index];
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
             shape: RoundedRectangleBorder(
