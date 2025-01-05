@@ -54,6 +54,7 @@ class DocumentListView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Categories Section
                       // Recent Documents Section
                       const Text(
                         'Recent Documents',
@@ -84,51 +85,6 @@ class DocumentListView extends StatelessWidget {
                                   ),
                                 ))
                             .toList(),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Categories Section
-                      const Text(
-                        'Categories',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      GridView.count(
-                        crossAxisCount: 2,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        mainAxisSpacing: 12,
-                        crossAxisSpacing: 12,
-                        childAspectRatio: 2.5,
-                        children: state.categories.map((category) {
-                          return InkWell(
-                            borderRadius: BorderRadius.circular(12),
-                            onTap: () {
-                              if (category == 'BNS') {
-                                Navigator.pushNamed(
-                                  context,
-                                  DocumentDetailView.routeName,
-                                  arguments: state.documents.first,
-                                );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Coming soon!'),
-                                    duration: Duration(seconds: 1),
-                                  ),
-                                );
-                              }
-                            },
-                            child: _buildCategoryCard(
-                              context: context,
-                              title: category,
-                              isActive: category == 'BNS',
-                            ),
-                          );
-                        }).toList(),
                       ),
                       const SizedBox(height: 16),
 
