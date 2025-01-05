@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/favorite_button.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'document_detail_view.dart';
 import '../settings/settings_view.dart';
@@ -218,13 +219,24 @@ class DocumentListView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 0.1,
-                  height: 1.4,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.1,
+                        height: 1.4,
+                      ),
+                    ),
+                  ),
+                  const FavoriteButton(
+                    isFavorited: false,
+                    favoriteCount: 0,
+                  ),
+                ],
               ),
               if (subtitle != null) 
                 Padding(
