@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../data/models/document_model.dart';
+import '../bloc/document/document_bloc.dart';
 
 class DocumentDetailView extends StatelessWidget {
   final Document? document;
