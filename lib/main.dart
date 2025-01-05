@@ -44,30 +44,3 @@ void main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
-  final SettingsController settingsController;
-
-  const MyApp({super.key, required this.settingsController});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Document Viewer',
-      theme: ThemeData(),
-      darkTheme: ThemeData.dark(),
-      onGenerateRoute: (settings) {
-        switch (settings.name) {
-          case DocumentDetailView.routeName:
-            return DocumentDetailView.route(settings);
-          default:
-            return MaterialPageRoute(
-              builder: (context) => const Scaffold(
-                body: Center(child: Text('Page not found')),
-              ),
-            );
-        }
-      },
-      home: const DocumentListView(),
-    );
-  }
-}
