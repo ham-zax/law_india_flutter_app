@@ -56,6 +56,7 @@ class DocumentListView extends StatelessWidget {
                                       );
                                     },
                                     child: _buildDocumentCard(
+                                      context: context,
                                       title: doc.title,
                                       subtitle: '${doc.category} • ${doc.sections.length} Sections',
                                       showChevron: true,
@@ -125,6 +126,7 @@ class DocumentListView extends StatelessWidget {
                                     );
                                   },
                                   child: _buildDocumentCard(
+                                    context: context,
                                     title: doc.title,
                                     subtitle: '${doc.category} • ${doc.sections.length} Sections',
                                     showChevron: true,
@@ -150,6 +152,7 @@ class DocumentListView extends StatelessWidget {
 
 
   Widget _buildDocumentCard({
+    required BuildContext context,
     required String title,
     String? lastAccessed,
     String? subtitle,
