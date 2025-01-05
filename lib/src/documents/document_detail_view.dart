@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../data/models/document_model.dart';
 import '../bloc/document/document_bloc.dart';
 import '../settings/reading_settings.dart';
@@ -62,8 +63,8 @@ class DocumentDetailView extends StatelessWidget {
 
   final DocumentDetailArguments arguments;
 
-  // Change to non-static final field with a unique name
-  final _documentScrollKey = GlobalKey<State<StatefulWidget>>();
+  final ItemScrollController _scrollController = ItemScrollController();
+  final ItemPositionsListener _positionsListener = ItemPositionsListener.create();
 
   DocumentDetailView({
     super.key,
@@ -259,92 +260,76 @@ class DocumentDetailView extends StatelessWidget {
   }
 
 
-final GlobalKey<State<StatefulWidget>> _scrollKey =
-      GlobalKey<State<StatefulWidget>>();
   Widget _buildContent(BuildContext context, ReadingSettings settings) {
     return Stack(
       children: [
-        NotificationListener<ScrollNotification>(
-          onNotification: (notification) {
-            if (scrollToSectionId != null) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                final context = _scrollKey.currentContext;
-                if (context != null) {
-                  Scrollable.ensureVisible(context,
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut,
-                  );
-                }
-              });
+        ScrollablePositionedList.builder(
+          padding: EdgeInsets.all(settings.margins),
+          itemCount: _getItemCount(),
+          itemScrollController: _scrollController,
+          itemPositionsListener: _positionsListener,
+          itemBuilder: (context, index) {
+            if (arguments.document != null) {
+              final chapter = arguments.document!.chapters[index];
+              return _buildChapterCard(
+                context: context,
+                title: 'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
+                subtitle: null,
+                isSelected: false,
+                onTap: () => _navigateToChapter(context, index),
+              );
+            } else if (arguments.chapter != null) {
+              final section = arguments.chapter!.sections[index];
+              final sectionId = '${arguments.chapter!.id}_${section.sectionNumber}';
+              return _buildSectionCard(
+                context: context,
+                chapterNumber: arguments.chapter!.chapterNumber,
+                sectionTitle: section.sectionTitle,
+                isExpanded: scrollToSectionId == sectionId,
+                content: section.content,
+                settings: settings,
+                sectionId: sectionId,
+                isFavorited: settings.isSectionFavorite(sectionId),
+              );
             }
-            return true;
+            return SizedBox.shrink();
           },
-          child: CustomScrollView(
-            key: _scrollKey,
-            slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.all(settings.margins),
-                child: Column(
-                  children: [
-                    if (arguments.document != null && arguments.chapter != null)
-                      LinearProgressIndicator(
-                        value: (int.parse(arguments.chapter!.chapterNumber) / arguments.document!.chapters.length),
-                      ),
-                    if (arguments.document == null || arguments.chapter == null)
-                      SizedBox(height: 16),
-                    SizedBox(height: 16),
-                    if (arguments.document != null && arguments.document!.chapters.isNotEmpty)
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: arguments.document!.chapters.length,
-                        itemBuilder: (context, index) {
-                          final chapter = arguments.document!.chapters[index];
-                          return _buildChapterCard(
-                            context: context,
-                            title: 'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
-                            subtitle: null,
-                            isSelected: false,
-                            onTap: () {
-                              Navigator.pushNamed(
-                                context,
-                                DocumentDetailView.routeName,
-                                arguments: chapter,
-                              );
-                            },
-                          );
-                        },
-                      )
-                    else if (arguments.chapter != null && arguments.chapter!.sections.isNotEmpty)
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: arguments.chapter!.sections.length,
-                        itemBuilder: (context, index) {
-                          final section = arguments.chapter!.sections[index];
-                          final sectionId = '${arguments.chapter!.id}_${section.sectionNumber}';
-                          return _buildSectionCard(
-                            context: context,
-                            key: arguments.scrollToSectionId == sectionId ? _scrollKey : null,
-                            chapterNumber: arguments.chapter!.chapterNumber,
-                            sectionTitle: section.sectionTitle,
-                            isExpanded: scrollToSectionId == sectionId,
-                            content: section.content,
-                            settings: settings,
-                            sectionId: sectionId,
-                            isFavorited: settings.isSectionFavorite(sectionId),
-                          );
-                        },
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ],
         ),
-      ),
+        buildReadingControls(),
       ],
+    );
+  }
+
+  int _getItemCount() {
+    if (arguments.document != null) {
+      return arguments.document!.chapters.length;
+    } else if (arguments.chapter != null) {
+      return arguments.chapter!.sections.length;
+    }
+    return 0;
+  }
+
+  void _scrollToSection(String sectionId) {
+    if (arguments.chapter != null) {
+      final index = arguments.chapter!.sections.indexWhere(
+        (section) => '${arguments.chapter!.id}_${section.sectionNumber}' == sectionId
+      );
+      if (index != -1) {
+        _scrollController.scrollTo(
+          index: index,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+    }
+  }
+
+  void _navigateToChapter(BuildContext context, int index) {
+    final chapter = arguments.document!.chapters[index];
+    Navigator.pushReplacementNamed(
+      context,
+      DocumentDetailView.routeName,
+      arguments: DocumentDetailArguments(chapter: chapter),
     );
   }
 
