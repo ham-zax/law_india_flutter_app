@@ -51,7 +51,10 @@ class DocumentListView extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: Implement search functionality
+          showSearch(
+            context: context,
+            delegate: DocumentSearchDelegate(context.read<DocumentBloc>()),
+          );
         },
         child: const Icon(Icons.search),
         shape: const CircleBorder(),

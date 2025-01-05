@@ -68,8 +68,30 @@ class LocalDocumentRepository implements DocumentRepository {
 
   @override
   Future<List<Document>> searchDocuments(String query) async {
-    // TODO: Implement search logic
-    return [];
+    final allDocs = await getDocumentsByCategory('BNS');
+    
+    return allDocs.where((doc) {
+      // Search in document title
+      if (ratio(query.toLowerCase(), doc.title.toLowerCase()) > 80) {
+        return true;
+      }
+      
+      // Search in chapters
+      for (final chapter in doc.chapters) {
+        if (ratio(query.toLowerCase(), chapter.chapterTitle.toLowerCase()) > 80) {
+          return true;
+        }
+        
+        // Search in sections
+        for (final section in chapter.sections) {
+          if (ratio(query.toLowerCase(), section.sectionTitle.toLowerCase()) > 80 ||
+              ratio(query.toLowerCase(), section.content.toLowerCase()) > 80) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }).toList();
   }
 
   @override
