@@ -56,8 +56,48 @@ class MyApp extends StatelessWidget {
           // Define a light and dark color theme. Then, read the user's
           // preferred ThemeMode (light, dark, or system default) from the
           // SettingsController to display the correct theme.
-          theme: ThemeData(),
-          darkTheme: ThemeData.dark(),
+          theme: ThemeData(
+            colorScheme: ColorScheme.light(
+              primary: Colors.blue.shade800,
+              secondary: Colors.blue.shade600,
+            ),
+            cardTheme: CardTheme(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              margin: EdgeInsets.zero,
+            ),
+            chipTheme: ChipThemeData(
+              selectedColor: Colors.blue.shade800,
+              checkmarkColor: Colors.white,
+              labelStyle: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+              ),
+            ),
+          ),
+          darkTheme: ThemeData.dark().copyWith(
+            colorScheme: ColorScheme.dark(
+              primary: Colors.blue.shade300,
+              secondary: Colors.blue.shade200,
+            ),
+            cardTheme: CardTheme(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              margin: EdgeInsets.zero,
+            ),
+            chipTheme: ChipThemeData(
+              selectedColor: Colors.blue.shade300,
+              checkmarkColor: Colors.black,
+              labelStyle: const TextStyle(
+                color: Colors.black,
+                fontSize: 14,
+              ),
+            ),
+          ),
           themeMode: settingsController.themeMode,
 
           // Define a function to handle named routes in order to support
@@ -72,8 +112,10 @@ class MyApp extends StatelessWidget {
                   case SampleItemDetailsView.routeName:
                     return const SampleItemDetailsView();
                   case SampleItemListView.routeName:
-                  default:
                     return const SampleItemListView();
+                  case DocumentListView.routeName:
+                  default:
+                    return const DocumentListView();
                 }
               },
             );
