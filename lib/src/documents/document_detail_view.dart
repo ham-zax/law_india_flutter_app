@@ -149,6 +149,30 @@ class DocumentDetailView extends StatelessWidget {
             _navigateToNextChapter(context);
           }
         },
+        onHorizontalDragUpdate: (details) {
+          // Add visual feedback during swipe
+          if (details.primaryDelta! > 0) {
+            // Swiping right
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Previous chapter'),
+                duration: Duration(milliseconds: 100),
+                behavior: SnackBarBehavior.floating,
+                margin: EdgeInsets.only(bottom: 16, left: 16, right: 16),
+              ),
+            );
+          } else if (details.primaryDelta! < 0) {
+            // Swiping left
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Next chapter'),
+                duration: Duration(milliseconds: 100),
+                behavior: SnackBarBehavior.floating,
+                margin: EdgeInsets.only(bottom: 16, left: 16, right: 16),
+              ),
+            );
+          }
+        },
         child: _buildContent(context, readingSettings),
       ),
     );
@@ -206,7 +230,9 @@ class DocumentDetailView extends StatelessWidget {
                 child: Column(
                   children: [
                     LinearProgressIndicator(
-                      value: 0.3, // TODO: Calculate actual progress
+                      value: chapter != null 
+                        ? (int.parse(chapter!.chapterNumber) / document!.chapters.length)
+                        : 0.0,
                     ),
                     SizedBox(height: 16),
                     if (document != null)
@@ -395,10 +421,66 @@ class DocumentDetailView extends StatelessWidget {
   }
 
   void _navigateToPreviousChapter(BuildContext context) {
-    // TODO: Implement chapter navigation
+    final doc = document;
+    if (doc == null) return;
+    
+    final currentChapter = chapter;
+    if (currentChapter == null) {
+      // If we're at the document level, do nothing
+      return;
+    }
+    
+    final currentIndex = doc.chapters.indexWhere(
+      (c) => c.chapterNumber == currentChapter.chapterNumber
+    );
+    
+    if (currentIndex > 0) {
+      final prevChapter = doc.chapters[currentIndex - 1];
+      Navigator.pushReplacementNamed(
+        context,
+        DocumentDetailView.routeName,
+        arguments: prevChapter,
+      );
+    } else {
+      // Show feedback when at first chapter
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('You\'re at the first chapter'),
+          duration: Duration(milliseconds: 300),
+        ),
+      );
+    }
   }
 
   void _navigateToNextChapter(BuildContext context) {
-    // TODO: Implement chapter navigation
+    final doc = document;
+    if (doc == null) return;
+    
+    final currentChapter = chapter;
+    if (currentChapter == null) {
+      // If we're at the document level, do nothing
+      return;
+    }
+    
+    final currentIndex = doc.chapters.indexWhere(
+      (c) => c.chapterNumber == currentChapter.chapterNumber
+    );
+    
+    if (currentIndex < doc.chapters.length - 1) {
+      final nextChapter = doc.chapters[currentIndex + 1];
+      Navigator.pushReplacementNamed(
+        context,
+        DocumentDetailView.routeName,
+        arguments: nextChapter,
+      );
+    } else {
+      // Show feedback when at last chapter
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('You\'ve reached the last chapter'),
+          duration: Duration(milliseconds: 300),
+        ),
+      );
+    }
   }
 }
