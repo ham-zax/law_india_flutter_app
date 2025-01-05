@@ -55,9 +55,8 @@ class DocumentDetailView extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
@@ -87,9 +86,8 @@ class DocumentDetailView extends StatelessWidget {
               child: ExpansionTile(
                 title: Text(
                   '${chapter!.chapterNumber} - ${section.sectionTitle}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 children: [
@@ -97,9 +95,8 @@ class DocumentDetailView extends StatelessWidget {
                     padding: const EdgeInsets.all(16),
                     child: Text(
                       section.content,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        height: 1.5,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        height: 1.6,
                       ),
                     ),
                   ),

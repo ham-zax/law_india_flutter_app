@@ -55,12 +55,9 @@ class DocumentListView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Categories Section
-                      const Text(
+                      Text(
                         'Categories',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.headlineSmall,
                       ),
                       const SizedBox(height: 12),
                       GridView.count(
@@ -100,12 +97,9 @@ class DocumentListView extends StatelessWidget {
                       const SizedBox(height: 16),
 
                       // Recent Documents Section
-                      const Text(
+                      Text(
                         'Recent Documents',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.headlineSmall,
                       ),
                       const SizedBox(height: 12),
                       Column(
@@ -247,9 +241,8 @@ class DocumentListView extends StatelessWidget {
                         padding: const EdgeInsets.only(top: 4),
                         child: Text(
                           lastAccessed,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
                           ),
                         ),
                       ),
