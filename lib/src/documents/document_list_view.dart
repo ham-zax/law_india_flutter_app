@@ -54,9 +54,14 @@ class DocumentListView extends StatelessWidget {
         child: const Icon(Icons.search),
         shape: const CircleBorder(),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
       bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
+        color: Theme.of(context).colorScheme.surface,
+        surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
+        elevation: 4.0,
+        shadowColor: Theme.of(context).colorScheme.shadow,
+        height: 80,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -65,12 +70,14 @@ class DocumentListView extends StatelessWidget {
               onPressed: () {
                 Scaffold.of(context).openDrawer();
               },
+              tooltip: 'Open navigation menu',
             ),
             IconButton(
               icon: const Icon(Icons.more_vert),
               onPressed: () {
                 // TODO: Implement more options
               },
+              tooltip: 'More options',
             ),
           ],
         ),
