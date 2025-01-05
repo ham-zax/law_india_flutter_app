@@ -47,6 +47,34 @@ class DocumentListView extends StatelessWidget {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // TODO: Implement search functionality
+        },
+        child: const Icon(Icons.search),
+        shape: const CircleBorder(),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.more_vert),
+              onPressed: () {
+                // TODO: Implement more options
+              },
+            ),
+          ],
+        ),
+      ),
       body: BlocBuilder<DocumentBloc, DocumentState>(
         builder: (context, state) {
           if (state is DocumentLoading) {
