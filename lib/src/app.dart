@@ -102,6 +102,7 @@ class MyApp extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
                 side: BorderSide.none,
               ),
+              checkmarkColor: Colors.transparent,
             ),
           ),
           darkTheme: ThemeData.dark().copyWith(
@@ -140,6 +141,7 @@ class MyApp extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
                 side: BorderSide.none,
               ),
+              checkmarkColor: Colors.transparent,
             ),
           ),
           themeMode: settingsController.themeMode,
