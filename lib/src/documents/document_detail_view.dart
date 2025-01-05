@@ -327,8 +327,8 @@ class DocumentDetailView extends StatelessWidget {
                                           children: [
                                             if (chapter != null)
                                               FavoriteButton(
-                                                sectionId: '${chapter.id}_${section.sectionNumber}',
-                                                isFavorited: settings.isSectionFavorite('${chapter.id}_${section.sectionNumber}'),
+                                                sectionId: '${chapter!.id}_${section.sectionNumber}',
+                                                isFavorited: settings.isSectionFavorite('${chapter!.id}_${section.sectionNumber}'),
                                               ),
                                           ],
                                         ),
