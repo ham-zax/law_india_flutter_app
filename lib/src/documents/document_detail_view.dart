@@ -62,8 +62,9 @@ class SectionContentView extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    Theme.of(context);
+    Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -85,9 +86,49 @@ class SectionContentView extends StatelessWidget {
           ),
         ],
       ),
-      body: EnhancedReadingView(
-        content: content,
-        settings: settings,
+      body: Column(
+        children: [
+          Expanded(
+            child: EnhancedReadingView(
+              content: content,
+              settings: settings,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton.icon(
+                  style: TextButton.styleFrom(
+                    backgroundColor: colorScheme.surface,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                  ),
+                  onPressed: () => Navigator.of(context)
+                      .pushReplacementNamed('/previous-section'),
+                  icon: Icon(Icons.arrow_back, size: 20),
+                  label: Text('Previous'),
+                ),
+                TextButton.icon(
+                  style: TextButton.styleFrom(
+                    backgroundColor: colorScheme.surface,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                  ),
+                  onPressed: () => Navigator.of(context)
+                      .pushReplacementNamed('/next-section'),
+                  icon: Icon(Icons.arrow_forward, size: 20),
+                  label: Text('Next'),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -380,73 +421,35 @@ Widget _buildChapterCard({
 
 Widget _buildContent(BuildContext context, ReadingSettings settings) {
     return SafeArea(
-      child: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: EdgeInsets.all(settings.margins),
-              itemCount: _getItemCount(),
-              itemBuilder: (context, index) {
-                if (widget.arguments.document != null) {
-                  final chapter = widget.arguments.document!.chapters[index];
-                  return _buildChapterCard(
-                    context: context,
-                    chapter: chapter,
-                    isSelected: false,
-                    onTap: () => _navigateToChapter(context, index),
-                  );
-                } else if (widget.arguments.chapter != null) {
-                  final section = widget.arguments.chapter!.sections[index];
-                  final sectionId =
-                      '${widget.arguments.chapter!.id}_${section.sectionNumber}';
-                  return _buildSectionCard(
-                    context: context,
-                    chapterNumber: widget.arguments.chapter!.chapterNumber,
-                    sectionTitle: section.sectionTitle,
-                    content: section.content,
-                    settings: settings,
-                    sectionId: sectionId,
-                    isFavorited: settings.isSectionFavorite(sectionId),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton.icon(
-                  style: TextButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.surface,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                  ),
-                  onPressed: () => _navigateToPreviousChapter(context),
-                  icon: Icon(Icons.arrow_back, size: 20),
-                  label: Text('Previous'),
-                ),
-                TextButton.icon(
-                  style: TextButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.surface,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                  ),
-                  onPressed: () => _navigateToNextChapter(context),
-                  icon: Icon(Icons.arrow_forward, size: 20),
-                  label: Text('Next'),
-                ),
-              ],
-            ),
-          ),
-        ],
+      child: ListView.builder(
+        controller: _scrollController,
+        padding: EdgeInsets.all(settings.margins),
+        itemCount: _getItemCount(),
+        itemBuilder: (context, index) {
+          if (widget.arguments.document != null) {
+            final chapter = widget.arguments.document!.chapters[index];
+            return _buildChapterCard(
+              context: context,
+              chapter: chapter,
+              isSelected: false,
+              onTap: () => _navigateToChapter(context, index),
+            );
+          } else if (widget.arguments.chapter != null) {
+            final section = widget.arguments.chapter!.sections[index];
+            final sectionId =
+                '${widget.arguments.chapter!.id}_${section.sectionNumber}';
+            return _buildSectionCard(
+              context: context,
+              chapterNumber: widget.arguments.chapter!.chapterNumber,
+              sectionTitle: section.sectionTitle,
+              content: section.content,
+              settings: settings,
+              sectionId: sectionId,
+              isFavorited: settings.isSectionFavorite(sectionId),
+            );
+          }
+          return const SizedBox.shrink();
+        },
       ),
     );
   }
