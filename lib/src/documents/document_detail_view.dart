@@ -17,33 +17,59 @@ class EnhancedReadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: settings.margins,
         vertical: 16,
       ),
-      child: SelectableText.rich(
-        TextSpan(
-          style: TextStyle(
-            fontSize: settings.fontSize,
-            height: settings.lineHeight,
-            fontFamily: settings.fontFamily,
-            color: Theme.of(context).textTheme.bodyLarge?.color,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SelectableText.rich(
+            TextSpan(
+              style: TextStyle(
+                fontSize: settings.fontSize,
+                height: settings.lineHeight,
+                fontFamily: settings.fontFamily,
+                color: theme.textTheme.bodyLarge?.color,
+              ),
+              children: [
+                TextSpan(text: content),
+              ],
+            ),
+            textAlign: TextAlign.justify,
+            textScaleFactor: MediaQuery.of(context).textScaleFactor,
+            selectionControls: MaterialTextSelectionControls(),
+            strutStyle: StrutStyle(
+              fontSize: settings.fontSize,
+              height: settings.lineHeight,
+              leading: 0.5,
+            ),
           ),
-          children: [
-            TextSpan(text: content),
-          ],
-        ),
-        textAlign: TextAlign.justify,
-        textScaleFactor: MediaQuery.of(context).textScaleFactor,
-        selectionControls: MaterialTextSelectionControls(),
-        strutStyle: StrutStyle(
-          fontSize: settings.fontSize,
-          height: settings.lineHeight,
-          leading: 0.5,
-        ),
+          const SizedBox(height: 16),
+          // Add reading progress indicator
+          LinearProgressIndicator(
+            value: _calculateReadingProgress(content),
+            backgroundColor: theme.colorScheme.surfaceVariant,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              theme.colorScheme.primary,
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  double _calculateReadingProgress(String content) {
+    // Calculate reading progress based on word count
+    final wordCount = content.split(RegExp(r'\s+')).length;
+    const averageReadingSpeed = 200; // words per minute
+    const averageReadingTime = 5; // minutes per section
+    
+    final estimatedTime = wordCount / averageReadingSpeed;
+    return (estimatedTime / averageReadingTime).clamp(0.0, 1.0);
   }
 }
 
