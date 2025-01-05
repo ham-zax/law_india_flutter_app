@@ -31,3 +31,4 @@ flutter:
   assets:
     - assets/images/
     - assets/data/chapter_1.json
+    - assets/data/chapter_2.json
