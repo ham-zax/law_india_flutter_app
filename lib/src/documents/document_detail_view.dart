@@ -240,17 +240,15 @@ class DocumentDetailView extends StatelessWidget {
                 padding: EdgeInsets.all(settings.margins),
                 child: Column(
                   children: [
-                    if (document != null && chapter != null) {
+                    if (document != null && chapter != null)
                       LinearProgressIndicator(
                         value: (int.parse(chapter!.chapterNumber) / document!.chapters.length),
                       ),
-                    }
-                    if (document == null || chapter == null) {
-                      SizedBox(height: 16);
-                    }
+                    if (document == null || chapter == null)
+                      SizedBox(height: 16),
                     SizedBox(height: 16),
-                    if (document != null && document!.chapters.isNotEmpty) {
-                      return ListView.builder(
+                    if (document != null && document!.chapters.isNotEmpty)
+                      ListView.builder(
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
                         itemCount: document!.chapters.length,
@@ -290,8 +288,8 @@ class DocumentDetailView extends StatelessWidget {
                           );
                         },
                       )
-                    } else if (chapter != null && chapter!.sections.isNotEmpty) {
-                      return ListView.builder(
+                    else if (chapter != null && chapter!.sections.isNotEmpty)
+                      ListView.builder(
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
                         itemCount: chapter!.sections.length,
