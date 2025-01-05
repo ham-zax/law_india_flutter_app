@@ -5,6 +5,7 @@ import '../data/models/document_model.dart';
 import '../bloc/document/document_bloc.dart';
 import '../settings/reading_settings.dart';
 import '../widgets/favorite_button.dart';
+import '../navigation/document_detail_arguments.dart';
 
 class EnhancedReadingView extends StatelessWidget {
   final String content;
@@ -57,14 +58,22 @@ class EnhancedReadingView extends StatelessWidget {
 }
 
 class DocumentDetailView extends StatelessWidget {
+  static const routeName = '/document-detail';
+
   final DocumentDetailArguments arguments;
 
-  const DocumentDetailView({
+  // Change to non-static final field with a unique name
+  final _documentScrollKey = GlobalKey<State<StatefulWidget>>();
+
+  DocumentDetailView({
     super.key,
     required this.arguments,
   });
 
-  static const routeName = '/document-detail';
+  // Add getters to fix undefined properties
+  Document? get document => arguments.document;
+  DocumentChapter? get chapter => arguments.chapter;
+  String? get scrollToSectionId => arguments.scrollToSectionId;
 
   static Route<dynamic> route(RouteSettings settings) {
     final args = settings.arguments;
