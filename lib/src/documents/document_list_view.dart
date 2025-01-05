@@ -96,63 +96,42 @@ class DocumentListView extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      SizedBox(
-                        height: 40,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: state.categories.length,
-                          separatorBuilder: (context, index) => const SizedBox(width: 8),
-                          itemBuilder: (context, index) {
-                            final category = state.categories[index];
-                            return ChoiceChip(
-                              label: Text(category),
-                              selected: category == state.selectedCategory,
-                              onSelected: (selected) {
-                                context.read<DocumentBloc>().add(
-                                      ChangeCategory(category),
-                                    );
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Chapters Section
-                      const Text(
-                        'Chapters',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      ListView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
+                      GridView.count(
+                        crossAxisCount: 2,
                         shrinkWrap: true,
-                        itemCount: state.documents.first.chapters.length,
-                        itemBuilder: (context, index) {
-                          final chapter = state.documents.first.chapters[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: InkWell(
-                              onTap: () {
+                        physics: const NeverScrollableScrollPhysics(),
+                        mainAxisSpacing: 12,
+                        crossAxisSpacing: 12,
+                        childAspectRatio: 2.5,
+                        children: state.categories.map((category) {
+                          return InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: () {
+                              if (category == 'BNS') {
                                 Navigator.pushNamed(
                                   context,
                                   DocumentDetailView.routeName,
-                                  arguments: chapter,
+                                  arguments: state.documents.first,
                                 );
-                              },
-                              child: _buildDocumentCard(
-                                context: context,
-                                title: 'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
-                                subtitle: '${chapter.sections.length} Sections',
-                                showChevron: true,
-                              ),
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Coming soon!'),
+                                    duration: Duration(seconds: 1),
+                                  ),
+                                );
+                              }
+                            },
+                            child: _buildCategoryCard(
+                              context: context,
+                              title: category,
+                              isActive: category == 'BNS',
                             ),
                           );
-                        },
+                        }).toList(),
                       ),
+                      const SizedBox(height: 16),
+
                     ],
                   ),
                 ),
@@ -167,6 +146,60 @@ class DocumentListView extends StatelessWidget {
     );
   }
 
+
+  Widget _buildCategoryCard({
+    required BuildContext context,
+    required String title,
+    bool isActive = true,
+  }) {
+    return Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      color: isActive 
+          ? Theme.of(context).colorScheme.surfaceVariant
+          : Colors.grey[200],
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: isActive 
+                    ? Colors.blue.shade50 
+                    : Colors.grey[300],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.article, 
+                size: 24, 
+                color: isActive ? Colors.blue : Colors.grey,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: isActive 
+                      ? Theme.of(context).colorScheme.onSurface 
+                      : Colors.grey,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            if (!isActive)
+              const Icon(Icons.lock, size: 20, color: Colors.grey),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _buildDocumentCard({
     required BuildContext context,

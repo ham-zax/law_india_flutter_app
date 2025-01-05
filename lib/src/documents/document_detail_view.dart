@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import '../data/models/document_model.dart';
 
 class DocumentDetailView extends StatelessWidget {
-  final DocumentChapter chapter;
+  final dynamic document;
   
-  const DocumentDetailView({super.key, required this.chapter});
+  const DocumentDetailView({super.key, required this.document});
 
   static const routeName = '/document-detail';
 
@@ -12,13 +12,56 @@ class DocumentDetailView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}'),
+        title: Text(document is Document 
+            ? document.title 
+            : 'Chapter ${document.chapterNumber} - ${document.chapterTitle}'),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: chapter.sections.length,
-        itemBuilder: (context, index) {
-          final section = chapter.sections[index];
+      body: document is Document
+          ? ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: document.chapters.length,
+              itemBuilder: (context, index) {
+                final chapter = document.chapters[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        DocumentDetailView.routeName,
+                        arguments: chapter,
+                      );
+                    },
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.article, size: 24),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Text(
+                                'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            const Icon(Icons.chevron_right, size: 24),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: document.sections.length,
+              itemBuilder: (context, index) {
+                final section = document.sections[index];
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
             shape: RoundedRectangleBorder(
