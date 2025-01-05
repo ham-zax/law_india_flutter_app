@@ -70,6 +70,20 @@ class DocumentDetailView extends StatelessWidget {
 
   static const routeName = '/document-detail';
 
+  static Route<dynamic> route(RouteSettings settings) {
+    final args = settings.arguments;
+    return MaterialPageRoute(
+      builder: (context) {
+        if (args is Document) {
+          return DocumentDetailView(document: args);
+        } else if (args is DocumentChapter) {
+          return DocumentDetailView(chapter: args);
+        }
+        return DocumentDetailView(); // Fallback for invalid arguments
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final readingSettings = Provider.of<ReadingSettings>(context);
