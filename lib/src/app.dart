@@ -62,7 +62,7 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             useMaterial3: true,
             colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.blue.shade800,
+              seedColor: Color(0xFF6750A4), // M3 purple primary
               brightness: Brightness.light,
             ),
             typography:
@@ -136,7 +136,7 @@ class MyApp extends StatelessWidget {
           darkTheme: ThemeData.dark().copyWith(
             useMaterial3: true,
             colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.blue.shade300,
+              seedColor: Color(0xFFD0BCFF), // M3 purple for dark theme
               brightness: Brightness.dark,
             ),
             navigationDrawerTheme: NavigationDrawerThemeData(

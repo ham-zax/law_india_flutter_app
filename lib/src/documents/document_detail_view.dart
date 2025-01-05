@@ -163,8 +163,9 @@ Widget _buildChapterCard({
       color: surfaceColor,
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(12),
       ),
+      surfaceTintColor: colorScheme.primaryContainer,
       child: InkWell(
         borderRadius: BorderRadius.circular(4),
         onTap: onTap,
@@ -173,11 +174,12 @@ Widget _buildChapterCard({
           child: Row(
             children: [
               CircleAvatar(
-                backgroundColor: colorScheme.secondaryContainer,
+                backgroundColor: colorScheme.primaryContainer,
                 child: Text(
                   chapter.chapterNumber,
                   style: theme.textTheme.labelMedium?.copyWith(
-                    color: colorScheme.onSecondaryContainer,
+                    color: colorScheme.onPrimaryContainer,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
@@ -194,6 +196,7 @@ Widget _buildChapterCard({
                             : colorScheme.onSurface,
                         letterSpacing: 0.15,
                         height: 1.4,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     Text(
