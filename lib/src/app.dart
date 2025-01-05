@@ -62,6 +62,11 @@ class MyApp extends StatelessWidget {
           // preferred ThemeMode (light, dark, or system default) from the
           // SettingsController to display the correct theme.
           theme: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.blue.shade800,
+              brightness: Brightness.light,
+            ),
             navigationDrawerTheme: NavigationDrawerThemeData(
               backgroundColor: Colors.white,
               indicatorColor: Colors.blue.shade800,
@@ -78,10 +83,6 @@ class MyApp extends StatelessWidget {
                   );
                 },
               ),
-            ),
-            colorScheme: ColorScheme.light(
-              primary: Colors.blue.shade800,
-              secondary: Colors.blue.shade600,
             ),
             pageTransitionsTheme: const PageTransitionsTheme(
               builders: {
@@ -101,32 +102,20 @@ class MyApp extends StatelessWidget {
               margin: EdgeInsets.zero,
             ),
             chipTheme: ChipThemeData(
-              selectedColor: Colors.blue.shade800,
-              secondarySelectedColor: Colors.blue.shade800,
-              disabledColor: Colors.grey.shade300,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-              labelStyle: TextStyle(
-                color: Colors.black87,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                height: 1.2,
-              ),
-              secondaryLabelStyle: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                height: 1.2,
-              ),
-              backgroundColor: Colors.grey.shade200,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              labelStyle: Theme.of(context).textTheme.labelLarge,
+              side: BorderSide.none,
+              shape: StadiumBorder(
                 side: BorderSide.none,
               ),
-              checkmarkColor: Colors.transparent,
             ),
           ),
           darkTheme: ThemeData.dark().copyWith(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.blue.shade300,
+              brightness: Brightness.dark,
+            ),
             navigationDrawerTheme: NavigationDrawerThemeData(
               backgroundColor: Colors.grey.shade900,
               indicatorColor: Colors.blue.shade300,
@@ -160,29 +149,12 @@ class MyApp extends StatelessWidget {
               margin: EdgeInsets.zero,
             ),
             chipTheme: ChipThemeData(
-              selectedColor: Colors.blue.shade300,
-              secondarySelectedColor: Colors.blue.shade300,
-              disabledColor: Colors.grey.shade700,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-              labelStyle: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                height: 1.2,
-              ),
-              secondaryLabelStyle: const TextStyle(
-                color: Colors.black87,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                height: 1.2,
-              ),
-              backgroundColor: Colors.grey.shade800,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              labelStyle: Theme.of(context).textTheme.labelLarge,
+              side: BorderSide.none,
+              shape: StadiumBorder(
                 side: BorderSide.none,
               ),
-              checkmarkColor: Colors.transparent,
             ),
           ),
           themeMode: settingsController.themeMode,

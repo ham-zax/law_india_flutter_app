@@ -15,6 +15,8 @@ class DocumentListView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Documents'),
+        surfaceTintColor: Theme.of(context).colorScheme.surface,
+        shadowColor: Theme.of(context).colorScheme.shadow,
       ),
       drawer: NavigationDrawer(
         selectedIndex: 0,
@@ -53,6 +55,8 @@ class DocumentListView extends StatelessWidget {
         },
         child: const Icon(Icons.search),
         shape: const CircleBorder(),
+        elevation: 0,
+        enableFeedback: true,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
       bottomNavigationBar: BottomAppBar(
@@ -226,16 +230,11 @@ class DocumentListView extends StatelessWidget {
     bool showChevron = false,
   }) {
     return Card(
-      elevation: 0,
+      elevation: 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: Theme.of(context).brightness == Brightness.light
-              ? Colors.grey.shade300
-              : Colors.grey.shade700,
-          width: 1,
-        ),
       ),
+      surfaceTintColor: Theme.of(context).colorScheme.surfaceVariant,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         child: Padding(
