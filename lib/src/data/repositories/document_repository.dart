@@ -30,11 +30,17 @@ class LocalDocumentRepository implements DocumentRepository {
         
         final firstSection = jsonData.first;
         final chapterTitle = firstSection['cn'] ?? 'Chapter $i'; // Use 'cn' for chapter name
-        final sections = jsonData.map((section) => DocumentSection(
-          sectionNumber: section['st']?.toString() ?? '0', // Use section title as number
-          sectionTitle: section['st'] ?? 'Untitled Section',
-          content: section['s'] ?? '',
-        )).toList();
+        final sections = jsonData.map((section) {
+          // Extract section number from title (e.g. "4. Punishments" -> "4")
+          final sectionTitle = section['st'] ?? 'Untitled Section';
+          final sectionNumber = sectionTitle.split('.').first.trim();
+          
+          return DocumentSection(
+            sectionNumber: sectionNumber,
+            sectionTitle: sectionTitle,
+            content: section['s'] ?? '',
+          );
+        }).toList();
 
         chapters.add(DocumentChapter(
           chapterNumber: i.toString(),
