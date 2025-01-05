@@ -289,39 +289,18 @@ final GlobalKey<State<StatefulWidget>> _scrollKey =
                         itemCount: document!.chapters.length,
                         itemBuilder: (context, index) {
                           final chapter = document!.chapters[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.pushNamed(
-                                  context,
-                                  DocumentDetailView.routeName,
-                                  arguments: chapter,
-                                );
-                              },
-                              child: Card(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Row(
-                                    children: [
-                                      const Icon(Icons.article, size: 24),
-                                      const SizedBox(width: 16),
-                                      Expanded(
-                                        child: Text(
-                                          'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
-                                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: settings.fontSize,
-                                            fontFamily: settings.fontFamily,
-                                          ),
-                                        ),
-                                      ),
-                                      const Icon(Icons.chevron_right, size: 24),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
+                          return _buildChapterCard(
+                            context: context,
+                            title: 'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
+                            subtitle: null,
+                            isSelected: false,
+                            onTap: () {
+                              Navigator.pushNamed(
+                                context,
+                                DocumentDetailView.routeName,
+                                arguments: chapter,
+                              );
+                            },
                           );
                         },
                       )
@@ -504,6 +483,79 @@ final GlobalKey<State<StatefulWidget>> _scrollKey =
         ),
       );
     }
+  }
+
+  Widget _buildChapterCard({
+    required BuildContext context,
+    required String title,
+    String? subtitle,
+    bool isSelected = false,
+    required VoidCallback onTap,
+  }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
+    final Color surfaceColor = isSelected
+        ? Color.alphaBlend(
+            colorScheme.primary.withOpacity(0.08),
+            colorScheme.surface,
+          )
+        : colorScheme.surface;
+
+    return Card(
+      elevation: 0,
+      color: surfaceColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(4),
+      ),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(4),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 16,
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.article, size: 24),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: isSelected 
+                            ? colorScheme.onPrimaryContainer
+                            : colorScheme.onSurface,
+                        letterSpacing: 0.15,
+                        height: 1.4,
+                      ),
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: isSelected
+                              ? colorScheme.onPrimaryContainer.withOpacity(0.8)
+                              : colorScheme.onSurfaceVariant,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right, size: 24),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _navigateToNextChapter(BuildContext context) {
