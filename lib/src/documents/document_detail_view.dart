@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../data/models/document_model.dart';
 import '../bloc/document/document_bloc.dart';
 import '../settings/reading_settings.dart';
 import '../widgets/favorite_button.dart';
 import '../navigation/document_detail_arguments.dart';
-import 'package:provider/provider.dart';
-
 class EnhancedReadingView extends StatelessWidget {
   final String content;
   final ReadingSettings settings;
@@ -23,41 +19,30 @@ class EnhancedReadingView extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Padding(
+    return SingleChildScrollView(
       padding: EdgeInsets.symmetric(
         horizontal: settings.margins,
         vertical: 16,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SelectableText.rich(
-            TextSpan(
-              style: TextStyle(
-                fontSize: settings.fontSize,
-                height: settings.lineHeight,
-                fontFamily: settings.fontFamily,
-                color: theme.textTheme.bodyLarge?.color,
-              ),
-              children: [
-                TextSpan(text: content),
-              ],
-            ),
-            textAlign: TextAlign.justify,
-            textScaleFactor: MediaQuery.of(context).textScaleFactor,
-            selectionControls: MaterialTextSelectionControls(),
-            strutStyle: StrutStyle(
-              fontSize: settings.fontSize,
-              height: settings.lineHeight,
-              leading: 0.5,
-            ),
+      child: SelectableText.rich(
+        TextSpan(
+          style: TextStyle(
+            fontSize: settings.fontSize,
+            height: settings.lineHeight,
+            fontFamily: settings.fontFamily,
+            color: theme.textTheme.bodyLarge?.color,
           ),
-        ],
+          children: [
+            TextSpan(text: content),
+          ],
+        ),
+        textAlign: TextAlign.justify,
+        textScaler: MediaQuery.of(context).textScaler,
+        selectionControls: MaterialTextSelectionControls(),
       ),
     );
   }
 }
-
 class SectionContentView extends StatelessWidget {
   final String chapterNumber;
   final String sectionTitle;
@@ -67,19 +52,18 @@ class SectionContentView extends StatelessWidget {
   final bool isFavorited;
 
   const SectionContentView({
-    Key? key,
+    super.key,
     required this.chapterNumber,
     required this.sectionTitle,
     required this.content,
     required this.settings,
     required this.sectionId,
     required this.isFavorited,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -386,41 +370,76 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
     );
   }
 
- Widget _buildContent(BuildContext context, ReadingSettings settings) {
-    return Stack(
-      children: [
-        ListView.builder(
-          controller: _scrollController,
-          padding: EdgeInsets.all(settings.margins),
-          itemCount: _getItemCount(),
-          itemBuilder: (context, index) {
-            if (widget.arguments.document != null) {
-              final chapter = widget.arguments.document!.chapters[index];
-              return _buildChapterCard(
-                context: context,
-                chapter: chapter,
-                isSelected: false,
-                onTap: () => _navigateToChapter(context, index),
-              );
-            } else if (widget.arguments.chapter != null) {
-              final section = widget.arguments.chapter!.sections[index];
-              final sectionId =
-                  '${widget.arguments.chapter!.id}_${section.sectionNumber}';
-              return _buildSectionCard(
-                context: context,
-                chapterNumber: widget.arguments.chapter!.chapterNumber,
-                sectionTitle: section.sectionTitle,
-                content: section.content,
-                settings: settings,
-                sectionId: sectionId,
-                isFavorited: settings.isSectionFavorite(sectionId),
-              );
-            }
-            return const SizedBox.shrink();
-          },
-        ),
-        _buildNavigationControls(),
-      ],
+Widget _buildContent(BuildContext context, ReadingSettings settings) {
+    return SafeArea(
+      child: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              controller: _scrollController,
+              padding: EdgeInsets.all(settings.margins),
+              itemCount: _getItemCount(),
+              itemBuilder: (context, index) {
+                if (widget.arguments.document != null) {
+                  final chapter = widget.arguments.document!.chapters[index];
+                  return _buildChapterCard(
+                    context: context,
+                    chapter: chapter,
+                    isSelected: false,
+                    onTap: () => _navigateToChapter(context, index),
+                  );
+                } else if (widget.arguments.chapter != null) {
+                  final section = widget.arguments.chapter!.sections[index];
+                  final sectionId =
+                      '${widget.arguments.chapter!.id}_${section.sectionNumber}';
+                  return _buildSectionCard(
+                    context: context,
+                    chapterNumber: widget.arguments.chapter!.chapterNumber,
+                    sectionTitle: section.sectionTitle,
+                    content: section.content,
+                    settings: settings,
+                    sectionId: sectionId,
+                    isFavorited: settings.isSectionFavorite(sectionId),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton.icon(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                  ),
+                  onPressed: () => _navigateToPreviousChapter(context),
+                  icon: Icon(Icons.arrow_back, size: 20),
+                  label: Text('Previous'),
+                ),
+                TextButton.icon(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                  ),
+                  onPressed: () => _navigateToNextChapter(context),
+                  icon: Icon(Icons.arrow_forward, size: 20),
+                  label: Text('Next'),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
   Widget _buildNavigationControls() {
