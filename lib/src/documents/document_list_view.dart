@@ -256,23 +256,64 @@ void _showFavoriteSections(BuildContext context, List<Document> documents) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) {
+        final theme = Theme.of(context);
         return Container(
-          padding: EdgeInsets.all(16),
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.75,
+          ),
+          padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Favorite Sections',
+                    style: theme.textTheme.headlineSmall,
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
               Text(
-                'Favorite Sections',
-                style: Theme.of(context).textTheme.titleLarge,
+                '${favoriteSections.length} saved sections',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
               const SizedBox(height: 16),
               if (favoriteSections.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text(
-                    'No favorite sections yet',
-                    style: Theme.of(context).textTheme.bodyMedium,
+                Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.favorite_border,
+                        size: 48,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No favorite sections yet',
+                        style: theme.textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Tap the heart icon on any section to save it here',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ),
                 )
               else
@@ -281,34 +322,93 @@ void _showFavoriteSections(BuildContext context, List<Document> documents) {
                     itemCount: favoriteSections.length,
                     itemBuilder: (context, index) {
                       final favorite = favoriteSections[index];
+                      final sectionId =
+                          '${favorite.chapter.id}_${favorite.section.sectionNumber}';
+
                       return Card(
                         margin: EdgeInsets.only(bottom: 12),
-                        child: ListTile(
-                          title: Text(
-                              'Section ${favorite.section.sectionNumber} - ${favorite.section.sectionTitle}'),
-                          subtitle: Text(
-                              'Chapter ${favorite.chapter.chapterNumber} - ${favorite.chapter.chapterTitle}'),
-                          trailing: IconButton(
-                            icon: Icon(Icons.favorite, color: Colors.red),
-                            onPressed: () {
-                              settings.toggleSectionFavorite(
-                                  '${favorite.chapter.id}_${favorite.section.sectionNumber}');
-                              Navigator.pop(context);
-                              _showFavoriteSections(context, documents);
-                            },
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: theme.colorScheme.surfaceVariant,
+                            width: 1,
                           ),
+                        ),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12),
                           onTap: () {
                             Navigator.pop(context);
-                            Navigator.pushNamed(
-                              context,
-                              DocumentDetailView.routeName,
-                              arguments: {
-                                'chapter': favorite.chapter,
-                                'scrollToSectionId':
-                                    '${favorite.chapter.id}_${favorite.section.sectionNumber}',
-                              },
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => SectionContentView(
+                                  chapterNumber: favorite.chapter.chapterNumber,
+                                  sectionTitle: favorite.section.sectionTitle,
+                                  content: favorite.section.content,
+                                  settings: settings,
+                                  sectionId: sectionId,
+                                  isFavorited: true,
+                                ),
+                              ),
                             );
                           },
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    CircleAvatar(
+                                      backgroundColor:
+                                          theme.colorScheme.secondaryContainer,
+                                      child: Text(
+                                        favorite.section.sectionNumber,
+                                        style: theme.textTheme.labelMedium
+                                            ?.copyWith(
+                                          color: theme
+                                              .colorScheme.onSecondaryContainer,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            favorite.section.sectionTitle,
+                                            style: theme.textTheme.titleMedium,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            'Chapter ${favorite.chapter.chapterNumber}',
+                                            style: theme.textTheme.bodyMedium
+                                                ?.copyWith(
+                                              color: theme
+                                                  .colorScheme.onSurfaceVariant,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.favorite,
+                                          color: Colors.red),
+                                      onPressed: () {
+                                        settings
+                                            .toggleSectionFavorite(sectionId);
+                                        Navigator.pop(context);
+                                        _showFavoriteSections(
+                                            context, documents);
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       );
                     },
