@@ -57,16 +57,12 @@ class EnhancedReadingView extends StatelessWidget {
 }
 
 class DocumentDetailView extends StatelessWidget {
-  final Document? document;
-  final DocumentChapter? chapter;
-  final String? scrollToSectionId;
-  
-  DocumentDetailView({
+  final DocumentDetailArguments arguments;
+
+  const DocumentDetailView({
     super.key,
-    this.document,
-    this.chapter,
-    this.scrollToSectionId,
-  }) : assert(document != null || chapter != null);
+    required this.arguments,
+  });
 
   static const routeName = '/document-detail';
 
@@ -108,7 +104,7 @@ static Route<dynamic> route(RouteSettings settings) {
     final readingSettings = Provider.of<ReadingSettings>(context);
     
     // Ensure we have either document or chapter
-    if (document == null && chapter == null) {
+    if (arguments.document == null && arguments.chapter == null) {
       return Scaffold(
         appBar: AppBar(),
         body: Center(child: Text('No document or chapter selected')),
@@ -218,15 +214,15 @@ static Route<dynamic> route(RouteSettings settings) {
       );
     }
     // Notify bloc that this chapter was viewed
-    if (chapter != null) {
+    if (arguments.chapter != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        context.read<DocumentBloc>().add(ChapterViewed(chapter!));
+        context.read<DocumentBloc>().add(ChapterViewed(arguments.chapter!));
       });
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text(document?.title ?? 
-            'Chapter ${chapter?.chapterNumber ?? ''} - ${chapter?.chapterTitle ?? ''}'),
+        title: Text(arguments.document?.title ?? 
+            'Chapter ${arguments.chapter?.chapterNumber ?? ''} - ${arguments.chapter?.chapterTitle ?? ''}'),
         actions: [
           IconButton(
             icon: Icon(Icons.format_size),
@@ -294,20 +290,20 @@ final GlobalKey<State<StatefulWidget>> _scrollKey =
                 padding: EdgeInsets.all(settings.margins),
                 child: Column(
                   children: [
-                    if (document != null && chapter != null)
+                    if (arguments.document != null && arguments.chapter != null)
                       LinearProgressIndicator(
-                        value: (int.parse(chapter!.chapterNumber) / document!.chapters.length),
+                        value: (int.parse(arguments.chapter!.chapterNumber) / arguments.document!.chapters.length),
                       ),
-                    if (document == null || chapter == null)
+                    if (arguments.document == null || arguments.chapter == null)
                       SizedBox(height: 16),
                     SizedBox(height: 16),
-                    if (document != null && document!.chapters.isNotEmpty)
+                    if (arguments.document != null && arguments.document!.chapters.isNotEmpty)
                       ListView.builder(
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
-                        itemCount: document!.chapters.length,
+                        itemCount: arguments.document!.chapters.length,
                         itemBuilder: (context, index) {
-                          final chapter = document!.chapters[index];
+                          final chapter = arguments.document!.chapters[index];
                           return _buildChapterCard(
                             context: context,
                             title: 'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
@@ -323,18 +319,18 @@ final GlobalKey<State<StatefulWidget>> _scrollKey =
                           );
                         },
                       )
-                    else if (chapter != null && chapter!.sections.isNotEmpty)
+                    else if (arguments.chapter != null && arguments.chapter!.sections.isNotEmpty)
                       ListView.builder(
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
-                        itemCount: chapter!.sections.length,
+                        itemCount: arguments.chapter!.sections.length,
                         itemBuilder: (context, index) {
-                          final section = chapter!.sections[index];
-                          final sectionId = '${chapter!.id}_${section.sectionNumber}';
+                          final section = arguments.chapter!.sections[index];
+                          final sectionId = '${arguments.chapter!.id}_${section.sectionNumber}';
                           return _buildSectionCard(
                             context: context,
-                            key: scrollToSectionId == sectionId ? _scrollKey : null,
-                            chapterNumber: chapter!.chapterNumber,
+                            key: arguments.scrollToSectionId == sectionId ? _scrollKey : null,
+                            chapterNumber: arguments.chapter!.chapterNumber,
                             sectionTitle: section.sectionTitle,
                             isExpanded: scrollToSectionId == sectionId,
                             content: section.content,
@@ -437,10 +433,10 @@ final GlobalKey<State<StatefulWidget>> _scrollKey =
   }
 
   void _navigateToPreviousChapter(BuildContext context) {
-    final doc = document;
+    final doc = arguments.document;
     if (doc == null) return;
     
-    final currentChapter = chapter;
+    final currentChapter = arguments.chapter;
     if (currentChapter == null) {
       // If we're at the document level, do nothing
       return;
