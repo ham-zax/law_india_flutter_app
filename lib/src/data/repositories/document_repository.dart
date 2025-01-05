@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
+import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import '../models/document_model.dart';
 
 abstract class DocumentRepository {
@@ -72,20 +73,35 @@ class LocalDocumentRepository implements DocumentRepository {
     
     return allDocs.where((doc) {
       // Search in document title
-      if (ratio(query.toLowerCase(), doc.title.toLowerCase()) > 80) {
+      if (extractOne(
+        query.toLowerCase(), 
+        [doc.title.toLowerCase()]
+      ).score > 80) {
         return true;
       }
       
       // Search in chapters
       for (final chapter in doc.chapters) {
-        if (ratio(query.toLowerCase(), chapter.chapterTitle.toLowerCase()) > 80) {
+        if (extractOne(
+          query.toLowerCase(),
+          [chapter.chapterTitle.toLowerCase()]
+        ).score > 80) {
           return true;
         }
         
         // Search in sections
         for (final section in chapter.sections) {
-          if (ratio(query.toLowerCase(), section.sectionTitle.toLowerCase()) > 80 ||
-              ratio(query.toLowerCase(), section.content.toLowerCase()) > 80) {
+          final titleMatch = extractOne(
+            query.toLowerCase(),
+            [section.sectionTitle.toLowerCase()]
+          ).score > 80;
+          
+          final contentMatch = extractOne(
+            query.toLowerCase(),
+            [section.content.toLowerCase()]
+          ).score > 80;
+          
+          if (titleMatch || contentMatch) {
             return true;
           }
         }
