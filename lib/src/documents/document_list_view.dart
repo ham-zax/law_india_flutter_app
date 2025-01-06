@@ -116,10 +116,10 @@ String cleanTitle(String title) {
                                   itemCount: state.recentChapters.length,
                                   itemBuilder: (context, index) {
                                     final chapter = state.recentChapters[index];
+                                    final pageController = PageController(viewportFraction: 0.85);
                                     return AnimatedBuilder(
-                                      animation: PageController(viewportFraction: 0.85),
+                                      animation: pageController,
                                       builder: (context, child) {
-                                        final pageController = PageController.of(context);
                                         final pageOffset = pageController.hasClients 
                                             ? index - (pageController.page ?? 0)
                                             : 0.0;
