@@ -140,9 +140,9 @@ class DocumentListView extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
 
-                        // Recent Documents Section
+                        // Recent Sections Section
                         Text(
-                          'Recent Documents',
+                          'Recent Sections',
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         const SizedBox(height: 12),
@@ -161,8 +161,7 @@ class DocumentListView extends StatelessWidget {
                                       child: Card(
                                         elevation: 0,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(12),
                                           side: BorderSide(
                                             color: Theme.of(context)
                                                 .colorScheme
@@ -171,40 +170,56 @@ class DocumentListView extends StatelessWidget {
                                           ),
                                         ),
                                         child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 20,
-                                            vertical: 16,
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                          padding: const EdgeInsets.all(16),
+                                          child: Row(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Text(
-                                                'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .titleMedium
-                                                    ?.copyWith(
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      letterSpacing: 0.1,
-                                                      height: 1.4,
-                                                    ),
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 4),
+                                              CircleAvatar(
+                                                radius: 16,
+                                                backgroundColor: Theme.of(context)
+                                                    .colorScheme
+                                                    .primaryContainer,
                                                 child: Text(
-                                                  '${chapter.sections.length} Sections',
+                                                  chapter.chapterNumber,
                                                   style: Theme.of(context)
                                                       .textTheme
-                                                      .bodyMedium
+                                                      .labelMedium
                                                       ?.copyWith(
                                                         color: Theme.of(context)
                                                             .colorScheme
-                                                            .onSurfaceVariant,
-                                                        height: 1.4,
+                                                            .onPrimaryContainer,
                                                       ),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      chapter.chapterTitle,
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .titleMedium
+                                                          ?.copyWith(
+                                                            fontWeight: FontWeight.w500,
+                                                          ),
+                                                      maxLines: 2,
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                    const SizedBox(height: 4),
+                                                    Text(
+                                                      '${chapter.sections.length} sections',
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .bodyMedium
+                                                          ?.copyWith(
+                                                            color: Theme.of(context)
+                                                                .colorScheme
+                                                                .onSurfaceVariant,
+                                                          ),
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
                                             ],
