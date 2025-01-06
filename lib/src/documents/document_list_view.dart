@@ -191,82 +191,79 @@ class _DocumentListViewState extends State<DocumentListView> {
                     ),
                   ),
                   SliverPadding(
-                    padding: const EdgeInsets.all(16),
-                    sliver: SliverGrid(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 16,
-                        crossAxisSpacing: 16,
-                        childAspectRatio: 0.85,
-                      ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
                           final chapter = state.documents.first.chapters[index];
-                          return Card(
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: BorderSide(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .surfaceVariant,
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: Card(
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .surfaceVariant,
+                                ),
                               ),
-                            ),
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.pushNamed(
-                                  context,
-                                  DocumentDetailView.routeName,
-                                  arguments: chapter,
-                                );
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    CircleAvatar(
-                                      backgroundColor: Theme.of(context)
-                                          .colorScheme
-                                          .primaryContainer,
-                                      child: Text(
-                                        chapter.chapterNumber,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleSmall
-                                            ?.copyWith(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onPrimaryContainer,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(12),
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    DocumentDetailView.routeName,
+                                    arguments: chapter,
+                                  );
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      CircleAvatar(
+                                        backgroundColor: Theme.of(context)
+                                            .colorScheme
+                                            .primaryContainer,
+                                        child: Text(
+                                          chapter.chapterNumber,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleSmall
+                                              ?.copyWith(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onPrimaryContainer,
+                                              ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            ..._buildTitleParts(
+                                                context, chapter.chapterTitle,
+                                                isBold: true),
+                                            const SizedBox(height: 8),
+                                            Text(
+                                              '${chapter.sections.length} Sections',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium
+                                                  ?.copyWith(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurfaceVariant,
+                                                  ),
                                             ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          ..._buildTitleParts(
-                                              context, chapter.chapterTitle,
-                                              isBold: true),
-                                          const Spacer(),
-                                          Text(
-                                            '${chapter.sections.length} Sections',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium
-                                                ?.copyWith(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurfaceVariant,
-                                                ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
