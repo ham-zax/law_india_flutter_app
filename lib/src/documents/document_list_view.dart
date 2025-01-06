@@ -7,7 +7,6 @@ import '../search/document_search_delegate.dart';
 import '../settings/reading_settings.dart';
 import '../data/models/document_model.dart';
 import '../widgets/favorite_button.dart';
-
 import '../bloc/document/document_bloc.dart';
 
 class DocumentListView extends StatelessWidget {
@@ -35,10 +34,7 @@ class DocumentListView extends StatelessWidget {
         ],
       ),
       body: WillPopScope(
-        onWillPop: () async {
-          // Prevent going back to the sample items view
-          return false;
-        },
+        onWillPop: () async => false,
         child: BlocBuilder<DocumentBloc, DocumentState>(
           builder: (context, state) {
             if (state is DocumentLoading) {
@@ -50,106 +46,31 @@ class DocumentListView extends StatelessWidget {
             }
 
             if (state is DocumentLoaded) {
-              return SafeArea(
-                child: SingleChildScrollView(
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Chapter Carousel Section
-                        SizedBox(
-                          height: 200,
-                          child: BlocBuilder<DocumentBloc, DocumentState>(
-                            builder: (context, state) {
-                              if (state is DocumentLoaded) {
-                                return PageView.builder(
-                                  controller: PageController(viewportFraction: 0.85),
-                                  itemCount: state.documents.first.chapters.length,
-                                  itemBuilder: (context, index) {
-                                    final chapter = state.documents.first.chapters[index];
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                      child: Card(
-                                        elevation: 2,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                        ),
-                                        child: InkWell(
-                                          onTap: () {
-                                            Navigator.pushNamed(
-                                              context,
-                                              DocumentDetailView.routeName,
-                                              arguments: chapter,
-                                            );
-                                          },
-                                          child: Container(
-                                            padding: const EdgeInsets.all(16),
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Row(
-                                                  children: [
-                                                    CircleAvatar(
-                                                      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                                                      child: Text(
-                                                        chapter.chapterNumber,
-                                                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                                          color: Theme.of(context).colorScheme.onPrimaryContainer,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 12),
-                                                    Expanded(
-                                                      child: Text(
-                                                        'Chapter ${chapter.chapterNumber}',
-                                                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                                          fontWeight: FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                const SizedBox(height: 12),
-                                                Text(
-                                                  chapter.chapterTitle,
-                                                  style: Theme.of(context).textTheme.bodyLarge,
-                                                  maxLines: 2,
-                                                  overflow: TextOverflow.ellipsis,
-                                                ),
-                                                const Spacer(),
-                                                Text(
-                                                  '${chapter.sections.length} Sections',
-                                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                );
-                              }
-                              return const Center(child: CircularProgressIndicator());
-                            },
+              return CustomScrollView(
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Continue Reading',
+                            style: Theme.of(context).textTheme.headlineSmall,
                           ),
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Recent Sections Section
-                        Text(
-                          'Recent Sections',
-                          style: Theme.of(context).textTheme.headlineSmall,
-                        ),
-                        const SizedBox(height: 12),
-                        Column(
-                          children: state.recentChapters
-                              .map((chapter) => Padding(
-                                    padding: const EdgeInsets.only(bottom: 12),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            height: 180,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: state.recentChapters.length,
+                              itemBuilder: (context, index) {
+                                final chapter = state.recentChapters[index];
+                                return Container(
+                                  width: 280,
+                                  margin: const EdgeInsets.only(right: 16),
+                                  child: Card(
+                                    elevation: 2,
                                     child: InkWell(
                                       onTap: () {
                                         Navigator.pushNamed(
@@ -158,204 +79,197 @@ class DocumentListView extends StatelessWidget {
                                           arguments: chapter,
                                         );
                                       },
-                                      child: Card(
-                                        elevation: 0,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          side: BorderSide(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .surfaceVariant,
-                                            width: 1,
-                                          ),
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(16),
-                                          child: Row(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              CircleAvatar(
-                                                radius: 16,
-                                                backgroundColor: Theme.of(context)
-                                                    .colorScheme
-                                                    .primaryContainer,
-                                                child: Text(
-                                                  chapter.chapterNumber,
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .labelMedium
-                                                      ?.copyWith(
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .onPrimaryContainer,
-                                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                CircleAvatar(
+                                                  backgroundColor:
+                                                      Theme.of(context)
+                                                          .colorScheme
+                                                          .primaryContainer,
+                                                  child: Text(
+                                                      chapter.chapterNumber),
                                                 ),
-                                              ),
-                                              const SizedBox(width: 12),
-                                              Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      chapter.chapterTitle,
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .titleMedium
-                                                          ?.copyWith(
-                                                            fontWeight: FontWeight.w500,
-                                                          ),
-                                                      maxLines: 2,
-                                                      overflow: TextOverflow.ellipsis,
-                                                    ),
-                                                    const SizedBox(height: 4),
-                                                    Text(
-                                                      '${chapter.sections.length} sections',
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .bodyMedium
-                                                          ?.copyWith(
-                                                            color: Theme.of(context)
-                                                                .colorScheme
-                                                                .onSurfaceVariant,
-                                                          ),
-                                                    ),
-                                                  ],
+                                                const SizedBox(width: 12),
+                                                Expanded(
+                                                  child: Text(
+                                                    'Chapter ${chapter.chapterNumber}',
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .titleMedium,
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
-                                          ),
+                                                Consumer<ReadingSettings>(
+                                                  builder: (context, settings,
+                                                      child) {
+                                                    return FavoriteButton(
+                                                      sectionId: chapter.id,
+                                                      isFavorited: settings
+                                                          .isSectionFavorite(
+                                                              chapter.id),
+                                                    );
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 12),
+                                            Text(
+                                              chapter.chapterTitle,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyLarge,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            const Spacer(),
+                                            Text(
+                                              '${chapter.sections.length} Sections',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium
+                                                  ?.copyWith(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurfaceVariant,
+                                                  ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ),
-                                  ))
-                              .toList(),
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Favorite Button
-                        Center(
-                          child: FloatingActionButton.extended(
-                            icon: Icon(Icons.favorite),
-                            label: Text('Favorites'),
-                            onPressed: () {
-                              _showFavoriteSections(context, state.documents);
-                            },
+                                  ),
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                      ],
+                          const SizedBox(height: 24),
+                          Text(
+                            'All Chapters',
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
+                  SliverPadding(
+                    padding: const EdgeInsets.all(16),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final chapter = state.documents.first.chapters[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Card(
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .surfaceVariant,
+                                ),
+                              ),
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    DocumentDetailView.routeName,
+                                    arguments: chapter,
+                                  );
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Row(
+                                    children: [
+                                      CircleAvatar(
+                                        backgroundColor: Theme.of(context)
+                                            .colorScheme
+                                            .primaryContainer,
+                                        child: Text(
+                                          chapter.chapterNumber,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleSmall
+                                              ?.copyWith(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onPrimaryContainer,
+                                              ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              chapter.chapterTitle,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .titleMedium
+                                                  ?.copyWith(
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              '${chapter.sections.length} Sections',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium
+                                                  ?.copyWith(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurfaceVariant,
+                                                  ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Consumer<ReadingSettings>(
+                                        builder: (context, settings, child) {
+                                          return FavoriteButton(
+                                            sectionId: chapter.id,
+                                            isFavorited: settings
+                                                .isSectionFavorite(chapter.id),
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                        childCount: state.documents.first.chapters.length,
+                      ),
+                    ),
+                  ),
+                ],
               );
             }
-
             return const Center(child: Text('No documents found'));
           },
         ),
       ),
-    );
-  }
-
-  Widget _buildCategoryCard({
-    required BuildContext context,
-    required String title,
-    bool isActive = true,
-  }) {
-    final theme = Theme.of(context);
-    final Color primaryColor =
-        isActive ? theme.colorScheme.primary : Colors.grey;
-
-    return Card(
-      elevation: isActive ? 1 : 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              isActive
-                  ? theme.colorScheme.surfaceVariant
-                  : theme.colorScheme.surface,
-              isActive
-                  ? theme.colorScheme.surfaceVariant.withOpacity(0.7)
-                  : theme.colorScheme.surface,
-            ],
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: isActive
-                      ? primaryColor.withOpacity(0.1)
-                      : theme.colorScheme.surfaceVariant.withOpacity(0.5),
-                ),
-                child: Icon(
-                  Icons.article_outlined,
-                  size: 20,
-                  color: isActive
-                      ? primaryColor
-                      : theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w500,
-                        color: isActive
-                            ? theme.colorScheme.onSurface
-                            : theme.colorScheme.onSurfaceVariant,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (!isActive)
-                      Flexible(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.lock_outline,
-                              size: 12,
-                              color: theme.colorScheme.onSurfaceVariant
-                                  .withOpacity(0.7),
-                            ),
-                            const SizedBox(width: 2),
-                            Flexible(
-                              child: Text(
-                                'Coming soon',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant
-                                      .withOpacity(0.7),
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+      floatingActionButton: FloatingActionButton.extended(
+        icon: const Icon(Icons.favorite),
+        label: const Text('Favorites'),
+        onPressed: () {
+          final currentState = context.read<DocumentBloc>().state;
+          if (currentState is DocumentLoaded) {
+            _showFavoriteSections(context, currentState.documents);
+          }
+        },
       ),
     );
   }
@@ -395,7 +309,7 @@ class DocumentListView extends StatelessWidget {
                     style: theme.textTheme.headlineSmall,
                   ),
                   IconButton(
-                    icon: Icon(Icons.close),
+                    icon: const Icon(Icons.close),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -443,7 +357,7 @@ class DocumentListView extends StatelessWidget {
                           '${favorite.chapter.id}_${favorite.section.sectionNumber}';
 
                       return Card(
-                        margin: EdgeInsets.only(bottom: 12),
+                        margin: const EdgeInsets.only(bottom: 12),
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -511,7 +425,7 @@ class DocumentListView extends StatelessWidget {
                                       ),
                                     ),
                                     IconButton(
-                                      icon: Icon(Icons.favorite,
+                                      icon: const Icon(Icons.favorite,
                                           color: Colors.red),
                                       onPressed: () {
                                         settings
@@ -535,72 +449,6 @@ class DocumentListView extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildDocumentCard({
-    required BuildContext context,
-    required String title,
-    String? subtitle,
-    required DocumentChapter chapter,
-  }) {
-    return Card(
-      elevation: 0, // Remove elevation for cleaner look
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.surfaceVariant,
-          width: 1,
-        ),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 16,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.1,
-                            height: 1.4,
-                          ),
-                    ),
-                  ),
-                  Consumer<ReadingSettings>(
-                    builder: (context, settings, child) {
-                      return FavoriteButton(
-                        sectionId: chapter.id,
-                        isFavorited: settings.isSectionFavorite(chapter.id),
-                      );
-                    },
-                  ),
-                ],
-              ),
-              if (subtitle != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Text(
-                    subtitle,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          height: 1.4,
-                        ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
