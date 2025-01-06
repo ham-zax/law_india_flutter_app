@@ -108,78 +108,135 @@ String cleanTitle(String title) {
                           ),
                           const SizedBox(height: 16),
                           SizedBox(
-                            height: 180,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: state.recentChapters.length,
-                              itemBuilder: (context, index) {
-                                final chapter = state.recentChapters[index];
-                                return Container(
-                                  width: 280,
-                                  margin: const EdgeInsets.only(right: 16),
-                                  child: Card(
-                                    elevation: 2,
-                                    child: InkWell(
-                                      onTap: () {
-                                        Navigator.pushNamed(
-                                          context,
-                                          DocumentDetailView.routeName,
-                                          arguments: chapter,
-                                        );
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(16),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                CircleAvatar(
-                                                  backgroundColor:
-                                                      Theme.of(context)
-                                                          .colorScheme
-                                                          .primaryContainer,
-                                                  child: Text(
-                                                      chapter.chapterNumber),
-                                                ),
-                                                const SizedBox(width: 12),
-                                                Expanded(
+                            height: 220,
+                            child: Stack(
+                              children: [
+                                PageView.builder(
+                                  controller: PageController(viewportFraction: 0.85),
+                                  itemCount: state.recentChapters.length,
+                                  itemBuilder: (context, index) {
+                                    final chapter = state.recentChapters[index];
+                                    return AnimatedBuilder(
+                                      animation: PageController(),
+                                      builder: (context, child) {
+                                        final pageOffset = index - (PageController().page ?? 0);
+                                        final scale = 1 - (0.1 * pageOffset.abs());
+                                        final margin = pageOffset.abs() * 20;
+                                        
+                                        return Transform.scale(
+                                          scale: scale,
+                                          child: Container(
+                                            margin: EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 16 + margin,
+                                            ),
+                                            child: Card(
+                                              elevation: 4,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(16),
+                                              ),
+                                              child: InkWell(
+                                                borderRadius: BorderRadius.circular(16),
+                                                onTap: () {
+                                                  Navigator.pushNamed(
+                                                    context,
+                                                    DocumentDetailView.routeName,
+                                                    arguments: chapter,
+                                                  );
+                                                },
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(20),
                                                   child: Column(
                                                     crossAxisAlignment: CrossAxisAlignment.start,
                                                     children: [
+                                                      Row(
+                                                        children: [
+                                                          CircleAvatar(
+                                                            backgroundColor:
+                                                                Theme.of(context)
+                                                                    .colorScheme
+                                                                    .primaryContainer,
+                                                            child: Text(
+                                                                chapter.chapterNumber),
+                                                          ),
+                                                          const SizedBox(width: 16),
+                                                          Expanded(
+                                                            child: Column(
+                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                              children: [
+                                                                Text(
+                                                                  'Chapter ${chapter.chapterNumber}',
+                                                                  style: Theme.of(context)
+                                                                      .textTheme
+                                                                      .titleMedium,
+                                                                ),
+                                                                const SizedBox(height: 8),
+                                                                ..._buildTitleParts(context, chapter.chapterTitle),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      const Spacer(),
+                                                      LinearProgressIndicator(
+                                                        value: 0.5, // TODO: Replace with actual progress
+                                                        backgroundColor: Theme.of(context)
+                                                            .colorScheme
+                                                            .surfaceVariant,
+                                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                                          Theme.of(context)
+                                                              .colorScheme
+                                                              .primary,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 8),
                                                       Text(
-                                                        'Chapter ${chapter.chapterNumber}',
+                                                        '${chapter.sections.length} Sections',
                                                         style: Theme.of(context)
                                                             .textTheme
-                                                            .titleMedium,
+                                                            .bodyMedium
+                                                            ?.copyWith(
+                                                              color: Theme.of(context)
+                                                                  .colorScheme
+                                                                  .onSurfaceVariant,
+                                                            ),
                                                       ),
-                                                      const SizedBox(height: 4),
-                                                      ..._buildTitleParts(context, chapter.chapterTitle),
                                                     ],
                                                   ),
                                                 ),
-                                              ],
+                                              ),
                                             ),
-                                            const Spacer(),
-                                            Text(
-                                              '${chapter.sections.length} Sections',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium
-                                                  ?.copyWith(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .onSurfaceVariant,
-                                                  ),
-                                            ),
-                                          ],
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                                if (state.recentChapters.length > 1)
+                                  Positioned(
+                                    bottom: 8,
+                                    left: 0,
+                                    right: 0,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: List<Widget>.generate(
+                                        state.recentChapters.length,
+                                        (index) => Container(
+                                          width: 8,
+                                          height: 8,
+                                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                                .withOpacity(0.5),
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                );
-                              },
+                              ],
                             ),
                           ),
                           const SizedBox(height: 24),
