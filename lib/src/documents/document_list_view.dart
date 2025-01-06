@@ -58,45 +58,85 @@ class DocumentListView extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Categories Section
-                        Text(
-                          'Categories',
-                          style: Theme.of(context).textTheme.headlineSmall,
-                        ),
-                        const SizedBox(height: 12),
-                        GridView.count(
-                          crossAxisCount: 2,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          mainAxisSpacing: 12,
-                          crossAxisSpacing: 12,
-                          childAspectRatio: 2.5,
-                          children: state.categories.map((category) {
-                            return InkWell(
-                              borderRadius: BorderRadius.circular(12),
-                              onTap: () {
-                                if (category == 'BNS') {
-                                  Navigator.pushNamed(
-                                    context,
-                                    DocumentDetailView.routeName,
-                                    arguments: state.documents.first,
-                                  );
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Coming soon!'),
-                                      duration: Duration(seconds: 1),
-                                    ),
-                                  );
-                                }
-                              },
-                              child: _buildCategoryCard(
-                                context: context,
-                                title: category,
-                                isActive: category == 'BNS',
-                              ),
-                            );
-                          }).toList(),
+                        // Chapter Carousel Section
+                        SizedBox(
+                          height: 200,
+                          child: BlocBuilder<DocumentBloc, DocumentState>(
+                            builder: (context, state) {
+                              if (state is DocumentLoaded) {
+                                return PageView.builder(
+                                  controller: PageController(viewportFraction: 0.85),
+                                  itemCount: state.documents.first.chapters.length,
+                                  itemBuilder: (context, index) {
+                                    final chapter = state.documents.first.chapters[index];
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                      child: Card(
+                                        elevation: 2,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                        ),
+                                        child: InkWell(
+                                          onTap: () {
+                                            Navigator.pushNamed(
+                                              context,
+                                              DocumentDetailView.routeName,
+                                              arguments: chapter,
+                                            );
+                                          },
+                                          child: Container(
+                                            padding: const EdgeInsets.all(16),
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    CircleAvatar(
+                                                      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                                                      child: Text(
+                                                        chapter.chapterNumber,
+                                                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 12),
+                                                    Expanded(
+                                                      child: Text(
+                                                        'Chapter ${chapter.chapterNumber}',
+                                                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 12),
+                                                Text(
+                                                  chapter.chapterTitle,
+                                                  style: Theme.of(context).textTheme.bodyLarge,
+                                                  maxLines: 2,
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                                const Spacer(),
+                                                Text(
+                                                  '${chapter.sections.length} Sections',
+                                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              }
+                              return const Center(child: CircularProgressIndicator());
+                            },
+                          ),
                         ),
                         const SizedBox(height: 16),
 
