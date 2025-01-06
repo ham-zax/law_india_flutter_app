@@ -117,9 +117,12 @@ String cleanTitle(String title) {
                                   itemBuilder: (context, index) {
                                     final chapter = state.recentChapters[index];
                                     return AnimatedBuilder(
-                                      animation: PageController(),
+                                      animation: PageController(viewportFraction: 0.85),
                                       builder: (context, child) {
-                                        final pageOffset = index - (PageController().page ?? 0);
+                                        final pageController = PageController.of(context);
+                                        final pageOffset = pageController.hasClients 
+                                            ? index - (pageController.page ?? 0)
+                                            : 0.0;
                                         final scale = 1 - (0.1 * pageOffset.abs());
                                         final margin = pageOffset.abs() * 20;
                                         
