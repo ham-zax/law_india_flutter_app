@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'document_detail_view.dart';
-import '../settings/settings_view.dart';
 import '../search/document_search_delegate.dart';
 import '../settings/reading_settings.dart';
 import '../data/models/document_model.dart';
-import '../widgets/favorite_button.dart';
 import '../bloc/document/document_bloc.dart';
 
 class DocumentListView extends StatelessWidget {
