@@ -62,6 +62,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       emit(DocumentError(message: e.toString()));
     }
   }
+  
 
   Future<void> _onChangeCategory(
     ChangeCategory event,
