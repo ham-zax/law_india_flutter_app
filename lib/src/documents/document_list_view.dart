@@ -52,7 +52,7 @@ String cleanTitle(String title) {
       appBar: AppBar(
         automaticallyImplyLeading: false, // Remove back arrow
         title: Text(
-          'Bharatiya Nyaya Sanhita, 2023',
+          'Bharatiya Nyaya Sanhita',
           style: Theme.of(context).textTheme.titleLarge, // Smaller title
         ),
         surfaceTintColor: Colors.transparent,
