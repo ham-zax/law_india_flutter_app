@@ -50,9 +50,25 @@ String cleanTitle(String title) {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bharatiya Nyaya Sanhita, 2023'),
-        surfaceTintColor: Theme.of(context).colorScheme.surface,
-        shadowColor: Theme.of(context).colorScheme.shadow,
+        automaticallyImplyLeading: false, // Remove back arrow
+        title: Text(
+          'Bharatiya Nyaya Sanhita, 2023',
+          style: Theme.of(context).textTheme.titleLarge, // Smaller title
+        ),
+        surfaceTintColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
+                Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.8),
+              ],
+            ),
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
