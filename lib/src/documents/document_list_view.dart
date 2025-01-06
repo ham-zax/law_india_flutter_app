@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+// Spacing constants
+const double kSpacingXSmall = 4.0;
+const double kSpacingSmall = 8.0;
+const double kSpacingMedium = 16.0;
+const double kSpacingLarge = 24.0;
+const double kSpacingXLarge = 32.0;
 import 'document_detail_view.dart';
 import '../search/document_search_delegate.dart';
 import '../settings/reading_settings.dart';
@@ -90,7 +97,10 @@ String cleanTitle(String title) {
                 slivers: [
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: kSpacingMedium,
+                        vertical: kSpacingMedium,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -102,7 +112,7 @@ String cleanTitle(String title) {
                               letterSpacing: -0.5,
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: kSpacingMedium),
                           SizedBox(
                             height: 180,
                             child: PageView.builder(
@@ -142,7 +152,7 @@ String cleanTitle(String title) {
                                               );
                                             },
                                             child: Padding(
-                                              padding: const EdgeInsets.all(20),
+                                              padding: const EdgeInsets.all(kSpacingMedium),
                                               child: Column(
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
@@ -166,7 +176,7 @@ String cleanTitle(String title) {
                                                               ),
                                                         ),
                                                       ),
-                                                      const SizedBox(width: 16),
+                                                      const SizedBox(width: kSpacingMedium),
                                                       Expanded(
                                                         child: Column(
                                                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,7 +187,7 @@ String cleanTitle(String title) {
                                                                   .textTheme
                                                                   .titleMedium,
                                                             ),
-                                                            const SizedBox(height: 8),
+                                                            const SizedBox(height: kSpacingSmall),
                                                             Text(
                                                               chapter.chapterTitle,
                                                               style: Theme.of(context)
@@ -208,7 +218,7 @@ String cleanTitle(String title) {
                               },
                             ),
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: kSpacingLarge),
                           Text(
                             'All Chapters',
                             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -222,7 +232,10 @@ String cleanTitle(String title) {
                     ),
                   ),
                   SliverPadding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: kSpacingMedium,
+                      vertical: kSpacingSmall,
+                    ),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
@@ -248,7 +261,7 @@ String cleanTitle(String title) {
                                   );
                                 },
                                 child: Padding(
-                                  padding: const EdgeInsets.all(16),
+                                  padding: const EdgeInsets.all(kSpacingMedium),
                                   child: Row(
                                     children: [
                                       CircleAvatar(
@@ -268,14 +281,14 @@ String cleanTitle(String title) {
                                               ),
                                         ),
                                       ),
-                                      const SizedBox(width: 16),
+                                      const SizedBox(width: kSpacingMedium),
                                       Expanded(
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
                                             ..._buildTitleParts(context, chapter.chapterTitle, isBold: true),
-                                            const SizedBox(height: 4),
+                                            const SizedBox(height: kSpacingXSmall),
                                             Text(
                                               '${chapter.sections.length} Sections',
                                               style: Theme.of(context)
