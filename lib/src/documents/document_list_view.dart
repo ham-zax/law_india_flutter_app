@@ -40,210 +40,272 @@ class DocumentListView extends StatelessWidget {
           return false;
         },
         child: BlocBuilder<DocumentBloc, DocumentState>(
-        builder: (context, state) {
-          if (state is DocumentLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+          builder: (context, state) {
+            if (state is DocumentLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          if (state is DocumentError) {
-            return Center(child: Text('Error: ${state.message}'));
-          }
+            if (state is DocumentError) {
+              return Center(child: Text('Error: ${state.message}'));
+            }
 
-          if (state is DocumentLoaded) {
-            return SafeArea(
-              child: SingleChildScrollView(
-                child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Categories Section
-                      Text(
-                        'Categories',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                      const SizedBox(height: 12),
-                      GridView.count(
-                        crossAxisCount: 2,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        mainAxisSpacing: 12,
-                        crossAxisSpacing: 12,
-                        childAspectRatio: 2.5,
-                        children: state.categories.map((category) {
-                          return InkWell(
-                            borderRadius: BorderRadius.circular(12),
-                            onTap: () {
-                              if (category == 'BNS') {
-                                Navigator.pushNamed(
-                                  context,
-                                  DocumentDetailView.routeName,
-                                  arguments: state.documents.first,
-                                );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Coming soon!'),
-                                    duration: Duration(seconds: 1),
-                                  ),
-                                );
-                              }
-                            },
-                            child: _buildCategoryCard(
-                              context: context,
-                              title: category,
-                              isActive: category == 'BNS',
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                      const SizedBox(height: 16),
+            if (state is DocumentLoaded) {
+              return SafeArea(
+                child: SingleChildScrollView(
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Categories Section
+                        Text(
+                          'Categories',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        const SizedBox(height: 12),
+                        GridView.count(
+                          crossAxisCount: 2,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                          childAspectRatio: 2.5,
+                          children: state.categories.map((category) {
+                            return InkWell(
+                              borderRadius: BorderRadius.circular(12),
+                              onTap: () {
+                                if (category == 'BNS') {
+                                  Navigator.pushNamed(
+                                    context,
+                                    DocumentDetailView.routeName,
+                                    arguments: state.documents.first,
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Coming soon!'),
+                                      duration: Duration(seconds: 1),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: _buildCategoryCard(
+                                context: context,
+                                title: category,
+                                isActive: category == 'BNS',
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 16),
 
-                      // Recent Documents Section
-                      Text(
-                        'Recent Documents',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                      const SizedBox(height: 12),
-                      Column(
-                        children: state.recentChapters
-                            .map((chapter) => Padding(
-                                  padding: const EdgeInsets.only(bottom: 12),
-                                  child: InkWell(
-                                    onTap: () {
-                                      Navigator.pushNamed(
-                                        context,
-                                        DocumentDetailView.routeName,
-                                        arguments: chapter,
-                                      );
-                                    },
-                                    child: Card(
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                        side: BorderSide(
-                                          color: Theme.of(context).colorScheme.surfaceVariant,
-                                          width: 1,
+                        // Recent Documents Section
+                        Text(
+                          'Recent Documents',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        const SizedBox(height: 12),
+                        Column(
+                          children: state.recentChapters
+                              .map((chapter) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 12),
+                                    child: InkWell(
+                                      onTap: () {
+                                        Navigator.pushNamed(
+                                          context,
+                                          DocumentDetailView.routeName,
+                                          arguments: chapter,
+                                        );
+                                      },
+                                      child: Card(
+                                        elevation: 0,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          side: BorderSide(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .surfaceVariant,
+                                            width: 1,
+                                          ),
                                         ),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 20,
-                                          vertical: 16,
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
-                                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                                fontWeight: FontWeight.w500,
-                                                letterSpacing: 0.1,
-                                                height: 1.4,
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 20,
+                                            vertical: 16,
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Chapter ${chapter.chapterNumber} - ${chapter.chapterTitle}',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .titleMedium
+                                                    ?.copyWith(
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      letterSpacing: 0.1,
+                                                      height: 1.4,
+                                                    ),
                                               ),
-                                            ),
-                                            Padding(
-                                              padding: const EdgeInsets.only(top: 4),
-                                              child: Text(
-                                                '${chapter.sections.length} Sections',
-                                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                                  height: 1.4,
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 4),
+                                                child: Text(
+                                                  '${chapter.sections.length} Sections',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyMedium
+                                                      ?.copyWith(
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .onSurfaceVariant,
+                                                        height: 1.4,
+                                                      ),
                                                 ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ))
-                            .toList(),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Favorite Button
-                      Center(
-                        child: FloatingActionButton.extended(
-                          icon: Icon(Icons.favorite),
-                          label: Text('Favorites'),
-                          onPressed: () {
-                            _showFavoriteSections(context, state.documents);
-                          },
+                                  ))
+                              .toList(),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                    ],
+                        const SizedBox(height: 16),
+
+                        // Favorite Button
+                        Center(
+                          child: FloatingActionButton.extended(
+                            icon: Icon(Icons.favorite),
+                            label: Text('Favorites'),
+                            onPressed: () {
+                              _showFavoriteSections(context, state.documents);
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            );
-          }
+              );
+            }
 
-          return const Center(child: Text('No documents found'));
-        },
+            return const Center(child: Text('No documents found'));
+          },
         ),
       ),
     );
   }
-
 
   Widget _buildCategoryCard({
     required BuildContext context,
     required String title,
     bool isActive = true,
   }) {
+    final theme = Theme.of(context);
+    final Color primaryColor =
+        isActive ? theme.colorScheme.primary : Colors.grey;
+
     return Card(
-      elevation: 1,
+      elevation: isActive ? 1 : 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      color: isActive 
-          ? Theme.of(context).colorScheme.surfaceVariant
-          : Colors.grey[200],
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: isActive 
-                    ? Colors.blue.shade50 
-                    : Colors.grey[300],
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.article, 
-                size: 24, 
-                color: isActive ? Colors.blue : Colors.grey,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: isActive 
-                      ? Theme.of(context).colorScheme.onSurface 
-                      : Colors.grey,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              isActive
+                  ? theme.colorScheme.surfaceVariant
+                  : theme.colorScheme.surface,
+              isActive
+                  ? theme.colorScheme.surfaceVariant.withOpacity(0.7)
+                  : theme.colorScheme.surface,
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: isActive
+                      ? primaryColor.withOpacity(0.1)
+                      : theme.colorScheme.surfaceVariant.withOpacity(0.5),
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+                child: Icon(
+                  Icons.article_outlined,
+                  size: 20,
+                  color: isActive
+                      ? primaryColor
+                      : theme.colorScheme.onSurfaceVariant,
+                ),
               ),
-            ),
-            if (!isActive)
-              const Icon(Icons.lock, size: 20, color: Colors.grey),
-          ],
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w500,
+                        color: isActive
+                            ? theme.colorScheme.onSurface
+                            : theme.colorScheme.onSurfaceVariant,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (!isActive)
+                      Flexible(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.lock_outline,
+                              size: 12,
+                              color: theme.colorScheme.onSurfaceVariant
+                                  .withOpacity(0.7),
+                            ),
+                            const SizedBox(width: 2),
+                            Flexible(
+                              child: Text(
+                                'Coming soon',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant
+                                      .withOpacity(0.7),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-void _showFavoriteSections(BuildContext context, List<Document> documents) {
+  void _showFavoriteSections(BuildContext context, List<Document> documents) {
     final settings = Provider.of<ReadingSettings>(context, listen: false);
     final favoriteSections = documents
         .expand((doc) => doc.chapters)
@@ -420,6 +482,7 @@ void _showFavoriteSections(BuildContext context, List<Document> documents) {
       },
     );
   }
+
   Widget _buildDocumentCard({
     required BuildContext context,
     required String title,
@@ -452,10 +515,10 @@ void _showFavoriteSections(BuildContext context, List<Document> documents) {
                     child: Text(
                       title,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 0.1,
-                        height: 1.4,
-                      ),
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0.1,
+                            height: 1.4,
+                          ),
                     ),
                   ),
                   Consumer<ReadingSettings>(
@@ -468,15 +531,15 @@ void _showFavoriteSections(BuildContext context, List<Document> documents) {
                   ),
                 ],
               ),
-              if (subtitle != null) 
+              if (subtitle != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
                   child: Text(
                     subtitle,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      height: 1.4,
-                    ),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          height: 1.4,
+                        ),
                   ),
                 ),
             ],
