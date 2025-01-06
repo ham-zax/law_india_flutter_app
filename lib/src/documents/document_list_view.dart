@@ -50,25 +50,17 @@ String cleanTitle(String title) {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false, // Remove back arrow
+        automaticallyImplyLeading: false,
         title: Text(
           'Bharatiya Nyaya Sanhita',
-          style: Theme.of(context).textTheme.titleLarge, // Smaller title
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+          ),
         ),
         surfaceTintColor: Colors.transparent,
         shadowColor: Colors.transparent,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
-                Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.8),
-              ],
-            ),
-          ),
-        ),
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
@@ -104,7 +96,11 @@ String cleanTitle(String title) {
                         children: [
                           Text(
                             'Continue Reading',
-                            style: Theme.of(context).textTheme.headlineSmall,
+                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.onSurface,
+                              letterSpacing: -0.5,
+                            ),
                           ),
                           const SizedBox(height: 16),
                           SizedBox(
@@ -158,7 +154,17 @@ String cleanTitle(String title) {
                                                                 .colorScheme
                                                                 .primaryContainer,
                                                         child: Text(
-                                                            chapter.chapterNumber),
+                                                          chapter.chapterNumber,
+                                                          style: Theme.of(context)
+                                                              .textTheme
+                                                              .titleMedium
+                                                              ?.copyWith(
+                                                                color: Theme.of(context)
+                                                                    .colorScheme
+                                                                    .onPrimaryContainer,
+                                                                fontWeight: FontWeight.w600,
+                                                              ),
+                                                        ),
                                                       ),
                                                       const SizedBox(width: 16),
                                                       Expanded(
@@ -193,7 +199,11 @@ String cleanTitle(String title) {
                           const SizedBox(height: 24),
                           Text(
                             'All Chapters',
-                            style: Theme.of(context).textTheme.headlineSmall,
+                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.onSurface,
+                              letterSpacing: -0.5,
+                            ),
                           ),
                         ],
                       ),
@@ -237,11 +247,12 @@ String cleanTitle(String title) {
                                           chapter.chapterNumber,
                                           style: Theme.of(context)
                                               .textTheme
-                                              .titleSmall
+                                              .titleMedium
                                               ?.copyWith(
                                                 color: Theme.of(context)
                                                     .colorScheme
                                                     .onPrimaryContainer,
+                                                fontWeight: FontWeight.w600,
                                               ),
                                         ),
                                       ),
