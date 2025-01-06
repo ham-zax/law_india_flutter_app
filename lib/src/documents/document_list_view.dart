@@ -128,7 +128,7 @@ String cleanTitle(String title) {
                                           child: Container(
                                             margin: EdgeInsets.symmetric(
                                               horizontal: 8,
-                                              vertical: 16 + margin,
+                                              vertical: 16 ,
                                             ),
                                             child: Card(
                                               elevation: 4,
