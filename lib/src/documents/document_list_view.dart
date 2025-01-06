@@ -19,7 +19,7 @@ class DocumentListView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Documents'),
+        title: const Text('Bharatiya Nyaya Sanhita, 2023'),
         surfaceTintColor: Theme.of(context).colorScheme.surface,
         shadowColor: Theme.of(context).colorScheme.shadow,
         actions: [
