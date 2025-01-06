@@ -5,6 +5,7 @@ import '../bloc/document/document_bloc.dart';
 import '../settings/reading_settings.dart';
 import '../widgets/favorite_button.dart';
 import '../navigation/document_detail_arguments.dart';
+
 class EnhancedReadingView extends StatelessWidget {
   final String content;
   final ReadingSettings settings;
@@ -43,6 +44,7 @@ class EnhancedReadingView extends StatelessWidget {
     );
   }
 }
+
 class SectionContentView extends StatelessWidget {
   final String chapterNumber;
   final String sectionTitle;
@@ -62,7 +64,7 @@ class SectionContentView extends StatelessWidget {
   });
 
   @override
-    Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -107,8 +109,7 @@ class SectionContentView extends StatelessWidget {
                       vertical: 12,
                     ),
                   ),
-                  onPressed: () => Navigator.of(context)
-                      .pushReplacementNamed('/previous-section'),
+                  onPressed: () => _navigateToPreviousSection(context),
                   icon: Icon(Icons.arrow_back, size: 20),
                   label: Text('Previous'),
                 ),
@@ -120,8 +121,7 @@ class SectionContentView extends StatelessWidget {
                       vertical: 12,
                     ),
                   ),
-                  onPressed: () => Navigator.of(context)
-                      .pushReplacementNamed('/next-section'),
+                  onPressed: () => _navigateToNextSection(context),
                   icon: Icon(Icons.arrow_forward, size: 20),
                   label: Text('Next'),
                 ),
@@ -131,6 +131,144 @@ class SectionContentView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _navigateToPreviousSection(BuildContext context) {
+    final bloc = context.read<DocumentBloc>();
+    final state = bloc.state;
+
+    if (state is DocumentLoaded) {
+      final currentChapter = state.findChapterById(sectionId.split('_').first);
+      if (currentChapter != null) {
+        final currentSectionIndex = currentChapter.sections.indexWhere(
+          (s) => '${currentChapter.id}_${s.sectionNumber}' == sectionId,
+        );
+
+        if (currentSectionIndex > 0) {
+          final previousSection =
+              currentChapter.sections[currentSectionIndex - 1];
+          final previousSectionId =
+              '${currentChapter.id}_${previousSection.sectionNumber}';
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => SectionContentView(
+                chapterNumber: currentChapter.chapterNumber,
+                sectionTitle: previousSection.sectionTitle,
+                content: previousSection.content,
+                settings: settings,
+                sectionId: previousSectionId,
+                isFavorited: settings.isSectionFavorite(previousSectionId),
+              ),
+            ),
+          );
+        } else {
+          // Handle reaching the first section (optional: navigate to previous chapter)
+          _navigateToPreviousChapter(context, currentChapter, state.documents);
+        }
+      }
+    }
+  }
+
+  void _navigateToNextSection(BuildContext context) {
+    final bloc = context.read<DocumentBloc>();
+    final state = bloc.state;
+
+    if (state is DocumentLoaded) {
+      final currentChapter = state.findChapterById(sectionId.split('_').first);
+      if (currentChapter != null) {
+        final currentSectionIndex = currentChapter.sections.indexWhere(
+          (s) => '${currentChapter.id}_${s.sectionNumber}' == sectionId,
+        );
+
+        if (currentSectionIndex < currentChapter.sections.length - 1) {
+          final nextSection = currentChapter.sections[currentSectionIndex + 1];
+          final nextSectionId =
+              '${currentChapter.id}_${nextSection.sectionNumber}';
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => SectionContentView(
+                chapterNumber: currentChapter.chapterNumber,
+                sectionTitle: nextSection.sectionTitle,
+                content: nextSection.content,
+                settings: settings,
+                sectionId: nextSectionId,
+                isFavorited: settings.isSectionFavorite(nextSectionId),
+              ),
+            ),
+          );
+        } else {
+          // Handle reaching the last section (optional: navigate to next chapter)
+          _navigateToNextChapter(context, currentChapter, state.documents);
+        }
+      }
+    }
+  }
+
+  void _navigateToPreviousChapter(BuildContext context,
+      DocumentChapter currentChapter, List<Document> documents) {
+    final docIndex =
+        documents.indexWhere((doc) => doc.chapters.contains(currentChapter));
+    if (docIndex != -1) {
+      final doc = documents[docIndex];
+      final chapterIndex = doc.chapters.indexOf(currentChapter);
+      if (chapterIndex > 0) {
+        final previousChapter = doc.chapters[chapterIndex - 1];
+        final lastSectionOfPreviousChapter = previousChapter.sections.last;
+        final previousSectionId =
+            '${previousChapter.id}_${lastSectionOfPreviousChapter.sectionNumber}';
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => SectionContentView(
+              chapterNumber: previousChapter.chapterNumber,
+              sectionTitle: lastSectionOfPreviousChapter.sectionTitle,
+              content: lastSectionOfPreviousChapter.content,
+              settings: settings,
+              sectionId: previousSectionId,
+              isFavorited: settings.isSectionFavorite(previousSectionId),
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text('You are in the first section of the first chapter')),
+        );
+      }
+    }
+  }
+
+  void _navigateToNextChapter(BuildContext context,
+      DocumentChapter currentChapter, List<Document> documents) {
+    final docIndex =
+        documents.indexWhere((doc) => doc.chapters.contains(currentChapter));
+    if (docIndex != -1) {
+      final doc = documents[docIndex];
+      final chapterIndex = doc.chapters.indexOf(currentChapter);
+      if (chapterIndex < doc.chapters.length - 1) {
+        final nextChapter = doc.chapters[chapterIndex + 1];
+        final firstSectionOfNextChapter = nextChapter.sections.first;
+        final nextSectionId =
+            '${nextChapter.id}_${firstSectionOfNextChapter.sectionNumber}';
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => SectionContentView(
+              chapterNumber: nextChapter.chapterNumber,
+              sectionTitle: firstSectionOfNextChapter.sectionTitle,
+              content: firstSectionOfNextChapter.content,
+              settings: settings,
+              sectionId: nextSectionId,
+              isFavorited: settings.isSectionFavorite(nextSectionId),
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('You are in the last section of the last chapter')),
+        );
+      }
+    }
   }
 }
 
@@ -190,8 +328,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
     super.dispose();
   }
 
-
-Widget _buildChapterCard({
+  Widget _buildChapterCard({
     required BuildContext context,
     required DocumentChapter chapter,
     required bool isSelected,
@@ -287,6 +424,7 @@ Widget _buildChapterCard({
       ),
     );
   }
+
   Widget _buildSectionCard({
     required BuildContext context,
     Key? key,
@@ -299,7 +437,7 @@ Widget _buildChapterCard({
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     String cleanTitle(String title) {
       final regex = RegExp(r'^\d+[\.\s-]*\s*');
       return title.replaceFirst(regex, '');
@@ -388,38 +526,11 @@ Widget _buildChapterCard({
           ),
         ],
       ),
-      body: GestureDetector(
-        onHorizontalDragEnd: (details) {
-          if (details.primaryVelocity != null) {
-            if (details.primaryVelocity! > 0) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Previous chapter'),
-                  duration: Duration(milliseconds: 300),
-                  behavior: SnackBarBehavior.floating,
-                  margin: EdgeInsets.only(bottom: 16, left: 16, right: 16),
-                ),
-              );
-              _navigateToPreviousChapter(context);
-            } else if (details.primaryVelocity! < 0) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Next chapter'),
-                  duration: Duration(milliseconds: 300),
-                  behavior: SnackBarBehavior.floating,
-                  margin: EdgeInsets.only(bottom: 16, left: 16, right: 16),
-                ),
-              );
-              _navigateToNextChapter(context);
-            }
-          }
-        },
-        child: _buildContent(context, readingSettings),
-      ),
+      body: _buildContent(context, readingSettings),
     );
   }
 
-Widget _buildContent(BuildContext context, ReadingSettings settings) {
+  Widget _buildContent(BuildContext context, ReadingSettings settings) {
     return SafeArea(
       child: ListView.builder(
         controller: _scrollController,
@@ -453,45 +564,6 @@ Widget _buildContent(BuildContext context, ReadingSettings settings) {
       ),
     );
   }
-  Widget _buildNavigationControls() {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Positioned(
-      bottom: 16,
-      left: 16,
-      right: 16,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          TextButton.icon(
-            style: TextButton.styleFrom(
-              backgroundColor: colorScheme.surface,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
-            ),
-            onPressed: () => _navigateToPreviousChapter(context),
-            icon: Icon(Icons.arrow_back, size: 20),
-            label: Text('Previous'),
-          ),
-          TextButton.icon(
-            style: TextButton.styleFrom(
-              backgroundColor: colorScheme.surface,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
-            ),
-            onPressed: () => _navigateToNextChapter(context),
-            icon: Icon(Icons.arrow_forward, size: 20),
-            label: Text('Next'),
-          ),
-        ],
-      ),
-    );
-  }
 
   void _showSettingsBottomSheet(BuildContext context) {
     final settings = Provider.of<ReadingSettings>(context, listen: false);
@@ -501,7 +573,7 @@ Widget _buildContent(BuildContext context, ReadingSettings settings) {
     );
   }
 
-Widget _buildSettingsSheet(ReadingSettings settings) {
+  Widget _buildSettingsSheet(ReadingSettings settings) {
     return Container(
       padding: EdgeInsets.all(16),
       child: Column(
@@ -577,8 +649,7 @@ Widget _buildSettingsSheet(ReadingSettings settings) {
     return 0;
   }
 
-
-   void _navigateToChapter(BuildContext context, int index) {
+  void _navigateToChapter(BuildContext context, int index) {
     final chapter = widget.arguments.document!.chapters[index];
     Navigator.pushReplacementNamed(
       context,
@@ -588,59 +659,5 @@ Widget _buildSettingsSheet(ReadingSettings settings) {
         scrollToSectionId: null,
       ),
     );
-  }
-
-  void _navigateToPreviousChapter(BuildContext context) {
-    final doc = widget.arguments.document;
-    if (doc == null) return;
-
-    final currentChapter = widget.arguments.chapter;
-    if (currentChapter == null) return;
-
-    final currentIndex = doc.chapters
-        .indexWhere((c) => c.chapterNumber == currentChapter.chapterNumber);
-
-    if (currentIndex > 0) {
-      final prevChapter = doc.chapters[currentIndex - 1];
-      Navigator.pushReplacementNamed(
-        context,
-        DocumentDetailView.routeName,
-        arguments: prevChapter,
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('You\'re at the first chapter'),
-          duration: Duration(milliseconds: 300),
-        ),
-      );
-    }
-  }
-
-  void _navigateToNextChapter(BuildContext context) {
-    final doc = document;
-    if (doc == null) return;
-
-    final currentChapter = chapter;
-    if (currentChapter == null) return;
-
-    final currentIndex = doc.chapters
-        .indexWhere((c) => c.chapterNumber == currentChapter.chapterNumber);
-
-    if (currentIndex < doc.chapters.length - 1) {
-      final nextChapter = doc.chapters[currentIndex + 1];
-      Navigator.pushReplacementNamed(
-        context,
-        DocumentDetailView.routeName,
-        arguments: nextChapter,
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('You\'ve reached the last chapter'),
-          duration: Duration(milliseconds: 300),
-        ),
-      );
-    }
   }
 }
