@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../data/models/document_model.dart';
-
+import '../bloc/document/document_bloc.dart';
+import '../settings/reading_settings.dart';
+import '../widgets/favorite_button.dart';
+import '../navigation/document_detail_arguments.dart';
 // Spacing constants
 class Spacing {
   static const double xs = 4.0;    // Micro adjustments
@@ -15,10 +18,6 @@ class Spacing {
   static const EdgeInsets cardPadding = EdgeInsets.all(md);
   static const EdgeInsets listItemSpacing = EdgeInsets.only(bottom: sm);
 }
-import '../bloc/document/document_bloc.dart';
-import '../settings/reading_settings.dart';
-import '../widgets/favorite_button.dart';
-import '../navigation/document_detail_arguments.dart';
 
 class EnhancedReadingView extends StatelessWidget {
   final String content;
