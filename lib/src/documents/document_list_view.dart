@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-// Spacing constants
-const double kSpacingXSmall = 4.0;
-const double kSpacingSmall = 8.0;
-const double kSpacingMedium = 16.0;
-const double kSpacingLarge = 24.0;
-const double kSpacingXLarge = 32.0;
 import 'document_detail_view.dart';
 import '../search/document_search_delegate.dart';
 import '../settings/reading_settings.dart';
 import '../data/models/document_model.dart';
 import '../bloc/document/document_bloc.dart';
 
+const double kSpacingXSmall = 4.0;
+const double kSpacingSmall = 8.0;
+const double kSpacingMedium = 16.0;
+const double kSpacingLarge = 24.0;
+const double kSpacingXLarge = 32.0;
 class DocumentListView extends StatelessWidget {
   const DocumentListView({super.key});
 
