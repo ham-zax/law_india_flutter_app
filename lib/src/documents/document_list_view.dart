@@ -14,7 +14,12 @@ class DocumentListView extends StatelessWidget {
 
   static const routeName = '/documents';
 
-  @override
+String cleanTitle(String title) {
+    final regex = RegExp(r'^\d+[\.\s-]*\s*');
+    return title.replaceFirst(regex, '');
+  }
+
+@override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -104,22 +109,11 @@ class DocumentListView extends StatelessWidget {
                                                         .titleMedium,
                                                   ),
                                                 ),
-                                                Consumer<ReadingSettings>(
-                                                  builder: (context, settings,
-                                                      child) {
-                                                    return FavoriteButton(
-                                                      sectionId: chapter.id,
-                                                      isFavorited: settings
-                                                          .isSectionFavorite(
-                                                              chapter.id),
-                                                    );
-                                                  },
-                                                ),
                                               ],
                                             ),
                                             const SizedBox(height: 12),
                                             Text(
-                                              chapter.chapterTitle,
+                                              cleanTitle(chapter.chapterTitle),
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .bodyLarge,
@@ -209,7 +203,7 @@ class DocumentListView extends StatelessWidget {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              chapter.chapterTitle,
+                                              cleanTitle(chapter.chapterTitle),
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .titleMedium
@@ -233,15 +227,6 @@ class DocumentListView extends StatelessWidget {
                                             ),
                                           ],
                                         ),
-                                      ),
-                                      Consumer<ReadingSettings>(
-                                        builder: (context, settings, child) {
-                                          return FavoriteButton(
-                                            sectionId: chapter.id,
-                                            isFavorited: settings
-                                                .isSectionFavorite(chapter.id),
-                                          );
-                                        },
                                       ),
                                     ],
                                   ),
@@ -273,7 +258,6 @@ class DocumentListView extends StatelessWidget {
       ),
     );
   }
-
   void _showFavoriteSections(BuildContext context, List<Document> documents) {
     final settings = Provider.of<ReadingSettings>(context, listen: false);
     final favoriteSections = documents
