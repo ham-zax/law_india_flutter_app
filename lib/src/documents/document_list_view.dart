@@ -378,7 +378,7 @@ String cleanTitle(String title) {
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: Spacing.md),
               if (favoriteSections.isEmpty)
                 Center(
                   child: Column(

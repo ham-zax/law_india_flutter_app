@@ -1,6 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../data/models/document_model.dart';
+
+// Spacing constants
+class Spacing {
+  static const double xs = 4.0;    // Micro adjustments
+  static const double sm = 8.0;    // Tight spacing
+  static const double md = 16.0;   // Standard spacing
+  static const double lg = 24.0;   // Section spacing
+  static const double xl = 32.0;   // Major section spacing
+  
+  // Padding presets
+  static const EdgeInsets contentPadding = EdgeInsets.all(md);
+  static const EdgeInsets cardPadding = EdgeInsets.all(md);
+  static const EdgeInsets listItemSpacing = EdgeInsets.only(bottom: sm);
+}
 import '../bloc/document/document_bloc.dart';
 import '../settings/reading_settings.dart';
 import '../widgets/favorite_button.dart';
@@ -317,7 +331,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
         borderRadius: BorderRadius.circular(4),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: Spacing.cardPadding,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -331,7 +345,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: Spacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -348,7 +362,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
                       ),
                     ),
                     if (subtitles.isNotEmpty) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: Spacing.xs),
                       ...subtitles.map((subtitle) => Padding(
                             padding: const EdgeInsets.only(top: 4),
                             child: Text(
@@ -362,7 +376,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
                             ),
                           )),
                     ],
-                    const SizedBox(height: 8),
+                    const SizedBox(height: Spacing.sm),
                     Text(
                       '${chapter.sections.length} sections',
                       style: theme.textTheme.bodySmall?.copyWith(
@@ -424,7 +438,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
           );
         },
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: Spacing.cardPadding,
           child: Row(
             children: [
               CircleAvatar(
@@ -492,7 +506,10 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
     return SafeArea(
       child: ListView.builder(
         controller: _scrollController,
-        padding: EdgeInsets.all(settings.margins),
+        padding: Spacing.contentPadding.copyWith(
+          left: settings.margins,
+          right: settings.margins,
+        ),
         itemCount: _getItemCount(),
         itemBuilder: (context, index) {
           if (widget.arguments.document != null) {
@@ -533,7 +550,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
 
   Widget _buildSettingsSheet(ReadingSettings settings) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: Spacing.contentPadding,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
