@@ -107,3 +107,16 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     }
   }
 }
+
+extension FindChapterById on DocumentLoaded {
+  DocumentChapter? findChapterById(String chapterId) {
+    for (final document in documents) {
+      for (final chapter in document.chapters) {
+        if (chapter.id == chapterId) {
+          return chapter;
+        }
+      }
+    }
+    return null;
+  }
+}
