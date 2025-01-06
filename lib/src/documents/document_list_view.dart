@@ -7,46 +7,66 @@ import '../settings/reading_settings.dart';
 import '../data/models/document_model.dart';
 import '../bloc/document/document_bloc.dart';
 
-class DocumentListView extends StatelessWidget {
+class DocumentListView extends StatefulWidget {
   const DocumentListView({super.key});
 
   static const routeName = '/documents';
 
-String cleanTitle(String title) {
+  @override
+  State<DocumentListView> createState() => _DocumentListViewState();
+}
+
+class _DocumentListViewState extends State<DocumentListView> {
+  late final PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(viewportFraction: 0.85);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  String cleanTitle(String title) {
     final regex = RegExp(r'^\d+[\.\s-]*\s*');
     return title.replaceFirst(regex, '');
   }
 
-  List<Widget> _buildTitleParts(BuildContext context, String title, {bool isBold = false}) {
+  List<Widget> _buildTitleParts(BuildContext context, String title,
+      {bool isBold = false}) {
     final cleanedTitle = cleanTitle(title);
     final titleParts = cleanedTitle.split(' - ');
     final mainTitle = titleParts[0].trim();
     final subtitles = titleParts.length > 1 ? titleParts.sublist(1) : [];
-    
+
     return [
       Text(
         mainTitle,
         style: Theme.of(context).textTheme.titleMedium?.copyWith(
-          fontWeight: isBold ? FontWeight.w500 : FontWeight.normal,
-        ),
+              fontWeight: isBold ? FontWeight.w500 : FontWeight.normal,
+            ),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
       if (subtitles.isNotEmpty) ...[
         const SizedBox(height: 4),
         ...subtitles.map((subtitle) => Text(
-          subtitle,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        )),
+              subtitle,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            )),
       ],
     ];
   }
 
-@override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -92,15 +112,15 @@ String cleanTitle(String title) {
                           ),
                           const SizedBox(height: 16),
                           SizedBox(
-                            height: 180,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
+                            height: 200,
+                            child: PageView.builder(
+                              controller: _pageController,
                               itemCount: state.recentChapters.length,
                               itemBuilder: (context, index) {
                                 final chapter = state.recentChapters[index];
-                                return Container(
-                                  width: 280,
-                                  margin: const EdgeInsets.only(right: 16),
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
                                   child: Card(
                                     elevation: 2,
                                     child: InkWell(
@@ -130,17 +150,12 @@ String cleanTitle(String title) {
                                                 const SizedBox(width: 12),
                                                 Expanded(
                                                   child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      Text(
-                                                        'Chapter ${chapter.chapterNumber}',
-                                                        style: Theme.of(context)
-                                                            .textTheme
-                                                            .titleMedium,
-                                                      ),
-                                                      const SizedBox(height: 4),
-                                                      ..._buildTitleParts(context, chapter.chapterTitle),
-                                                    ],
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: _buildTitleParts(
+                                                        context,
+                                                        chapter.chapterTitle),
                                                   ),
                                                 ),
                                               ],
@@ -177,74 +192,81 @@ String cleanTitle(String title) {
                   ),
                   SliverPadding(
                     padding: const EdgeInsets.all(16),
-                    sliver: SliverList(
+                    sliver: SliverGrid(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 16,
+                        crossAxisSpacing: 16,
+                        childAspectRatio: 0.85,
+                      ),
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
                           final chapter = state.documents.first.chapters[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: Card(
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: BorderSide(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .surfaceVariant,
-                                ),
+                          return Card(
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .surfaceVariant,
                               ),
-                              child: InkWell(
-                                onTap: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    DocumentDetailView.routeName,
-                                    arguments: chapter,
-                                  );
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Row(
-                                    children: [
-                                      CircleAvatar(
-                                        backgroundColor: Theme.of(context)
-                                            .colorScheme
-                                            .primaryContainer,
-                                        child: Text(
-                                          chapter.chapterNumber,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleSmall
-                                              ?.copyWith(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onPrimaryContainer,
-                                              ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 16),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            ..._buildTitleParts(context, chapter.chapterTitle, isBold: true),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              '${chapter.sections.length} Sections',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium
-                                                  ?.copyWith(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .onSurfaceVariant,
-                                                  ),
+                            ),
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.pushNamed(
+                                  context,
+                                  DocumentDetailView.routeName,
+                                  arguments: chapter,
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    CircleAvatar(
+                                      backgroundColor: Theme.of(context)
+                                          .colorScheme
+                                          .primaryContainer,
+                                      child: Text(
+                                        chapter.chapterNumber,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleSmall
+                                            ?.copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onPrimaryContainer,
                                             ),
-                                          ],
-                                        ),
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          ..._buildTitleParts(
+                                              context, chapter.chapterTitle,
+                                              isBold: true),
+                                          const Spacer(),
+                                          Text(
+                                            '${chapter.sections.length} Sections',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium
+                                                ?.copyWith(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -273,6 +295,7 @@ String cleanTitle(String title) {
       ),
     );
   }
+
   void _showFavoriteSections(BuildContext context, List<Document> documents) {
     final settings = Provider.of<ReadingSettings>(context, listen: false);
     final favoriteSections = documents
