@@ -19,6 +19,35 @@ String cleanTitle(String title) {
     return title.replaceFirst(regex, '');
   }
 
+  List<Widget> _buildTitleParts(BuildContext context, String title, {bool isBold = false}) {
+    final cleanedTitle = cleanTitle(title);
+    final titleParts = cleanedTitle.split(' - ');
+    final mainTitle = titleParts[0].trim();
+    final subtitles = titleParts.length > 1 ? titleParts.sublist(1) : [];
+    
+    return [
+      Text(
+        mainTitle,
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+          fontWeight: isBold ? FontWeight.w500 : FontWeight.normal,
+        ),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
+      if (subtitles.isNotEmpty) ...[
+        const SizedBox(height: 4),
+        ...subtitles.map((subtitle) => Text(
+          subtitle,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        )),
+      ],
+    ];
+  }
+
 @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -102,23 +131,21 @@ String cleanTitle(String title) {
                                                 ),
                                                 const SizedBox(width: 12),
                                                 Expanded(
-                                                  child: Text(
-                                                    'Chapter ${chapter.chapterNumber}',
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .titleMedium,
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        'Chapter ${chapter.chapterNumber}',
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .titleMedium,
+                                                      ),
+                                                      const SizedBox(height: 4),
+                                                      ..._buildTitleParts(context, chapter.chapterTitle),
+                                                    ],
                                                   ),
                                                 ),
                                               ],
-                                            ),
-                                            const SizedBox(height: 12),
-                                            Text(
-                                              cleanTitle(chapter.chapterTitle),
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyLarge,
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
                                             ),
                                             const Spacer(),
                                             Text(
@@ -202,17 +229,7 @@ String cleanTitle(String title) {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              cleanTitle(chapter.chapterTitle),
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .titleMedium
-                                                  ?.copyWith(
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
+                                            ..._buildTitleParts(context, chapter.chapterTitle, isBold: true),
                                             const SizedBox(height: 4),
                                             Text(
                                               '${chapter.sections.length} Sections',
