@@ -178,7 +178,19 @@ String cleanTitle(String title) {
                                                                   .titleMedium,
                                                             ),
                                                             const SizedBox(height: 8),
-                                                            ..._buildTitleParts(context, chapter.chapterTitle),
+                                                            Text(
+                                                              chapter.chapterTitle,
+                                                              style: Theme.of(context)
+                                                                  .textTheme
+                                                                  .bodyMedium
+                                                                  ?.copyWith(
+                                                                    color: Theme.of(context)
+                                                                        .colorScheme
+                                                                        .onSurfaceVariant,
+                                                                  ),
+                                                              maxLines: 2,
+                                                              overflow: TextOverflow.ellipsis,
+                                                            ),
                                                           ],
                                                         ),
                                                       ),
