@@ -101,26 +101,14 @@ class SectionContentView extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TextButton.icon(
-                  style: TextButton.styleFrom(
-                    backgroundColor: colorScheme.surface,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                  ),
+                ElevatedButton.icon(
+                  // Change to ElevatedButton
                   onPressed: () => _navigateToPreviousSection(context),
                   icon: Icon(Icons.arrow_back, size: 20),
                   label: Text('Previous'),
                 ),
-                TextButton.icon(
-                  style: TextButton.styleFrom(
-                    backgroundColor: colorScheme.surface,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                  ),
+                ElevatedButton.icon(
+                  // Change to ElevatedButton
                   onPressed: () => _navigateToNextSection(context),
                   icon: Icon(Icons.arrow_forward, size: 20),
                   label: Text('Next'),
@@ -133,57 +121,35 @@ class SectionContentView extends StatelessWidget {
     );
   }
 
-  void _navigateToPreviousSection(BuildContext context) {
+void _navigateToNextSection(BuildContext context) {
+    print("_navigateToNextSection called");
     final bloc = context.read<DocumentBloc>();
     final state = bloc.state;
 
     if (state is DocumentLoaded) {
-      final currentChapter = state.findChapterById(sectionId.split('_').first);
+      print("Current sectionId: $sectionId");
+
+      // Extract chapter ID correctly
+      final parts = sectionId.split('_');
+      final chapterId = '${parts[0]}_${parts[1]}_${parts[2]}';
+      print("Looking for chapter ID: $chapterId");
+
+      final currentChapter = state.findChapterById(chapterId);
+      print("Found chapter: ${currentChapter?.chapterNumber}");
+
       if (currentChapter != null) {
         final currentSectionIndex = currentChapter.sections.indexWhere(
           (s) => '${currentChapter.id}_${s.sectionNumber}' == sectionId,
         );
-
-        if (currentSectionIndex > 0) {
-          final previousSection =
-              currentChapter.sections[currentSectionIndex - 1];
-          final previousSectionId =
-              '${currentChapter.id}_${previousSection.sectionNumber}';
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => SectionContentView(
-                chapterNumber: currentChapter.chapterNumber,
-                sectionTitle: previousSection.sectionTitle,
-                content: previousSection.content,
-                settings: settings,
-                sectionId: previousSectionId,
-                isFavorited: settings.isSectionFavorite(previousSectionId),
-              ),
-            ),
-          );
-        } else {
-          // Handle reaching the first section (optional: navigate to previous chapter)
-          _navigateToPreviousChapter(context, currentChapter, state.documents);
-        }
-      }
-    }
-  }
-
-  void _navigateToNextSection(BuildContext context) {
-    final bloc = context.read<DocumentBloc>();
-    final state = bloc.state;
-
-    if (state is DocumentLoaded) {
-      final currentChapter = state.findChapterById(sectionId.split('_').first);
-      if (currentChapter != null) {
-        final currentSectionIndex = currentChapter.sections.indexWhere(
-          (s) => '${currentChapter.id}_${s.sectionNumber}' == sectionId,
-        );
+        print("Current section index: $currentSectionIndex");
 
         if (currentSectionIndex < currentChapter.sections.length - 1) {
+          // Navigate to next section
           final nextSection = currentChapter.sections[currentSectionIndex + 1];
           final nextSectionId =
               '${currentChapter.id}_${nextSection.sectionNumber}';
+          print("Next section ID: $nextSectionId");
+
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (context) => SectionContentView(
@@ -197,76 +163,68 @@ class SectionContentView extends StatelessWidget {
             ),
           );
         } else {
-          // Handle reaching the last section (optional: navigate to next chapter)
-          _navigateToNextChapter(context, currentChapter, state.documents);
+          // Show completion message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('You have completed all sections in this chapter'),
+              duration: Duration(seconds: 3),
+            ),
+          );
         }
-      }
-    }
-  }
-
-  void _navigateToPreviousChapter(BuildContext context,
-      DocumentChapter currentChapter, List<Document> documents) {
-    final docIndex =
-        documents.indexWhere((doc) => doc.chapters.contains(currentChapter));
-    if (docIndex != -1) {
-      final doc = documents[docIndex];
-      final chapterIndex = doc.chapters.indexOf(currentChapter);
-      if (chapterIndex > 0) {
-        final previousChapter = doc.chapters[chapterIndex - 1];
-        final lastSectionOfPreviousChapter = previousChapter.sections.last;
-        final previousSectionId =
-            '${previousChapter.id}_${lastSectionOfPreviousChapter.sectionNumber}';
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => SectionContentView(
-              chapterNumber: previousChapter.chapterNumber,
-              sectionTitle: lastSectionOfPreviousChapter.sectionTitle,
-              content: lastSectionOfPreviousChapter.content,
-              settings: settings,
-              sectionId: previousSectionId,
-              isFavorited: settings.isSectionFavorite(previousSectionId),
-            ),
-          ),
-        );
       } else {
+        print("Chapter not found for ID: $chapterId");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content:
-                  Text('You are in the first section of the first chapter')),
+            content: Text('Error: Could not find the current chapter'),
+            duration: Duration(seconds: 3),
+          ),
         );
       }
     }
   }
 
-  void _navigateToNextChapter(BuildContext context,
-      DocumentChapter currentChapter, List<Document> documents) {
-    final docIndex =
-        documents.indexWhere((doc) => doc.chapters.contains(currentChapter));
-    if (docIndex != -1) {
-      final doc = documents[docIndex];
-      final chapterIndex = doc.chapters.indexOf(currentChapter);
-      if (chapterIndex < doc.chapters.length - 1) {
-        final nextChapter = doc.chapters[chapterIndex + 1];
-        final firstSectionOfNextChapter = nextChapter.sections.first;
-        final nextSectionId =
-            '${nextChapter.id}_${firstSectionOfNextChapter.sectionNumber}';
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => SectionContentView(
-              chapterNumber: nextChapter.chapterNumber,
-              sectionTitle: firstSectionOfNextChapter.sectionTitle,
-              content: firstSectionOfNextChapter.content,
-              settings: settings,
-              sectionId: nextSectionId,
-              isFavorited: settings.isSectionFavorite(nextSectionId),
+// Similar simplification for previous section navigation
+  void _navigateToPreviousSection(BuildContext context) {
+    print("_navigateToPreviousSection called");
+    final bloc = context.read<DocumentBloc>();
+    final state = bloc.state;
+
+    if (state is DocumentLoaded) {
+      final parts = sectionId.split('_');
+      final chapterId = '${parts[0]}_${parts[1]}_${parts[2]}';
+      final currentChapter = state.findChapterById(chapterId);
+
+      if (currentChapter != null) {
+        final currentSectionIndex = currentChapter.sections.indexWhere(
+          (s) => '${currentChapter.id}_${s.sectionNumber}' == sectionId,
+        );
+
+        if (currentSectionIndex > 0) {
+          final previousSection =
+              currentChapter.sections[currentSectionIndex - 1];
+          final previousSectionId =
+              '${currentChapter.id}_${previousSection.sectionNumber}';
+
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => SectionContentView(
+                chapterNumber: currentChapter.chapterNumber,
+                sectionTitle: previousSection.sectionTitle,
+                content: previousSection.content,
+                settings: settings,
+                sectionId: previousSectionId,
+                isFavorited: settings.isSectionFavorite(previousSectionId),
+              ),
             ),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('You are in the last section of the last chapter')),
-        );
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('You are at the first section of this chapter'),
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
       }
     }
   }

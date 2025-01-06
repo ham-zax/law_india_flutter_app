@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:animations/animations.dart';
 import 'package:provider/provider.dart';
 
 import 'src/app.dart';
-import 'src/documents/document_detail_view.dart';
-import 'src/documents/document_list_view.dart';
 import 'src/settings/settings_controller.dart';
 import 'src/settings/settings_service.dart';
 import 'src/settings/reading_settings.dart';
@@ -43,4 +40,3 @@ void main() async {
     ),
   );
 }
-
