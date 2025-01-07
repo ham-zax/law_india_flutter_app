@@ -5,6 +5,7 @@ import '../search/document_search_delegate.dart';
 import '../settings/reading_settings.dart';
 import '../data/models/document_model.dart';
 import '../bloc/document/document_bloc.dart';
+import 'document_detail_view.dart';
 
 const double kSpacing4 = 4.0;  // For minimal spacing
 const double kSpacing8 = 8.0;  // For standard spacing
@@ -411,9 +412,10 @@ class _DocumentListViewState extends State<DocumentListView>
                           (context, index) {
                             final chapter =
                                 state.documents.first.chapters[index];
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 12),
-                              child: Card(
+                            return Card(
+                              margin: EdgeInsets.symmetric(
+                                vertical: 2,
+                              ),
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -484,8 +486,7 @@ class _DocumentListViewState extends State<DocumentListView>
                                     ),
                                   ),
                                 ),
-                              ),
-                            );
+                              );
                           },
                           childCount: state.documents.first.chapters.length,
                         ),
