@@ -163,20 +163,20 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
                                 '$matchCount match${matchCount > 1 ? 'es' : ''}',
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
-                              trailing: Chip(
-                                label: Text(
-                                  '${result.score.round()}%',
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+                              trailing: Container(
+                                width: 16,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: Color.lerp(
+                                    Colors.red,
+                                    Colors.green,
+                                    result.score / 100,
                                   ),
-                                ),
-                                backgroundColor: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
-                                side: BorderSide(
-                                  color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
-                                  width: 1,
-                                ),
-                                shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                                    width: 1,
+                                  ),
                                 ),
                               ),
                             ),
