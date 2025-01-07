@@ -424,7 +424,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
     );
   }
 
-  Widget _buildSectionCard({
+Widget _buildSectionCard({
     required BuildContext context,
     Key? key,
     required String chapterNumber,
@@ -448,6 +448,9 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
       margin: Spacing.listItemSpacing,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: theme.colorScheme.surfaceContainerHighest,
+        ),
       ),
       surfaceTintColor: colorScheme.primaryContainer,
       child: InkWell(
@@ -492,7 +495,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
                         color: colorScheme.onSurface,
                         letterSpacing: 0.15,
                         height: 1.4,
-                        fontWeight: FontWeight.w500, // Changed from w600 to w500 (semi-bold)
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
@@ -504,7 +507,6 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
       ),
     );
   }
-
   Document? get document => widget.arguments.document;
   DocumentChapter? get chapter => widget.arguments.chapter;
   String? get scrollToSectionId => widget.arguments.scrollToSectionId;
