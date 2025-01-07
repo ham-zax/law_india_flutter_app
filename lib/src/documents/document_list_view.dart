@@ -11,6 +11,7 @@ const double kSpacing4 = 4.0;
 const double kSpacing8 = 8.0;
 const double kSpacing12 = 12.0;
 const double kSpacing16 = 16.0;
+const double kSpacingLarge = 24.0;
 
 class DocumentListView extends StatefulWidget {
   const DocumentListView({super.key});
@@ -131,7 +132,7 @@ class _DocumentListViewState extends State<DocumentListView>
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.all(kSpacingMedium),
+            padding: const EdgeInsets.all(kSpacing16),
             itemCount: favoriteSections.length,
             itemBuilder: (context, index) {
               final favorite = favoriteSections[index];
@@ -232,7 +233,7 @@ class _DocumentListViewState extends State<DocumentListView>
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        padding: const EdgeInsets.symmetric(horizontal: kSpacing8),
+        titleSpacing: kSpacing8,
         title: Text(
           'Bharatiya Nyaya Sanhita',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -283,7 +284,7 @@ class _DocumentListViewState extends State<DocumentListView>
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: kSpacingMedium,
+                          horizontal: kSpacing16,
                           vertical: kSpacingLarge,
                         ),
                         child: Column(
@@ -303,7 +304,7 @@ class _DocumentListViewState extends State<DocumentListView>
                                       letterSpacing: -0.5,
                                     ),
                               ),
-                              const SizedBox(height: kSpacingSmall),
+                              const SizedBox(height: kSpacing8),
                               SizedBox(
                                 height: 64,
                                 child: Column(
@@ -382,10 +383,10 @@ class _DocumentListViewState extends State<DocumentListView>
                                         ],
                                       ),
                                     ),
-                                    const SizedBox(height: kSpacingSmall),
+                                    const SizedBox(height: kSpacing8),
                                     Padding(
                                       padding: const EdgeInsets.only(
-                                          top: kSpacingSmall),
+                                          top: kSpacing8),
                                       child: ScrollBar(
                                         scrollController: _scrollController,
                                       ),
@@ -393,9 +394,9 @@ class _DocumentListViewState extends State<DocumentListView>
                                   ],
                                 ),
                               ),
-                              const SizedBox(height: kSpacingMedium),
+                              const SizedBox(height: kSpacing16),
                             ],
-                            const SizedBox(height: kSpacingSmall),
+                            const SizedBox(height: kSpacing8),
                             Text(
                               'All Chapters',
                               style: Theme.of(context)
@@ -444,8 +445,8 @@ class _DocumentListViewState extends State<DocumentListView>
                                   },
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: kSpacingMedium,
-                                      vertical: kSpacingSmall,
+                                      horizontal: kSpacing16,
+                                      vertical: kSpacing8,
                                     ),
                                     child: Row(
                                       children: [
@@ -466,7 +467,7 @@ class _DocumentListViewState extends State<DocumentListView>
                                                 ),
                                           ),
                                         ),
-                                        const SizedBox(width: kSpacingSmall),
+                                        const SizedBox(width: kSpacing8),
                                         Expanded(
                                           child: Column(
                                             crossAxisAlignment:
@@ -476,7 +477,7 @@ class _DocumentListViewState extends State<DocumentListView>
                                                   context, chapter.chapterTitle,
                                                   isBold: true),
                                               const SizedBox(
-                                                  height: kSpacingXSmall),
+                                                  height: kSpacing4),
                                               Text(
                                                 '${chapter.sections.length} Sections',
                                                 style: Theme.of(context)
