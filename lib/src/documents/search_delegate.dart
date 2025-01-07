@@ -126,25 +126,7 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
                         onTap: () {
                           if (result.section != null &&
                               result.chapter != null) {
-                           Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => SectionContentView(
-                                  chapterNumber: result.chapter!.chapterNumber,
-                                  sectionTitle: result.section!.sectionTitle,
-                                  content: result.section!.content,
-                                  settings: context.read<ReadingSettings>(),
-                                  sectionId:
-                                      '${result.chapter!.id}_${result.section!.sectionNumber}',
-                                  isFavorited: context
-                                      .read<ReadingSettings>()
-                                      .isSectionFavorite(
-                                        '${result.chapter!.id}_${result.section!.sectionNumber}',
-                                      ),
-                                ),
-                              ),
-                            );
-
+                            close(context, '${result.chapter!.id}_${result.section!.sectionNumber}');
                           }
                         },
                         child: Column(
