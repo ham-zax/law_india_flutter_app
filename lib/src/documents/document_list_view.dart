@@ -199,16 +199,23 @@ class _DocumentListViewState extends State<DocumentListView>
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                               const SizedBox(height: 4),
-                              Text(
-                                'Chapter ${favorite.chapter.chapterNumber}',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurfaceVariant,
-                                    ),
+                                Row(
+                                children: [
+                                  Expanded(
+                                      child:
+                                          Container()), // Pushes the text to the right
+                                  Text(
+                                    'Chapter ${favorite.chapter.chapterNumber}',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant,
+                                        ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -467,29 +474,26 @@ class _DocumentListViewState extends State<DocumentListView>
                                         ),
                                         const SizedBox(width: kSpacing8),
                                         Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              ..._buildTitleParts(
-                                                  context, chapter.chapterTitle,
-                                                  isBold: true),
-                                              const SizedBox(
-                                                  height: kSpacing4),
-                                              Text(
-                                                '${chapter.sections.length} Sections',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyMedium
-                                                    ?.copyWith(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .onSurfaceVariant,
-                                                    ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      ..._buildTitleParts(context, chapter.chapterTitle, isBold: true),
+      const SizedBox(height: kSpacing4),
+      Row(
+        children: [
+          Expanded(child: Container()), // This pushes the text to the right
+          Text(
+            '${chapter.sections.length} Sections',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    ],
+  ),
+),
+                                        
                                       ],
                                     ),
                                   ),
