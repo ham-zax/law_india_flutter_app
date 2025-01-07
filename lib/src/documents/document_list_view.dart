@@ -302,14 +302,49 @@ class _DocumentListViewState extends State<DocumentListView>
               // Reload documents after search closes
               context.read<DocumentBloc>().add(LoadDocuments());
               
-              // Optional: Handle search result selection
+              // Handle search result selection
               if (result != null) {
-                // Example navigation logic - modify based on your app structure
-                // Navigator.pushNamed(
-                //   context,
-                //   DocumentDetailView.routeName,
-                //   arguments: result, // Pass the selected result
-                // );
+                final parts = result.split('_');
+                if (parts.length == 2) {
+                  final chapterId = parts[0];
+                  final sectionNumber = parts[1];
+                  
+                  // Find the matching chapter and section
+                  final state = context.read<DocumentBloc>().state;
+                  if (state is DocumentLoaded) {
+                    final chapter = state.documents
+                        .expand((doc) => doc.chapters)
+                        .firstWhere(
+                          (ch) => ch.id == chapterId,
+                          orElse: () => null,
+                        );
+                    
+                    if (chapter != null) {
+                      final section = chapter.sections.firstWhere(
+                        (sec) => sec.sectionNumber == sectionNumber,
+                        orElse: () => null,
+                      );
+                      
+                      if (section != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SectionContentView(
+                              chapterNumber: chapter.chapterNumber,
+                              sectionTitle: section.sectionTitle,
+                              content: section.content,
+                              settings: context.read<ReadingSettings>(),
+                              sectionId: result,
+                              isFavorited: context
+                                  .read<ReadingSettings>()
+                                  .isSectionFavorite(result),
+                            ),
+                          ),
+                        );
+                      }
+                    }
+                  }
+                }
               }
             },
           ),
