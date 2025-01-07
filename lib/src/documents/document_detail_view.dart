@@ -627,6 +627,9 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
       margin: Spacing.listItemSpacing,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: theme.colorScheme.surfaceContainerHighest,
+        ),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
@@ -634,33 +637,48 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
         child: Padding(
           padding: Spacing.cardPadding,
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CircleAvatar(
-                backgroundColor: colorScheme.secondaryContainer,
+                backgroundColor: colorScheme.primaryContainer,
                 child: Text(
                   section.sectionNumber,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: colorScheme.onSecondaryContainer,
-                    fontWeight: FontWeight.bold,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: colorScheme.onPrimaryContainer,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
               const SizedBox(width: Spacing.md),
               Expanded(
-                child: Text(
-                  section.sectionTitle.replaceFirst(
-                    RegExp(r'^\d+\.\s*'),
-                    '',
-                  ),
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: colorScheme.onSurface,
-                    height: 1.4,
-                    fontWeight: FontWeight.w500,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      section.sectionTitle.replaceFirst(
+                        RegExp(r'^\d+\.\s*'),
+                        '',
+                      ),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: colorScheme.onSurface,
+                        height: 1.4,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: Spacing.xs),
+                    Row(
+                      children: [
+                        Expanded(child: Container()),
+                        Text(
+                          'Section ${section.sectionNumber}',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
             ],
           ),
         ),
