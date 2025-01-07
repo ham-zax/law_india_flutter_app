@@ -59,7 +59,7 @@ class EnhancedReadingView extends StatelessWidget {
   }
 }
 
-class SectionContentView extends StatelessWidget {
+class SectionContentView extends StatefulWidget {
   final String chapterNumber;
   final String sectionTitle;
   final String content;
@@ -78,19 +78,53 @@ class SectionContentView extends StatelessWidget {
   });
 
   @override
+  State<SectionContentView> createState() => _SectionContentViewState();
+}
+class _SectionContentViewState extends State<SectionContentView> {
+  @override
+  void initState() {
+    super.initState();
+
+    // Parse the chapter ID from sectionId
+    final parts = widget.sectionId.split('_');
+    final chapterId = '${parts[0]}_${parts[1]}_${parts[2]}';
+
+    // Find the correct chapter
+    if (context.read<DocumentBloc>().state is DocumentLoaded) {
+      final state = context.read<DocumentBloc>().state as DocumentLoaded;
+      final chapter = state.findChapterById(chapterId);
+
+      if (chapter != null) {
+        // Get the actual section number
+        final sectionNumber = parts.last;
+        // Find the correct section
+        final section = chapter.sections.firstWhere(
+          (s) => s.sectionNumber == sectionNumber,
+          orElse: () => chapter.sections.first,
+        );
+
+        // Track the actual viewed section
+        context.read<DocumentBloc>().add(
+              SectionViewed(chapter, section),
+            );
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(sectionTitle),
+        title: Text(widget.sectionTitle),
         actions: [
           Consumer<ReadingSettings>(
             builder: (context, settings, child) {
               return FavoriteButton(
-                sectionId: sectionId,
-                isFavorited: settings.isSectionFavorite(sectionId),
+                sectionId: widget.sectionId,
+                isFavorited: settings.isSectionFavorite(widget.sectionId),
               );
             },
           ),
@@ -106,8 +140,8 @@ class SectionContentView extends StatelessWidget {
         children: [
           Expanded(
             child: EnhancedReadingView(
-              content: content,
-              settings: settings,
+              content: widget.content,
+              settings: widget.settings,
             ),
           ),
           Padding(
@@ -116,13 +150,11 @@ class SectionContentView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ElevatedButton.icon(
-                  // Change to ElevatedButton
                   onPressed: () => _navigateToPreviousSection(context),
                   icon: Icon(Icons.arrow_back, size: 20),
                   label: Text('Previous'),
                 ),
                 ElevatedButton.icon(
-                  // Change to ElevatedButton
                   onPressed: () => _navigateToNextSection(context),
                   icon: Icon(Icons.arrow_forward, size: 20),
                   label: Text('Next'),
@@ -135,107 +167,95 @@ class SectionContentView extends StatelessWidget {
     );
   }
 
-  void _navigateToNextSection(BuildContext context) {
-    print("_navigateToNextSection called");
+ void _navigateToNextSection(BuildContext context) {
     final bloc = context.read<DocumentBloc>();
     final state = bloc.state;
 
     if (state is DocumentLoaded) {
-      print("Current sectionId: $sectionId");
-
-      // Extract chapter ID correctly
-      final parts = sectionId.split('_');
+      final parts = widget.sectionId.split('_');
       final chapterId = '${parts[0]}_${parts[1]}_${parts[2]}';
-      print("Looking for chapter ID: $chapterId");
-
       final currentChapter = state.findChapterById(chapterId);
-      print("Found chapter: ${currentChapter?.chapterNumber}");
 
       if (currentChapter != null) {
+        final currentSectionNumber = parts.last;
         final currentSectionIndex = currentChapter.sections.indexWhere(
-          (s) => '${currentChapter.id}_${s.sectionNumber}' == sectionId,
+          (s) => s.sectionNumber == currentSectionNumber,
         );
-        print("Current section index: $currentSectionIndex");
 
         if (currentSectionIndex < currentChapter.sections.length - 1) {
-          // Navigate to next section
+          // Get next section
           final nextSection = currentChapter.sections[currentSectionIndex + 1];
           final nextSectionId =
               '${currentChapter.id}_${nextSection.sectionNumber}';
-          print("Next section ID: $nextSectionId");
 
+          // Navigate to next section
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (context) => SectionContentView(
                 chapterNumber: currentChapter.chapterNumber,
                 sectionTitle: nextSection.sectionTitle,
                 content: nextSection.content,
-                settings: settings,
+                settings: widget.settings,
                 sectionId: nextSectionId,
-                isFavorited: settings.isSectionFavorite(nextSectionId),
+                isFavorited: widget.settings.isSectionFavorite(nextSectionId),
               ),
             ),
           );
         } else {
           // Show completion message
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text('You have completed all sections in this chapter'),
-              duration: Duration(seconds: 3),
+              duration: Duration(seconds: 2),
             ),
           );
         }
-      } else {
-        print("Chapter not found for ID: $chapterId");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: Could not find the current chapter'),
-            duration: Duration(seconds: 3),
-          ),
-        );
       }
     }
   }
 
-// Similar simplification for previous section navigation
   void _navigateToPreviousSection(BuildContext context) {
-    print("_navigateToPreviousSection called");
     final bloc = context.read<DocumentBloc>();
     final state = bloc.state;
 
     if (state is DocumentLoaded) {
-      final parts = sectionId.split('_');
+      final parts = widget.sectionId.split('_');
       final chapterId = '${parts[0]}_${parts[1]}_${parts[2]}';
       final currentChapter = state.findChapterById(chapterId);
 
       if (currentChapter != null) {
+        final currentSectionNumber = parts.last;
         final currentSectionIndex = currentChapter.sections.indexWhere(
-          (s) => '${currentChapter.id}_${s.sectionNumber}' == sectionId,
+          (s) => s.sectionNumber == currentSectionNumber,
         );
 
         if (currentSectionIndex > 0) {
+          // Get previous section
           final previousSection =
               currentChapter.sections[currentSectionIndex - 1];
           final previousSectionId =
               '${currentChapter.id}_${previousSection.sectionNumber}';
 
+          // Navigate to previous section
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (context) => SectionContentView(
                 chapterNumber: currentChapter.chapterNumber,
                 sectionTitle: previousSection.sectionTitle,
                 content: previousSection.content,
-                settings: settings,
+                settings: widget.settings,
                 sectionId: previousSectionId,
-                isFavorited: settings.isSectionFavorite(previousSectionId),
+                isFavorited:
+                    widget.settings.isSectionFavorite(previousSectionId),
               ),
             ),
           );
         } else {
+          // Show start of chapter message
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text('You are at the first section of this chapter'),
-              duration: Duration(seconds: 3),
+              duration: Duration(seconds: 2),
             ),
           );
         }
@@ -243,7 +263,6 @@ class SectionContentView extends StatelessWidget {
     }
   }
 }
-
 class DocumentDetailView extends StatefulWidget {
   static const routeName = '/document-detail';
   final DocumentDetailArguments arguments;
@@ -284,18 +303,6 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.arguments.chapter != null &&
-          widget.arguments.chapter!.sections.isNotEmpty) {
-        // Track the first section of the chapter instead
-        context.read<DocumentBloc>().add(
-              SectionViewed(
-                widget.arguments.chapter!,
-                widget.arguments.chapter!.sections.first,
-              ),
-            );
-      }
-    });
   }
 
   @override

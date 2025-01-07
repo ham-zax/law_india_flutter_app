@@ -15,7 +15,6 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     on<UpdateDocument>(_onUpdateDocument);
     on<ChangeCategory>(_onChangeCategory);
     on<SectionViewed>(_onSectionViewed); // Add this line
-
   }
 
   Future<void> _onLoadDocuments(
@@ -27,7 +26,8 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       final recentDocs = await repository.getRecentDocuments();
       final categories = await repository.getCategories();
       final initialCategory = categories.first;
-      final documents = await repository.getDocumentsByCategory(initialCategory);
+      final documents =
+          await repository.getDocumentsByCategory(initialCategory);
       emit(DocumentLoaded(
         recentDocuments: recentDocs,
         categories: categories,
@@ -63,7 +63,6 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       emit(DocumentError(message: e.toString()));
     }
   }
-  
 
   Future<void> _onChangeCategory(
     ChangeCategory event,
@@ -73,7 +72,8 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       final currentState = state as DocumentLoaded;
       emit(DocumentLoading());
       try {
-        final documents = await repository.getDocumentsByCategory(event.category);
+        final documents =
+            await repository.getDocumentsByCategory(event.category);
         emit(currentState.copyWith(
           selectedCategory: event.category,
           documents: documents,
@@ -84,12 +84,20 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     }
   }
 
-  void _onSectionViewed(
+ void _onSectionViewed(
     SectionViewed event,
     Emitter<DocumentState> emit,
   ) {
     if (state is DocumentLoaded) {
       final currentState = state as DocumentLoaded;
+
+      // Debug - Initial State
+      print('=== START: Section Viewed Event ===');
+      print('Viewing Chapter ID: ${event.chapter.id}');
+      print('Viewing Section Number: ${event.section.sectionNumber}');
+      print('\nCurrent Recent Sections:');
+      currentState.recentSections.forEach((s) => print(
+          'Chapter ID: ${s.chapter.id}, Section: ${s.section.sectionNumber}'));
 
       // Create new section record
       final newSection = (
@@ -97,22 +105,44 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         section: event.section,
       );
 
-      // Remove if already exists to avoid duplicates
-      final updatedSections = currentState.recentSections
-          .where((s) =>
-              s.chapter.id != event.chapter.id ||
-              s.section.sectionNumber != event.section.sectionNumber)
-          .toList();
+      // Create fresh list for modification
+      var updatedSections =
+          List<({DocumentChapter chapter, DocumentSection section})>.from(
+              currentState.recentSections);
 
-      // Add to beginning of list
+      print('\nProcessing Updates:');
+
+      // Check for exact same section
+      final exactMatchIndex = updatedSections.indexWhere((s) =>
+          s.chapter.id == event.chapter.id &&
+          s.section.sectionNumber == event.section.sectionNumber);
+
+      print('Exact match found at index: $exactMatchIndex');
+
+      if (exactMatchIndex != -1) {
+        print('Removing existing section at index: $exactMatchIndex');
+        updatedSections.removeAt(exactMatchIndex);
+      }
+
+      // Always add new section at start
+      print('Adding new section at beginning');
       updatedSections.insert(0, newSection);
 
-      // Keep only last 3 sections
-      final recentSections = updatedSections.take(7).toList();
+      // Limit to 7 most recent
+      updatedSections = updatedSections.take(7).toList();
 
+      print('\nFinal Recent Sections:');
+      updatedSections.forEach((s) => print(
+          'Chapter ID: ${s.chapter.id}, Section: ${s.section.sectionNumber}'));
+
+      // Emit new state with updated sections
       emit(currentState.copyWith(
-        recentSections: recentSections,
+        recentSections: updatedSections,
       ));
+
+      print('=== END: Section Viewed Event ===\n');
+    } else {
+      print('DEBUG: State is not DocumentLoaded');
     }
   }
 }
