@@ -417,7 +417,7 @@ class _DocumentListViewState extends State<DocumentListView>
                     ),
                     SliverPadding(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: kSpacing16,
+                        horizontal: kSpacing12,
                         vertical: kSpacing8,
                       ),
                       sliver: SliverList(
@@ -447,7 +447,7 @@ class _DocumentListViewState extends State<DocumentListView>
                                   },
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: kSpacing16,
+                                      horizontal: kSpacing12,
                                       vertical: kSpacing8,
                                     ),
                                     child: Row(
