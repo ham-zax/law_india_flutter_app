@@ -140,7 +140,8 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
                         ),
                         const Divider(height: 1, thickness: 1),
                       ],
-                    ),
+                    );
+                    
                       onTap: () {
                         if (result.section != null && result.chapter != null) {
                           Navigator.push(
