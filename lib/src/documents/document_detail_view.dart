@@ -262,7 +262,7 @@ class _SectionContentViewState extends State<SectionContentView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.sectionTitle),
+        title: Text('Section ${widget.sectionId.split('_').last}'),
         actions: [
           Consumer<ReadingSettings>(
             builder: (context, settings, child) {
@@ -284,6 +284,34 @@ class _SectionContentViewState extends State<SectionContentView> {
       ),
       body: Column(
         children: [
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surface,
+              border: Border(
+                bottom: BorderSide(
+                  color: theme.colorScheme.outlineVariant,
+                  width: 1.0,
+                ),
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 16.0,
+            ),
+            child: Text(
+              // Remove section number prefix from title
+              widget.sectionTitle.replaceFirst(
+                RegExp(r'^\d+\.\s*'),
+                '',
+              ),
+              style: theme.textTheme.headlineSmall?.copyWith(
+                color: theme.colorScheme.onSurface,
+                height: 1.3,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
           Expanded(
             child: Consumer<ReadingSettings>(
               builder: (context, settings, _) => AnimatedSwitcher(
