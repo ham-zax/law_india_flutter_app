@@ -269,12 +269,15 @@ class _DocumentListViewState extends State<DocumentListView>
       appBar: AppBar(
         automaticallyImplyLeading: false,
         titleSpacing: kSpacing8,
-        title: Text(
-          'Bharatiya Nyaya Sanhita',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
-              ),
+        title: Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: Text(
+            'Bharatiya Nyaya Sanhita',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
+          ),
         ),
         surfaceTintColor: Colors.transparent,
         backgroundColor: Theme.of(context).colorScheme.surface,
