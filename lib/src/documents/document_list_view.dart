@@ -132,7 +132,7 @@ SizedBox(
                                   child: Row(
                                     children: [
                                       for (var recentItem
-                                          in state.recentSections.take(7))
+                                          in state.recentSections)
                                         Padding(
                                           padding:
                                               const EdgeInsets.only(right: 8),
@@ -496,6 +496,7 @@ SizedBox(
     );
   }
 }
+
 class ScrollBar extends StatefulWidget {
   final ScrollController scrollController;
 
@@ -507,6 +508,7 @@ class ScrollBar extends StatefulWidget {
   @override
   State<ScrollBar> createState() => _ScrollBarState();
 }
+
 class _ScrollBarState extends State<ScrollBar> {
   double _scrollPosition = 0.0;
 
@@ -514,6 +516,10 @@ class _ScrollBarState extends State<ScrollBar> {
   void initState() {
     super.initState();
     widget.scrollController.addListener(_updateScrollPosition);
+    // Initial position update
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateScrollPosition();
+    });
   }
 
   @override
@@ -524,39 +530,61 @@ class _ScrollBarState extends State<ScrollBar> {
 
   void _updateScrollPosition() {
     if (!mounted) return;
-    final maxScroll = widget.scrollController.position.maxScrollExtent;
-    if (maxScroll <= 0) return;
 
     setState(() {
-      _scrollPosition = widget.scrollController.position.pixels / maxScroll;
+      if (widget.scrollController.hasClients &&
+          widget.scrollController.position.maxScrollExtent > 0) {
+        _scrollPosition = widget.scrollController.position.pixels /
+            widget.scrollController.position.maxScrollExtent;
+      } else {
+        _scrollPosition = 0.0;
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 4,
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      child: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceVariant,
-              borderRadius: BorderRadius.circular(1),
-            ),
-          ),
-          FractionallySizedBox(
-            widthFactor: 0.3,
-            alignment: Alignment((_scrollPosition * 2) - 1, 0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(1),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final viewportWidth = constraints.maxWidth;
+        final contentWidth = widget.scrollController.hasClients
+            ? widget.scrollController.position.viewportDimension +
+                widget.scrollController.position.maxScrollExtent
+            : viewportWidth;
+
+        final scrollBarWidth = (viewportWidth * viewportWidth / contentWidth)
+            .clamp(50.0, viewportWidth);
+
+        final scrollPosition =
+            _scrollPosition * (viewportWidth - scrollBarWidth);
+
+        return Container(
+          height: 4,
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          child: Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  borderRadius: BorderRadius.circular(1),
+                ),
               ),
-            ),
+              Positioned(
+                left: scrollPosition,
+                child: Container(
+                  width: scrollBarWidth,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(1),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
