@@ -260,6 +260,24 @@ class _SectionContentViewState extends State<SectionContentView> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    
+    // Cache expensive theme lookups
+    final titleStyle = theme.textTheme.headlineSmall?.copyWith(
+      color: theme.colorScheme.onSurface,
+      height: 1.3,
+      fontWeight: FontWeight.w500,
+    );
+    
+    final buttonStyle = OutlinedButton.styleFrom(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      minimumSize: const Size(120, 48),
+      side: BorderSide(
+        color: Theme.of(context).colorScheme.primaryContainer,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+    );
 
     return Scaffold(
       appBar: AppBar(

@@ -144,6 +144,7 @@ class _DocumentListViewState extends State<DocumentListView>
                   '${favorite.chapter.id}_${favorite.section.sectionNumber}';
 
               return Card(
+                key: ValueKey(sectionId), // Add key for better diffing
                 margin: const EdgeInsets.only(bottom: kSpacing4),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
@@ -155,6 +156,7 @@ class _DocumentListViewState extends State<DocumentListView>
                 ),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(12),
+                  excludeFromSemantics: true, // Improve accessibility performance
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -416,10 +418,9 @@ class _DocumentListViewState extends State<DocumentListView>
                                       scrollDirection: Axis.horizontal,
                                       controller: _scrollController,
                                       child: Row(
-                                        mainAxisSize:
-                                            MainAxisSize.min, // Add this
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        clipBehavior: Clip.none, // Better performance for clipped children
                                         children: [
                                           for (var recentItem
                                               in state.recentSections)
@@ -517,6 +518,7 @@ class _DocumentListViewState extends State<DocumentListView>
                             final chapter =
                                 state.documents.first.chapters[index];
                             return Card(
+                              key: ValueKey(chapter.id), // Add key for better diffing
                               margin: EdgeInsets.symmetric(
                                 vertical: 2,
                               ),
@@ -529,6 +531,7 @@ class _DocumentListViewState extends State<DocumentListView>
                                 ),
                               ),
                               child: InkWell(
+                                excludeFromSemantics: true, // Improve accessibility performance
                                 onTap: () {
                                   Navigator.pushNamed(
                                     context,
