@@ -532,7 +532,6 @@ class _DocumentListViewState extends State<DocumentListView> {
     );
   }
 }
-
 class ScrollBar extends StatefulWidget {
   final ScrollController scrollController;
 
@@ -552,7 +551,6 @@ class _ScrollBarState extends State<ScrollBar> {
   void initState() {
     super.initState();
     widget.scrollController.addListener(_updateScrollPosition);
-    // Initial position update
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateScrollPosition();
     });
@@ -572,6 +570,7 @@ class _ScrollBarState extends State<ScrollBar> {
           widget.scrollController.position.maxScrollExtent > 0) {
         _scrollPosition = widget.scrollController.position.pixels /
             widget.scrollController.position.maxScrollExtent;
+        // print('Scroll Progress: $_scrollPosition'); // Debug scroll progressr
       } else {
         _scrollPosition = 0.0;
       }
@@ -587,15 +586,21 @@ class _ScrollBarState extends State<ScrollBar> {
           return const SizedBox.shrink();
         }
 
-        final viewportWidth = constraints.maxWidth;
-        final contentWidth = widget.scrollController.position.viewportDimension +
-            widget.scrollController.position.maxScrollExtent;
+        const horizontalMargins = 32.0;
+        final availableWidth = constraints.maxWidth - horizontalMargins;
+        final contentWidth =
+            widget.scrollController.position.viewportDimension +
+                widget.scrollController.position.maxScrollExtent;
 
-        final scrollBarWidth = (viewportWidth * viewportWidth / contentWidth)
-            .clamp(50.0, viewportWidth);
+        // Calculate proportional scrollbar width
+        final visiblePortion = availableWidth / contentWidth;
+        final scrollBarWidth =
+            (availableWidth * visiblePortion).clamp(35.0, availableWidth * 0.2);
 
-        final scrollPosition =
-            _scrollPosition * (viewportWidth - scrollBarWidth);
+        // Calculate scroll position with boundary protection
+        final maxScrollPosition = availableWidth - scrollBarWidth;
+        final scrollPosition = (_scrollPosition * maxScrollPosition)
+            .clamp(0.0, maxScrollPosition); // Add clamp here
 
         return Container(
           height: 4,
@@ -604,8 +609,11 @@ class _ScrollBarState extends State<ScrollBar> {
             children: [
               Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(1),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .surfaceContainerHighest
+                      .withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
               Positioned(
@@ -614,8 +622,9 @@ class _ScrollBarState extends State<ScrollBar> {
                   width: scrollBarWidth,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(1),
+                    color:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ),
