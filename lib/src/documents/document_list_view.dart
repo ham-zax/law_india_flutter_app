@@ -420,7 +420,6 @@ class _DocumentListViewState extends State<DocumentListView>
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         mainAxisAlignment: MainAxisAlignment.start,
-                                        clipBehavior: Clip.none, // Better performance for clipped children
                                         children: [
                                           for (var recentItem
                                               in state.recentSections)
