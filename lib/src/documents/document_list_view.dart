@@ -285,9 +285,19 @@ class _DocumentListViewState extends State<DocumentListView>
         backgroundColor: Theme.of(context).colorScheme.surface,
         bottom: TabBar(
           controller: _tabController,
-          labelColor: Theme.of(context).colorScheme.primary,
-          unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
-          indicatorColor: Theme.of(context).colorScheme.primary,
+          tabAlignment: TabAlignment.fill,
+          dividerColor: Theme.of(context).colorScheme.outlineVariant,
+          indicatorSize: TabBarIndicatorSize.tab,
+          labelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+          unselectedLabelStyle: Theme.of(context).textTheme.labelLarge,
+          indicator: UnderlineTabIndicator(
+            borderSide: BorderSide(
+              width: 2.0,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
           tabs: const [
             Tab(text: 'ALL CHAPTERS'),
             Tab(text: 'FAVORITES'),
