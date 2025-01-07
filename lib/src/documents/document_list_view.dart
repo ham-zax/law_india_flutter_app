@@ -216,9 +216,12 @@ class _DocumentListViewState extends State<DocumentListView> {
                                       ],
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
-                                  ScrollBar(
-                                    scrollController: _scrollController,
+                                  const SizedBox(height: kSpacingSmall),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: kSpacingSmall),
+                                    child: ScrollBar(
+                                      scrollController: _scrollController,
+                                    ),
                                   ),
                                 ],
                               ),
