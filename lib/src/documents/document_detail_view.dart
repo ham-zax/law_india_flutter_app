@@ -445,11 +445,13 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
     return Card(
       key: key,
       elevation: 0,
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: Spacing.listItemSpacing,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(12),
       ),
+      surfaceTintColor: colorScheme.primaryContainer,
       child: InkWell(
+        borderRadius: BorderRadius.circular(12),
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute(
@@ -467,6 +469,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
         child: Padding(
           padding: Spacing.cardPadding,
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CircleAvatar(
                 backgroundColor: colorScheme.secondaryContainer,
@@ -474,23 +477,26 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
                   sectionId.split('_').last,
                   style: theme.textTheme.labelMedium?.copyWith(
                     color: colorScheme.onSecondaryContainer,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: Spacing.md),
               Expanded(
-                child: Text(
-                  cleanTitle(sectionTitle),
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: colorScheme.onSurface,
-                    letterSpacing: 0.15,
-                    height: 1.4,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      cleanTitle(sectionTitle),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: colorScheme.onSurface,
+                        letterSpacing: 0.15,
+                        height: 1.4,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              Icon(
-                Icons.chevron_right,
-                color: colorScheme.onSurfaceVariant,
               ),
             ],
           ),
