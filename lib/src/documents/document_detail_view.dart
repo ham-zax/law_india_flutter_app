@@ -666,7 +666,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: theme.colorScheme.outlineVariant,
+          color: theme.colorScheme.primary.withOpacity(0.2),
           width: 1.0,
         ),
       ),
