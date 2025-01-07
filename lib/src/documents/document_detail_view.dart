@@ -723,22 +723,35 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
   }
 
   void _navigateToSection(BuildContext context, DocumentSection section) {
-    final settings = context.read<ReadingSettings>();
-    final chapter = widget.arguments.chapter!;
-    final sectionId = '${chapter.id}_${section.sectionNumber}';
+    try {
+      final settings = context.read<ReadingSettings>();
+      if (widget.arguments.chapter == null) {
+        throw Exception('Chapter data is missing');
+      }
+      
+      final chapter = widget.arguments.chapter!;
+      final sectionId = '${chapter.id}_${section.sectionNumber}';
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SectionContentView(
-          chapterNumber: chapter.chapterNumber,
-          sectionTitle: section.sectionTitle,
-          content: section.content,
-          settings: settings,
-          sectionId: sectionId,
-          isFavorited: settings.isSectionFavorite(sectionId),
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SectionContentView(
+            chapterNumber: chapter.chapterNumber,
+            sectionTitle: section.sectionTitle,
+            content: section.content,
+            settings: settings,
+            sectionId: sectionId,
+            isFavorited: settings.isSectionFavorite(sectionId),
+          ),
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error navigating to section: ${e.toString()}'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
   }
 }

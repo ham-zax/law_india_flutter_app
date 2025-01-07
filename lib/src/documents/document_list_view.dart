@@ -34,7 +34,9 @@ class _DocumentListViewState extends State<DocumentListView>
   @override
   void dispose() {
     _tabController.dispose();
-    _scrollController.dispose();
+    if (_scrollController.hasClients) {
+      _scrollController.dispose();
+    }
     super.dispose();
   }
 
