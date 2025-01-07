@@ -293,20 +293,6 @@ class _DocumentListViewState extends State<DocumentListView>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (state.recentSections.isNotEmpty) ...[
-                              Text(
-                                'Continue Reading',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurface,
-                                      letterSpacing: -0.5,
-                                    ),
-                              ),
-                              const SizedBox(height: kSpacing8),
                               SizedBox(
                                 height: 64,
                                 child: Column(
@@ -398,19 +384,6 @@ class _DocumentListViewState extends State<DocumentListView>
                               ),
                               const SizedBox(height: kSpacing16),
                             ],
-                            const SizedBox(height: kSpacing8),
-                            Text(
-                              'All Chapters',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color:
-                                        Theme.of(context).colorScheme.onSurface,
-                                    letterSpacing: -0.5,
-                                  ),
-                            ),
                           ],
                         ),
                       ),
