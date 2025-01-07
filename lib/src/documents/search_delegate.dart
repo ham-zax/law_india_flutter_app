@@ -165,7 +165,7 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
                               ),
                               trailing: Chip(
                                 label: Text(
-                                  '${result.score.toStringAsFixed(1)}%',
+                                  '${result.score.round()}%',
                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
                                   ),
