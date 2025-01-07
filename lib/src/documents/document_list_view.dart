@@ -192,7 +192,10 @@ class _DocumentListViewState extends State<DocumentListView>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                favorite.section.sectionTitle,
+                                favorite.section.sectionTitle.replaceFirst(
+                                  RegExp(r'^\d+\.\s*'),
+                                  '',
+                                ),
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                               const SizedBox(height: 4),
