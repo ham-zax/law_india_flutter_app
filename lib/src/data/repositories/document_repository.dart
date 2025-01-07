@@ -151,7 +151,7 @@ class LocalDocumentRepository implements DocumentRepository {
               document: doc,
               chapter: chapter,
               section: section,
-              score: maxScore,
+              score: maxScore.toDouble(),
               matchedField: titleScore > contentScore ? 'section_title' : 'content'
             ));
           }
