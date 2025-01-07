@@ -108,57 +108,21 @@ class LocalDocumentRepository implements DocumentRepository {
     final results = <SearchResult>[];
     
     for (final doc in allDocs) {
-      // Search document title
-      final titleScore = tokenSetRatio(
-        query.toLowerCase(),
-        doc.title.toLowerCase()
-      ) * 1.5; // Weight title matches higher
-      
-      if (titleScore > 60) {
-        results.add(SearchResult(
-          document: doc,
-          score: titleScore,
-          matchedField: 'title'
-        ));
-      }
-      
-      // Search chapters
+      // Only search section content
       for (final chapter in doc.chapters) {
-        final chapterScore = tokenSetRatio(
-          query.toLowerCase(), 
-          chapter.chapterTitle.toLowerCase()
-        ) * 1.2;
-        
-        if (chapterScore > 60) {
-          results.add(SearchResult(
-            document: doc,
-            chapter: chapter,
-            score: chapterScore,
-            matchedField: 'chapter'
-          ));
-        }
-        
-        // Search sections
         for (final section in chapter.sections) {
-          final titleScore = tokenSetRatio(
-            query.toLowerCase(),
-            section.sectionTitle.toLowerCase()
-          );
-          
           final contentScore = tokenSetRatio(
             query.toLowerCase(),
             section.content.toLowerCase()
-          ) * 0.8; // Weight content matches lower
+          );
           
-          final maxScore = max(titleScore, contentScore);
-          
-          if (maxScore > 60) {
+          if (contentScore > 60) {
             results.add(SearchResult(
               document: doc,
               chapter: chapter,
               section: section,
-              score: maxScore.toDouble(),
-              matchedField: titleScore > contentScore ? 'section_title' : 'content'
+              score: contentScore.toDouble(),
+              matchedField: 'content'
             ));
           }
         }
