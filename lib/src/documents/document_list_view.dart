@@ -69,7 +69,7 @@ class _DocumentListViewState extends State<DocumentListView> {
         ...subtitles.map((subtitle) => Text(
               subtitle,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceContainerHighest,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
