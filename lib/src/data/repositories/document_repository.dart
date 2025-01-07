@@ -27,10 +27,16 @@ abstract class DocumentRepository {
   Future<List<Document>> searchDocuments(String query);
   Future<void> updateDocument(Document document);
   Future<List<DocumentVersion>> getDocumentVersions(String documentId);
+  
+  // Add this getter
+  Map<String, List<SearchResult>> get searchCache;
 }
 
 class LocalDocumentRepository implements DocumentRepository {
   final Map<String, List<SearchResult>> _searchCache = {};
+
+  @override
+  Map<String, List<SearchResult>> get searchCache => _searchCache;
   @override
   Future<List<Document>> getRecentDocuments() async {
     // Return BNS document with all chapters

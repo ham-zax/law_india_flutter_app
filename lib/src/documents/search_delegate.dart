@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/document/document_bloc.dart';
 import '../data/models/document_model.dart';
 import 'document_detail_view.dart';
+import '../settings/reading_settings.dart';
 
 class DocumentSearchDelegate extends SearchDelegate<String> {
   final DocumentBloc documentBloc;

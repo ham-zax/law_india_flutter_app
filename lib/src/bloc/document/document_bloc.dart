@@ -47,7 +47,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     try {
       final documents = await repository.searchDocuments(event.query);
       // Get the cached results from repository
-      final results = repository._searchCache[event.query] ?? [];
+      final results = repository.searchCache[event.query] ?? [];
       emit(DocumentSearchResults(results: results));
     } catch (e) {
       emit(DocumentError(message: e.toString()));
