@@ -262,20 +262,22 @@ class _DocumentListViewState extends State<DocumentListView> with SingleTickerPr
           ),
         ],
       ),
-        body: TabBarView(
-          controller: _tabController,
-          children: [ BlocBuilder<DocumentBloc, DocumentState>(
-          builder: (context, state) {
-            if (state is DocumentLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          // ALL Chapters tab
+          BlocBuilder<DocumentBloc, DocumentState>(
+            builder: (context, state) {
+              if (state is DocumentLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-            if (state is DocumentError) {
-              return Center(child: Text('Error: ${state.message}'));
-            }
+              if (state is DocumentError) {
+                return Center(child: Text('Error: ${state.message}'));
+              }
 
-            if (state is DocumentLoaded) {
-              return CustomScrollView(
+              if (state is DocumentLoaded) {
+                return CustomScrollView(
                 slivers: [
                   SliverToBoxAdapter(
                     child: Padding(
