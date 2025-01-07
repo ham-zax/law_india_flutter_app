@@ -26,6 +26,7 @@ class Spacing {
 
   static const EdgeInsets listItemSpacing = EdgeInsets.only(bottom: xs);
 }
+
 class EnhancedReadingView extends StatelessWidget {
   final String content;
   final ReadingSettings settings;
@@ -72,6 +73,7 @@ class EnhancedReadingView extends StatelessWidget {
     });
   }
 }
+
 class SectionContentView extends StatefulWidget {
   final String chapterNumber;
   final String sectionTitle;
@@ -670,8 +672,15 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
 
     return Scaffold(
       appBar: AppBar(
-          title: Text(widget.arguments.document?.title ??
-              'Chapter ${widget.arguments.chapter?.chapterNumber ?? ''} - ${widget.arguments.chapter?.chapterTitle ?? ''}')),
+        title: Text(
+          widget.arguments.chapter != null
+              ? 'Chapter ${widget.arguments.chapter?.chapterNumber}'
+              : (widget.arguments.document?.title ?? ''),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+      ),
       body: _buildContent(context, readingSettings),
     );
   }
