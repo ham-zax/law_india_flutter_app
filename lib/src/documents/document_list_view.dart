@@ -12,6 +12,7 @@ const double kSpacingSmall = 8.0;
 const double kSpacingMedium = 16.0;
 const double kSpacingLarge = 24.0;
 const double kSpacingXLarge = 32.0;
+
 class DocumentListView extends StatefulWidget {
   const DocumentListView({super.key});
   static const routeName = '/documents';
@@ -28,41 +29,56 @@ class _DocumentListViewState extends State<DocumentListView> {
     _scrollController.dispose();
     super.dispose();
   }
-String cleanTitle(String title) {
+
+  String cleanTitle(String title) {
     final regex = RegExp(r'^\d+[\.\s-]*\s*');
     return title.replaceFirst(regex, '');
   }
 
-  List<Widget> _buildTitleParts(BuildContext context, String title, {bool isBold = false}) {
+  List<Widget> _buildTitleParts(BuildContext context, String title,
+      {bool isBold = false}) {
     final cleanedTitle = cleanTitle(title);
     final titleParts = cleanedTitle.split(' - ');
+
+    // Capitalize only first letter of each part, rest lowercase
     final mainTitle = titleParts[0].trim();
-    final subtitles = titleParts.length > 1 ? titleParts.sublist(1) : [];
-    
+    final formattedMainTitle = mainTitle.isEmpty
+        ? ''
+        : mainTitle[0].toUpperCase() + mainTitle.substring(1);
+
+    final subtitles = titleParts.length > 1
+        ? titleParts.sublist(1).map((part) {
+            final trimmedPart = part.trim().toLowerCase();
+            return trimmedPart.isEmpty
+                ? ''
+                : trimmedPart[0].toUpperCase() + trimmedPart.substring(1);
+          }).toList()
+        : [];
+
     return [
       Text(
-        mainTitle,
+        formattedMainTitle,
         style: Theme.of(context).textTheme.titleMedium?.copyWith(
-          fontWeight: isBold ? FontWeight.w500 : FontWeight.normal,
-        ),
+              fontWeight: isBold ? FontWeight.w500 : FontWeight.normal,
+            ),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
       if (subtitles.isNotEmpty) ...[
         const SizedBox(height: 4),
         ...subtitles.map((subtitle) => Text(
-          subtitle,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        )),
+              subtitle,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            )),
       ],
     ];
   }
 
-@override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -70,9 +86,9 @@ String cleanTitle(String title) {
         title: Text(
           'Bharatiya Nyaya Sanhita',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: Theme.of(context).colorScheme.onPrimaryContainer,
-          ),
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
         ),
         surfaceTintColor: Colors.transparent,
         shadowColor: Colors.transparent,
@@ -115,18 +131,22 @@ String cleanTitle(String title) {
                         children: [
                           Text(
                             'Continue Reading',
-                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).colorScheme.onSurface,
-                              letterSpacing: -0.5,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
+                                  letterSpacing: -0.5,
+                                ),
                           ),
                           const SizedBox(height: kSpacingMedium),
-SizedBox(
+                          SizedBox(
                             height: 64,
                             child: Column(
                               children: [
-                                   SingleChildScrollView(
+                                SingleChildScrollView(
                                   scrollDirection: Axis.horizontal,
                                   controller: _scrollController,
                                   child: Row(
@@ -155,7 +175,8 @@ SizedBox(
                                                     sectionId: sectionId,
                                                     isFavorited: context
                                                         .read<ReadingSettings>()
-                                                        .isSectionFavorite(sectionId),
+                                                        .isSectionFavorite(
+                                                            sectionId),
                                                   ),
                                                 ),
                                               );
@@ -198,7 +219,6 @@ SizedBox(
                                 const SizedBox(height: 8),
                                 ScrollBar(
                                   scrollController: _scrollController,
-                                  
                                 ),
                               ],
                             ),
@@ -206,11 +226,15 @@ SizedBox(
                           const SizedBox(height: kSpacingLarge),
                           Text(
                             'All Chapters',
-                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).colorScheme.onSurface,
-                              letterSpacing: -0.5,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
+                                  letterSpacing: -0.5,
+                                ),
                           ),
                         ],
                       ),
@@ -272,8 +296,11 @@ SizedBox(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            ..._buildTitleParts(context, chapter.chapterTitle, isBold: true),
-                                            const SizedBox(height: kSpacingXSmall),
+                                            ..._buildTitleParts(
+                                                context, chapter.chapterTitle,
+                                                isBold: true),
+                                            const SizedBox(
+                                                height: kSpacingXSmall),
                                             Text(
                                               '${chapter.sections.length} Sections',
                                               style: Theme.of(context)
@@ -318,6 +345,7 @@ SizedBox(
       ),
     );
   }
+
   void _showFavoriteSections(BuildContext context, List<Document> documents) {
     final settings = Provider.of<ReadingSettings>(context, listen: false);
     final favoriteSections = documents
