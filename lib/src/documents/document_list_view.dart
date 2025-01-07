@@ -124,7 +124,7 @@ class _DocumentListViewState extends State<DocumentListView> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: kSpacingMedium,
-                        vertical: kSpacingMedium,
+                        vertical: kSpacingLarge,
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -142,7 +142,7 @@ class _DocumentListViewState extends State<DocumentListView> {
                                     letterSpacing: -0.5,
                                   ),
                             ),
-                            const SizedBox(height: kSpacingMedium),
+                            const SizedBox(height: kSpacingSmall),
                             SizedBox(
                               height: 64,
                               child: Column(
@@ -223,9 +223,9 @@ class _DocumentListViewState extends State<DocumentListView> {
                                 ],
                               ),
                             ),
-                            const SizedBox(height: kSpacingLarge),
+                            const SizedBox(height: kSpacingXLarge),
                           ],
-                          const SizedBox(height: kSpacingLarge),
+                          const SizedBox(height: kSpacingXLarge),
                           Text(
                             'All Chapters',
                             style: Theme.of(context)
@@ -243,9 +243,10 @@ class _DocumentListViewState extends State<DocumentListView> {
                     ),
                   ),
                   SliverPadding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: kSpacingMedium,
-                      vertical: kSpacingSmall,
+                    padding: const EdgeInsets.only(
+                      left: kSpacingMedium,
+                      right: kSpacingMedium,
+                      bottom: kSpacingMedium,
                     ),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
@@ -272,7 +273,10 @@ class _DocumentListViewState extends State<DocumentListView> {
                                   );
                                 },
                                 child: Padding(
-                                  padding: const EdgeInsets.all(kSpacingMedium),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: kSpacingMedium,
+                                    vertical: kSpacingSmall,
+                                  ),
                                   child: Row(
                                     children: [
                                       CircleAvatar(
@@ -292,7 +296,7 @@ class _DocumentListViewState extends State<DocumentListView> {
                                               ),
                                         ),
                                       ),
-                                      const SizedBox(width: kSpacingMedium),
+                                      const SizedBox(width: kSpacingSmall),
                                       Expanded(
                                         child: Column(
                                           crossAxisAlignment:
