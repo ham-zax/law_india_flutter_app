@@ -105,8 +105,8 @@ class _DocumentListViewState extends State<DocumentListView> {
           ),
         ],
       ),
-      body: WillPopScope(
-        onWillPop: () async => false,
+      body: PopScope(
+        canPop: false,
         child: BlocBuilder<DocumentBloc, DocumentState>(
           builder: (context, state) {
             if (state is DocumentLoading) {
