@@ -133,7 +133,7 @@ class _DocumentListViewState extends State<DocumentListView> {
                             'Continue Reading',
                             style: Theme.of(context)
                                 .textTheme
-                                .headlineSmall
+                                .titleLarge
                                 ?.copyWith(
                                   fontWeight: FontWeight.w600,
                                   color:
@@ -228,7 +228,7 @@ class _DocumentListViewState extends State<DocumentListView> {
                             'All Chapters',
                             style: Theme.of(context)
                                 .textTheme
-                                .headlineSmall
+                                .titleLarge
                                 ?.copyWith(
                                   fontWeight: FontWeight.w600,
                                   color:
