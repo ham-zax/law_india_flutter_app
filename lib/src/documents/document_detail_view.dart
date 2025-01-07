@@ -351,8 +351,9 @@ class _SectionContentViewState extends State<SectionContentView> {
                   icon: Icon(Icons.arrow_forward, size: 20),
                   label: Text('Next'),
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    visualDensity: VisualDensity.compact,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    minimumSize: const Size(120, 48),
                     side: BorderSide(
                       color: Theme.of(context).colorScheme.primaryContainer,
                     ),
