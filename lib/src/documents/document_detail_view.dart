@@ -658,13 +658,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.arguments.document?.title ??
-            'Chapter ${widget.arguments.chapter?.chapterNumber ?? ''} - ${widget.arguments.chapter?.chapterTitle ?? ''}'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.format_size),
-            onPressed: () => _showSettingsBottomSheet(context),
-          ),
-        ],
+            'Chapter ${widget.arguments.chapter?.chapterNumber ?? ''} - ${widget.arguments.chapter?.chapterTitle ?? ''}')
       ),
       body: _buildContent(context, readingSettings),
     );
