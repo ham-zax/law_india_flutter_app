@@ -4,6 +4,22 @@ import 'package:flutter/services.dart';
 import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import '../models/document_model.dart';
 
+class SearchResult {
+  final Document document;
+  final DocumentChapter? chapter;
+  final DocumentSection? section;
+  final double score;
+  final String matchedField;
+
+  SearchResult({
+    required this.document,
+    this.chapter,
+    this.section, 
+    required this.score,
+    required this.matchedField
+  });
+}
+
 abstract class DocumentRepository {
   Future<List<Document>> getRecentDocuments();
   Future<List<Document>> getDocumentsByCategory(String category);
@@ -14,6 +30,7 @@ abstract class DocumentRepository {
 }
 
 class LocalDocumentRepository implements DocumentRepository {
+  final Map<String, List<SearchResult>> _searchCache = {};
   @override
   Future<List<Document>> getRecentDocuments() async {
     // Return BNS document with all chapters
@@ -73,72 +90,86 @@ class LocalDocumentRepository implements DocumentRepository {
   Future<List<Document>> searchDocuments(String query) async {
     if (query.isEmpty) return [];
     
+    // Check cache first
+    if (_searchCache.containsKey(query)) {
+      return _searchCache[query]!
+          .map((result) => result.document)
+          .toSet()
+          .toList();
+    }
+
     final allDocs = await getDocumentsByCategory('BNS');
-    final results = <Document>[];
+    final results = <SearchResult>[];
     
     for (final doc in allDocs) {
       // Search document title
-      final docScore = extractOne(
-        query: query.toLowerCase(),
-        choices: [doc.title.toLowerCase()]
-      ).score;
+      final titleScore = tokenSetRatio(
+        query.toLowerCase(),
+        doc.title.toLowerCase()
+      ) * 1.5; // Weight title matches higher
+      
+      if (titleScore > 60) {
+        results.add(SearchResult(
+          document: doc,
+          score: titleScore,
+          matchedField: 'title'
+        ));
+      }
       
       // Search chapters
-      final chapterScores = doc.chapters.map((chapter) {
-        return extractOne(
-          query: query.toLowerCase(),
-          choices: [chapter.chapterTitle.toLowerCase()]
-        ).score;
-      }).toList();
-      
-      // Search sections
-      final sectionScores = doc.chapters.expand((chapter) {
-        return chapter.sections.map((section) {
-          final titleScore = extractOne(
-            query: query.toLowerCase(),
-            choices: [section.sectionTitle.toLowerCase()]
-          ).score;
+      for (final chapter in doc.chapters) {
+        final chapterScore = tokenSetRatio(
+          query.toLowerCase(), 
+          chapter.chapterTitle.toLowerCase()
+        ) * 1.2;
+        
+        if (chapterScore > 60) {
+          results.add(SearchResult(
+            document: doc,
+            chapter: chapter,
+            score: chapterScore,
+            matchedField: 'chapter'
+          ));
+        }
+        
+        // Search sections
+        for (final section in chapter.sections) {
+          final titleScore = tokenSetRatio(
+            query.toLowerCase(),
+            section.sectionTitle.toLowerCase()
+          );
           
-          final contentScore = extractOne(
-            query: query.toLowerCase(),
-            choices: [section.content.toLowerCase()]
-          ).score;
+          final contentScore = tokenSetRatio(
+            query.toLowerCase(),
+            section.content.toLowerCase()
+          ) * 0.8; // Weight content matches lower
           
-          return max(titleScore, contentScore);
-        });
-      }).toList();
-      
-      // Get the highest score for this document
-      final maxScore = max(
-        docScore,
-        max(
-          chapterScores.isNotEmpty ? chapterScores.reduce(max) : 0,
-          sectionScores.isNotEmpty ? sectionScores.reduce(max) : 0,
-        ),
-      );
-      
-      // Add to results if score is above threshold
-      if (maxScore > 60) {
-        results.add(doc);
+          final maxScore = max(titleScore, contentScore);
+          
+          if (maxScore > 60) {
+            results.add(SearchResult(
+              document: doc,
+              chapter: chapter,
+              section: section,
+              score: maxScore,
+              matchedField: titleScore > contentScore ? 'section_title' : 'content'
+            ));
+          }
+        }
       }
     }
     
-    // Sort results by relevance
-    results.sort((a, b) {
-      final aScore = extractOne(
-        query: query.toLowerCase(),
-        choices: [a.title.toLowerCase()]
-      ).score;
-      
-      final bScore = extractOne(
-        query: query.toLowerCase(),
-        choices: [b.title.toLowerCase()]
-      ).score;
-      
-      return bScore.compareTo(aScore);
-    });
+    // Sort by score descending
+    results.sort((a, b) => b.score.compareTo(a.score));
     
-    return results;
+    // Cache results
+    _searchCache[query] = results;
+    
+    // Return unique documents
+    return results
+        .map((result) => result.document)
+        .toSet()
+        .toList();
   }
 
   @override
