@@ -21,11 +21,19 @@ class DocumentListView extends StatefulWidget {
   State<DocumentListView> createState() => _DocumentListViewState();
 }
 
-class _DocumentListViewState extends State<DocumentListView> {
+class _DocumentListViewState extends State<DocumentListView> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
   final ScrollController _scrollController = ScrollController();
 
   @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override 
   void dispose() {
+    _tabController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -77,6 +85,146 @@ class _DocumentListViewState extends State<DocumentListView> {
       ],
     ];
   }
+  Widget _buildFavoritesTab(BuildContext context) {
+    return BlocBuilder<DocumentBloc, DocumentState>(
+      builder: (context, state) {
+        if (state is DocumentLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (state is DocumentLoaded) {
+          final settings = Provider.of<ReadingSettings>(context);
+          final favoriteSections = state.documents
+              .expand((doc) => doc.chapters)
+              .expand((chapter) => chapter.sections
+                  .where((section) => settings.isSectionFavorite(
+                      '${chapter.id}_${section.sectionNumber}'))
+                  .map((section) => (chapter: chapter, section: section)))
+              .toList();
+
+          if (favoriteSections.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.favorite_border,
+                    size: 48,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No favorite sections yet',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Tap the heart icon on any section to save it here',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(kSpacingMedium),
+            itemCount: favoriteSections.length,
+            itemBuilder: (context, index) {
+              final favorite = favoriteSections[index];
+              final sectionId =
+                  '${favorite.chapter.id}_${favorite.section.sectionNumber}';
+
+              return Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(
+                    color:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
+                  ),
+                ),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => SectionContentView(
+                          chapterNumber: favorite.chapter.chapterNumber,
+                          sectionTitle: favorite.section.sectionTitle,
+                          content: favorite.section.content,
+                          settings: settings,
+                          sectionId: sectionId,
+                          isFavorited: true,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.secondaryContainer,
+                          child: Text(
+                            favorite.section.sectionNumber,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium
+                                ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSecondaryContainer,
+                                ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                favorite.section.sectionTitle,
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Chapter ${favorite.chapter.chapterNumber}',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.favorite, color: Colors.red),
+                          onPressed: () {
+                            settings.toggleSectionFavorite(sectionId);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        }
+
+        return const Center(child: Text('No favorites found'));
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,8 +239,17 @@ class _DocumentListViewState extends State<DocumentListView> {
               ),
         ),
         surfaceTintColor: Colors.transparent,
-        shadowColor: Colors.transparent,
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: Theme.of(context).colorScheme.primary,
+          unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
+          indicatorColor: Theme.of(context).colorScheme.primary,
+          tabs: const [
+            Tab(text: 'ALL CHAPTERS'),
+            Tab(text: 'FAVORITES'),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
@@ -105,9 +262,9 @@ class _DocumentListViewState extends State<DocumentListView> {
           ),
         ],
       ),
-      body: PopScope(
-        canPop: false,
-        child: BlocBuilder<DocumentBloc, DocumentState>(
+        body: TabBarView(
+          controller: _tabController,
+          children: [ BlocBuilder<DocumentBloc, DocumentState>(
           builder: (context, state) {
             if (state is DocumentLoading) {
               return const Center(child: CircularProgressIndicator());
@@ -340,7 +497,8 @@ class _DocumentListViewState extends State<DocumentListView> {
             return const Center(child: Text('No documents found'));
           },
         ),
-      ),
+      ]),
+      
       floatingActionButton: FloatingActionButton.extended(
         icon: const Icon(Icons.favorite),
         label: const Text('Favorites'),
@@ -351,9 +509,10 @@ class _DocumentListViewState extends State<DocumentListView> {
           }
         },
       ),
+    )
     );
   }
-
+  
   void _showFavoriteSections(BuildContext context, List<Document> documents) {
     final settings = Provider.of<ReadingSettings>(context, listen: false);
     final favoriteSections = documents
