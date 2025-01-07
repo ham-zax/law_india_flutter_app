@@ -27,7 +27,7 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
     return IconButton(
       icon: const Icon(Icons.arrow_back),
       onPressed: () {
-        close(context, null);
+        close(context, '');
       },
     );
   }
