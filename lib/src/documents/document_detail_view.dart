@@ -8,8 +8,8 @@ import '../navigation/document_detail_arguments.dart';
 
 // Simplified spacing constants
 class Spacing {
-  static const double xs = 4.0;  // Micro spacing
-  static const double sm = 8.0;  // Default compact spacing
+  static const double xs = 4.0; // Micro spacing
+  static const double sm = 8.0; // Default compact spacing
   static const double md = 12.0; // Standard spacing (reduced from 16)
   static const double lg = 16.0; // Section spacing (reduced from 24)
 
@@ -18,12 +18,12 @@ class Spacing {
     horizontal: md,
     vertical: sm,
   );
-  
+
   static const EdgeInsets cardPadding = EdgeInsets.symmetric(
     horizontal: md,
     vertical: sm, // Reduced from md
   );
-  
+
   static const EdgeInsets listItemSpacing = EdgeInsets.only(bottom: xs);
 }
 
@@ -87,81 +87,136 @@ class SectionContentView extends StatefulWidget {
   @override
   State<SectionContentView> createState() => _SectionContentViewState();
 }
-class _SectionContentViewState extends State<SectionContentView> {
-  void _showSettingsBottomSheet(BuildContext context) {
-    final settings = Provider.of<ReadingSettings>(context, listen: false);
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => _buildSettingsSheet(settings),
-    );
-  }
 
-  Widget _buildSettingsSheet(ReadingSettings settings) {
+class _SectionContentViewState extends State<SectionContentView> {
+void _showSettingsBottomSheet(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) => Consumer<ReadingSettings>(
+      builder: (context, settings, _) => _buildSettingsSheet(context, settings),
+    ),
+  );
+}
+
+// In SectionContentView class:
+
+  Widget _buildSettingsSheet(BuildContext context, ReadingSettings settings) {
     return Container(
-      padding: Spacing.contentPadding,
+      padding: const EdgeInsets.all(16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text('Reading Settings',
               style: Theme.of(context).textTheme.titleLarge),
-          Divider(),
-          _buildSettingsTile(
-            title: 'Font Size',
-            value: settings.fontSize.toInt().toString(),
-            onDecrease: () => settings.updateFontSize(settings.fontSize - 1),
-            onIncrease: () => settings.updateFontSize(settings.fontSize + 1),
-            decreaseIcon: Icons.text_decrease,
-            increaseIcon: Icons.text_increase,
+          const SizedBox(height: 16),
+
+          // Preview text with Consumer
+          Consumer<ReadingSettings>(
+            builder: (context, settings, _) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Text(
+                'Preview Text\nSecond line for testing line height',
+                style: TextStyle(
+                  fontSize: settings.fontSize,
+                  height: settings.lineHeight,
+                  fontFamily: settings.fontFamily,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
           ),
-          _buildSettingsTile(
-            title: 'Line Height',
-            value: settings.lineHeight.toStringAsFixed(1),
-            onDecrease: () =>
-                settings.updateLineHeight(settings.lineHeight - 0.1),
-            onIncrease: () =>
-                settings.updateLineHeight(settings.lineHeight + 0.1),
-            decreaseIcon: Icons.height,
-            increaseIcon: Icons.height,
+
+          // Font Size Slider with Consumer
+          Consumer<ReadingSettings>(
+            builder: (context, settings, _) => _buildSettingSlider(
+              context: context,
+              title: 'Font Size',
+              value: settings.fontSize,
+              min: 12,
+              max: 32,
+              divisions: 20,
+              onChanged: (value) {
+                settings.updateFontSize(value);
+              },
+              valueLabel: '${settings.fontSize.round()}',
+            ),
           ),
-          _buildSettingsTile(
-            title: 'Margins',
-            value: settings.margins.toInt().toString(),
-            onDecrease: () => settings.updateMargins(settings.margins - 4),
-            onIncrease: () => settings.updateMargins(settings.margins + 4),
-            decreaseIcon: Icons.format_indent_decrease,
-            increaseIcon: Icons.format_indent_increase,
+
+          // Line Height Slider with Consumer
+          Consumer<ReadingSettings>(
+            builder: (context, settings, _) => _buildSettingSlider(
+              context: context,
+              title: 'Line Height',
+              value: settings.lineHeight,
+              min: 1.0,
+              max: 2.5,
+              divisions: 15,
+              onChanged: (value) {
+                settings.updateLineHeight(value);
+              },
+              valueLabel: settings.lineHeight.toStringAsFixed(1),
+            ),
+          ),
+
+          // Margins Slider with Consumer
+          Consumer<ReadingSettings>(
+            builder: (context, settings, _) => _buildSettingSlider(
+              context: context,
+              title: 'Margins',
+              value: settings.margins,
+              min: 8,
+              max: 32,
+              divisions: 12,
+              onChanged: (value) {
+                settings.updateMargins(value);
+              },
+              valueLabel: '${settings.margins.round()}',
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSettingsTile({
+  Widget _buildSettingSlider({
+    required BuildContext context,
     required String title,
-    required String value,
-    required VoidCallback onDecrease,
-    required VoidCallback onIncrease,
-    required IconData decreaseIcon,
-    required IconData increaseIcon,
+    required double value,
+    required double min,
+    required double max,
+    required int divisions,
+    required ValueChanged<double> onChanged,
+    required String valueLabel,
   }) {
-    return ListTile(
-      title: Text(title),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: Icon(decreaseIcon),
-            onPressed: onDecrease,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(title),
+            Text(valueLabel),
+          ],
+        ),
+        SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+            overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
+            trackHeight: 4,
           ),
-          Text(value),
-          IconButton(
-            icon: Icon(increaseIcon),
-            onPressed: onIncrease,
+          child: Slider(
+            value: value,
+            min: min,
+            max: max,
+            divisions: divisions,
+            onChanged: onChanged,
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 8),
+      ],
     );
   }
+
   @override
   void initState() {
     super.initState();
@@ -259,7 +314,7 @@ class _SectionContentViewState extends State<SectionContentView> {
     );
   }
 
- void _navigateToNextSection(BuildContext context) {
+  void _navigateToNextSection(BuildContext context) {
     final bloc = context.read<DocumentBloc>();
     final state = bloc.state;
 
@@ -355,6 +410,7 @@ class _SectionContentViewState extends State<SectionContentView> {
     }
   }
 }
+
 class DocumentDetailView extends StatefulWidget {
   static const routeName = '/document-detail';
   final DocumentDetailArguments arguments;
@@ -500,7 +556,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
     );
   }
 
-Widget _buildSectionCard({
+  Widget _buildSectionCard({
     required BuildContext context,
     Key? key,
     required String chapterNumber,
@@ -583,6 +639,7 @@ Widget _buildSectionCard({
       ),
     );
   }
+
   Document? get document => widget.arguments.document;
   DocumentChapter? get chapter => widget.arguments.chapter;
   String? get scrollToSectionId => widget.arguments.scrollToSectionId;
