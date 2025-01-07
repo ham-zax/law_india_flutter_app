@@ -228,7 +228,16 @@ class _DocumentListViewState extends State<DocumentListView> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async {
+        if (_tabController.index != 0) {
+          // If not on first tab, switch to it
+          _tabController.animateTo(0);
+          return false; // Prevent app exit
+        }
+        return true; // Allow app exit
+      },
+      child: Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(
