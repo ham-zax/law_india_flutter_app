@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' show SharedAxisTransition, SharedAxisTransitionType;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import '../bloc/document/document_bloc.dart';
@@ -379,8 +380,8 @@ class _SectionContentViewState extends State<SectionContentView> {
 
           // Navigate to next section
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => SectionContentView(
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => SectionContentView(
                 chapterNumber: currentChapter.chapterNumber,
                 sectionTitle: nextSection.sectionTitle,
                 content: nextSection.content,
@@ -388,6 +389,18 @@ class _SectionContentViewState extends State<SectionContentView> {
                 sectionId: nextSectionId,
                 isFavorited: widget.settings.isSectionFavorite(nextSectionId),
               ),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return Material(
+                  color: Theme.of(context).colorScheme.surface,
+                  child: SharedAxisTransition(
+                    animation: animation,
+                    secondaryAnimation: secondaryAnimation,
+                    transitionType: SharedAxisTransitionType.horizontal,
+                    child: child,
+                  ),
+                );
+              },
+              transitionDuration: const Duration(milliseconds: 300),
             ),
           );
         } else {
@@ -427,16 +440,27 @@ class _SectionContentViewState extends State<SectionContentView> {
 
           // Navigate to previous section
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => SectionContentView(
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => SectionContentView(
                 chapterNumber: currentChapter.chapterNumber,
                 sectionTitle: previousSection.sectionTitle,
                 content: previousSection.content,
                 settings: widget.settings,
                 sectionId: previousSectionId,
-                isFavorited:
-                    widget.settings.isSectionFavorite(previousSectionId),
+                isFavorited: widget.settings.isSectionFavorite(previousSectionId),
               ),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return Material(
+                  color: Theme.of(context).colorScheme.surface,
+                  child: SharedAxisTransition(
+                    animation: animation,
+                    secondaryAnimation: secondaryAnimation,
+                    transitionType: SharedAxisTransitionType.horizontal,
+                    child: child,
+                  ),
+                );
+              },
+              transitionDuration: const Duration(milliseconds: 300),
             ),
           );
         } else {
