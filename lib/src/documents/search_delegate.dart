@@ -89,7 +89,11 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: ExpansionTile(
+                child: Theme(
+                  data: Theme.of(context).copyWith(
+                    dividerColor: Colors.transparent, // Remove divider lines
+                  ),
+                  child: ExpansionTile(
                   leading: const Icon(Icons.book, color: Colors.blue),
                   title: Text(
                     chapterName,
