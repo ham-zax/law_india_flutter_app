@@ -35,6 +35,35 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.debug
+            
+            // Enable code shrinking, obfuscation, and optimization
+            minifyEnabled true
+            shrinkResources true
+            
+            // Use the default ProGuard rules for Flutter
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            
+            // Enable R8 full mode for better optimization
+            useProguard = false
+        }
+    }
+    
+    // Add this to handle the split debug info
+    applicationVariants.all { variant ->
+        if (variant.buildType.name == "release") {
+            variant.outputs.all { output ->
+                def task = variant.assembleProvider.get()
+                task.doLast {
+                    copy {
+                        from output.outputFile.parent
+                        into output.outputFile.parent
+                        include "*.symbols"
+                        rename { String fileName ->
+                            fileName.replace(".symbols", ".symbols-${variant.name}")
+                        }
+                    }
+                }
+            }
         }
     }
 }
