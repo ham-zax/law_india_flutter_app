@@ -76,21 +76,23 @@ class EnhancedReadingView extends StatelessWidget {
   }
 }
 class SectionContentView extends StatefulWidget {
-  final String chapterNumber;
+  final String? chapterNumber;
   final String sectionTitle;
   final String content;
   final ReadingSettings settings;
   final String sectionId;
   final bool isFavorited;
+  final bool showNavigation;
 
   const SectionContentView({
     super.key,
-    required this.chapterNumber,
+    this.chapterNumber,
     required this.sectionTitle,
     required this.content,
     required this.settings,
     required this.sectionId,
     required this.isFavorited,
+    this.showNavigation = true,
   });
 
   @override
@@ -340,46 +342,47 @@ class _SectionContentViewState extends State<SectionContentView> {
               ),
             ),
           ),
-          Padding(
-            padding: Spacing.contentPadding,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                OutlinedButton.icon(
-                  onPressed: () => _navigateToPreviousSection(context),
-                  icon: Icon(Icons.arrow_back, size: 20),
-                  label: Text('Previous'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    minimumSize: const Size(120, 48),
-                    side: BorderSide(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                OutlinedButton.icon(
-                  onPressed: () => _navigateToNextSection(context),
-                  icon: Icon(Icons.arrow_forward, size: 20),
-                  label: Text('Next'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
-                    minimumSize: const Size(120, 48),
-                    side: BorderSide(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+          if (widget.showNavigation)
+            Padding(
+              padding: Spacing.contentPadding,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: () => _navigateToPreviousSection(context),
+                    icon: Icon(Icons.arrow_back, size: 20),
+                    label: Text('Previous'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      minimumSize: const Size(120, 48),
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  OutlinedButton.icon(
+                    onPressed: () => _navigateToNextSection(context),
+                    icon: Icon(Icons.arrow_forward, size: 20),
+                    label: Text('Next'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      minimumSize: const Size(120, 48),
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );

@@ -139,6 +139,7 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
                                     isFavorited: context
                                         .read<ReadingSettings>()
                                         .isSectionFavorite(sectionId),
+                                    showNavigation: false,
                                   ),
                                 ),
                               );
