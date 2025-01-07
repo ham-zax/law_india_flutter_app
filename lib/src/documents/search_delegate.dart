@@ -112,26 +112,35 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
                         .allMatches(section.content)
                         .length;
 
-                    return ListTile(
-                      leading: const Icon(Icons.article, color: Colors.green),
-                      title: Text(
-                        'Section ${section.sectionNumber}: ${section.sectionTitle}',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      subtitle: Text(
-                        '$matchCount match${matchCount > 1 ? 'es' : ''}',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      trailing: Chip(
-                        label: Text(
-                          '${result.score.toStringAsFixed(1)}%',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                    return Column(
+                      children: [
+                        ListTile(
+                          leading: const Icon(Icons.article, color: Colors.green),
+                          title: Text(
+                            'Section ${section.sectionNumber}: ${section.sectionTitle.replaceFirst(
+                              RegExp(r'^\d+\.\s*'),
+                              '',
+                            )}',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          subtitle: Text(
+                            '$matchCount match${matchCount > 1 ? 'es' : ''}',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          trailing: Chip(
+                            label: Text(
+                              '${result.score.toStringAsFixed(1)}%',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            backgroundColor: Theme.of(context).colorScheme.primary,
                           ),
                         ),
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                      ),
+                        const Divider(height: 1, thickness: 1),
+                      ],
+                    ),
                       onTap: () {
                         if (result.section != null && result.chapter != null) {
                           Navigator.push(
