@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/document/document_bloc.dart';
 import '../data/models/document_model.dart';
+import '../data/repositories/document_repository.dart';
 import 'document_detail_view.dart';
 import '../settings/reading_settings.dart';
 
@@ -131,9 +132,10 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
                       Navigator.pushNamed(
                         context,
                         DocumentDetailView.routeName,
-                        arguments: document,
+                        arguments: result,
                       );
-                      },
+                    }
+                  },
                     );
                   }).toList(),
                 ),
