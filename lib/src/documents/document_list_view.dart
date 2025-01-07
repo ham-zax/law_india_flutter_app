@@ -147,8 +147,8 @@ class _DocumentListViewState extends State<DocumentListView>
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                   side: BorderSide(
-                    color:
-                        Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                    width: 1.0,
                   ),
                 ),
                 child: InkWell(
@@ -510,9 +510,8 @@ class _DocumentListViewState extends State<DocumentListView>
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 side: BorderSide(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .surfaceContainerHighest,
+                                  color: Theme.of(context).colorScheme.outlineVariant,
+                                  width: 1.0,
                                 ),
                               ),
                               child: InkWell(
