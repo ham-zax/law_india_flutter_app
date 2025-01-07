@@ -7,11 +7,10 @@ import '../settings/reading_settings.dart';
 import '../data/models/document_model.dart';
 import '../bloc/document/document_bloc.dart';
 
-const double kSpacing4 = 4.0;
-const double kSpacing8 = 8.0;
-const double kSpacing12 = 12.0;
-const double kSpacing16 = 16.0;
-const double kSpacingLarge = 24.0;
+const double kSpacing4 = 4.0;  // For minimal spacing
+const double kSpacing8 = 8.0;  // For standard spacing
+const double kSpacing12 = 12.0; // For content padding
+const double kSpacing16 = 16.0; // For section padding
 
 class DocumentListView extends StatefulWidget {
   const DocumentListView({super.key});
@@ -132,7 +131,10 @@ class _DocumentListViewState extends State<DocumentListView>
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.all(kSpacing16),
+            padding: const EdgeInsets.symmetric(
+              horizontal: kSpacing12,
+              vertical: kSpacing8,
+            ),
             itemCount: favoriteSections.length,
             itemBuilder: (context, index) {
               final favorite = favoriteSections[index];
@@ -140,7 +142,7 @@ class _DocumentListViewState extends State<DocumentListView>
                   '${favorite.chapter.id}_${favorite.section.sectionNumber}';
 
               return Card(
-                margin: const EdgeInsets.only(bottom: kSpacing8),
+                margin: const EdgeInsets.only(bottom: kSpacing4),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -184,7 +186,7 @@ class _DocumentListViewState extends State<DocumentListView>
                                 ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: kSpacing8),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,8 +286,8 @@ class _DocumentListViewState extends State<DocumentListView>
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: kSpacing16,
-                          vertical: kSpacingLarge,
+                          horizontal: kSpacing12,
+                          vertical: kSpacing8,
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -539,8 +541,8 @@ class _DocumentListViewState extends State<DocumentListView>
             maxHeight: MediaQuery.of(context).size.height * 0.75,
           ),
           padding: const EdgeInsets.symmetric(
-            horizontal: kSpacing12,
-            vertical: kSpacing8,
+            horizontal: kSpacing8,
+            vertical: kSpacing4,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
