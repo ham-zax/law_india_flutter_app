@@ -166,13 +166,18 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
                               trailing: Chip(
                                 label: Text(
                                   '${result.score.toStringAsFixed(1)}%',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
                                   ),
                                 ),
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.primary,
+                                backgroundColor: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
+                                side: BorderSide(
+                                  color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                                  width: 1,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
                               ),
                             ),
                             if (!isLastItem && chapterResults.length > 1)
