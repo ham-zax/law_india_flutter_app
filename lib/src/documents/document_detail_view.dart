@@ -330,23 +330,37 @@ class _SectionContentViewState extends State<SectionContentView> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                FilledButton.icon(
+                OutlinedButton.icon(
                   onPressed: () => _navigateToPreviousSection(context),
                   icon: Icon(Icons.arrow_back, size: 20),
                   label: Text('Previous'),
-                  style: FilledButton.styleFrom(
+                  style: OutlinedButton.styleFrom(
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     minimumSize: Size(120, 48),
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.outline,
+                      width: 1.0,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
-                FilledButton.icon(
+                OutlinedButton.icon(
                   onPressed: () => _navigateToNextSection(context),
                   icon: Icon(Icons.arrow_forward, size: 20),
                   label: Text('Next'),
-                  style: FilledButton.styleFrom(
+                  style: OutlinedButton.styleFrom(
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     minimumSize: Size(120, 48),
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.outline,
+                      width: 1.0,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                 ),
               ],
