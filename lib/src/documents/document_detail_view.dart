@@ -492,7 +492,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
                         color: colorScheme.onSurface,
                         letterSpacing: 0.15,
                         height: 1.4,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500, // Changed from w600 to w500 (semi-bold)
                       ),
                     ),
                   ],
