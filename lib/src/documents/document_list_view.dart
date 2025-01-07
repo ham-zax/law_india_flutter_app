@@ -7,11 +7,10 @@ import '../settings/reading_settings.dart';
 import '../data/models/document_model.dart';
 import '../bloc/document/document_bloc.dart';
 
-const double kSpacingXSmall = 4.0;
-const double kSpacingSmall = 8.0;
-const double kSpacingMedium = 16.0;
-const double kSpacingLarge = 24.0;
-const double kSpacingXLarge = 32.0;
+const double kSpacing4 = 4.0;
+const double kSpacing8 = 8.0;
+const double kSpacing12 = 12.0;
+const double kSpacing16 = 16.0;
 
 class DocumentListView extends StatefulWidget {
   const DocumentListView({super.key});
@@ -140,7 +139,7 @@ class _DocumentListViewState extends State<DocumentListView>
                   '${favorite.chapter.id}_${favorite.section.sectionNumber}';
 
               return Card(
-                margin: const EdgeInsets.only(bottom: 12),
+                margin: const EdgeInsets.only(bottom: kSpacing8),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -233,6 +232,7 @@ class _DocumentListViewState extends State<DocumentListView>
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        padding: const EdgeInsets.symmetric(horizontal: kSpacing8),
         title: Text(
           'Bharatiya Nyaya Sanhita',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -413,10 +413,9 @@ class _DocumentListViewState extends State<DocumentListView>
                       ),
                     ),
                     SliverPadding(
-                      padding: const EdgeInsets.only(
-                        left: kSpacingMedium,
-                        right: kSpacingMedium,
-                        bottom: kSpacingMedium,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: kSpacing16,
+                        vertical: kSpacing8,
                       ),
                       sliver: SliverList(
                         delegate: SliverChildBuilderDelegate(
@@ -538,7 +537,10 @@ class _DocumentListViewState extends State<DocumentListView>
           constraints: BoxConstraints(
             maxHeight: MediaQuery.of(context).size.height * 0.75,
           ),
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(
+            horizontal: kSpacing12,
+            vertical: kSpacing8,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -767,7 +769,7 @@ class _ScrollBarState extends State<ScrollBar> {
 
         return Container(
           height: 4,
-          margin: const EdgeInsets.symmetric(horizontal: 16),
+          margin: const EdgeInsets.symmetric(horizontal: kSpacing8),
           child: Stack(
             children: [
               Container(
