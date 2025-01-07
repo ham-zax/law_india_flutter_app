@@ -6,25 +6,24 @@ import '../settings/reading_settings.dart';
 import '../widgets/favorite_button.dart';
 import '../navigation/document_detail_arguments.dart';
 
-// Spacing constants
+// Simplified spacing constants
 class Spacing {
-  static const double xs = 4.0; // Micro adjustments
-  static const double sm = 8.0; // Tight spacing
-  static const double md = 16.0; // Standard spacing
-  static const double lg = 24.0; // Section spacing
-  static const double xl = 32.0; // Major section spacing
+  static const double xs = 4.0;  // Micro spacing
+  static const double sm = 8.0;  // Default compact spacing
+  static const double md = 12.0; // Standard spacing (reduced from 16)
+  static const double lg = 16.0; // Section spacing (reduced from 24)
 
   // Optimized padding presets
   static const EdgeInsets contentPadding = EdgeInsets.symmetric(
     horizontal: md,
     vertical: sm,
   );
-
+  
   static const EdgeInsets cardPadding = EdgeInsets.symmetric(
     horizontal: md,
     vertical: sm, // Reduced from md
   );
-
+  
   static const EdgeInsets listItemSpacing = EdgeInsets.only(bottom: xs);
 }
 
@@ -45,7 +44,7 @@ class EnhancedReadingView extends StatelessWidget {
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(
         horizontal: settings.margins,
-        vertical: Spacing.sm, // Reduced from 16
+        vertical: Spacing.sm,
       ),
       child: SelectableText.rich(
         TextSpan(
@@ -153,7 +152,7 @@ class _SectionContentViewState extends State<SectionContentView> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: Spacing.contentPadding,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -341,7 +340,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
     return Card(
       elevation: 0,
       color: surfaceColor,
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: Spacing.listItemSpacing,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
@@ -395,7 +394,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
                             ),
                           )),
                     ],
-                    const SizedBox(height: Spacing.sm),
+                    const SizedBox(height: Spacing.xs),
                     Text(
                       '${chapter.sections.length} sections',
                       style: theme.textTheme.bodySmall?.copyWith(
@@ -525,9 +524,9 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
     return SafeArea(
       child: ListView.builder(
         controller: _scrollController,
-        padding: Spacing.contentPadding.copyWith(
-          left: settings.margins,
-          right: settings.margins,
+        padding: EdgeInsets.symmetric(
+          horizontal: settings.margins,
+          vertical: Spacing.sm,
         ),
         itemCount: _getItemCount(),
         itemBuilder: (context, index) {
