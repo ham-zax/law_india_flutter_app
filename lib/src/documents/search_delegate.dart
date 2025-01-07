@@ -123,41 +123,40 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
                       final isLastItem = index == chapterResults.length - 1;
 
                       return InkWell(
-                      onTap: () {
-                        try {
-                          if (result.section != null && result.chapter != null) {
-                            final sectionId = '${result.chapter!.id}_${result.section!.sectionNumber}';
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => SectionContentView(
-                                  chapterNumber: result.chapter!.chapterNumber,
-                                  sectionTitle: result.section!.sectionTitle,
-                                  content: result.section!.content,
-                                  settings: context.read<ReadingSettings>(),
-                                  sectionId: sectionId,
-                                  isFavorited: context
-                                      .read<ReadingSettings>()
-                                      .isSectionFavorite(sectionId),
+                        onTap: () {
+                          try {
+                            if (result.section != null && result.chapter != null) {
+                              final sectionId = '${result.chapter!.id}_${result.section!.sectionNumber}';
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SectionContentView(
+                                    chapterNumber: result.chapter!.chapterNumber,
+                                    sectionTitle: result.section!.sectionTitle,
+                                    content: result.section!.content,
+                                    settings: context.read<ReadingSettings>(),
+                                    sectionId: sectionId,
+                                    isFavorited: context
+                                        .read<ReadingSettings>()
+                                        .isSectionFavorite(sectionId),
+                                  ),
                                 ),
-                              ),
-                            );
-                          } else {
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Invalid section data'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Invalid section data'),
-                                duration: Duration(seconds: 2),
+                              SnackBar(
+                                content: Text('Error navigating to section: ${e.toString()}'),
+                                duration: const Duration(seconds: 2),
                               ),
                             );
-                          }
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Error navigating to section: ${e.toString()}'),
-                              duration: const Duration(seconds: 2),
-                            ),
-                          );
-                        }
                           }
                         },
                         child: Column(
