@@ -108,7 +108,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       updatedSections.insert(0, newSection);
 
       // Keep only last 3 sections
-      final recentSections = updatedSections.take(3).toList();
+      final recentSections = updatedSections.take(7).toList();
 
       emit(currentState.copyWith(
         recentSections: recentSections,

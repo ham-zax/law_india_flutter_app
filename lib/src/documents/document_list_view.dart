@@ -12,11 +12,22 @@ const double kSpacingSmall = 8.0;
 const double kSpacingMedium = 16.0;
 const double kSpacingLarge = 24.0;
 const double kSpacingXLarge = 32.0;
-class DocumentListView extends StatelessWidget {
+class DocumentListView extends StatefulWidget {
   const DocumentListView({super.key});
-
   static const routeName = '/documents';
 
+  @override
+  State<DocumentListView> createState() => _DocumentListViewState();
+}
+
+class _DocumentListViewState extends State<DocumentListView> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 String cleanTitle(String title) {
     final regex = RegExp(r'^\d+[\.\s-]*\s*');
     return title.replaceFirst(regex, '');
@@ -111,101 +122,87 @@ String cleanTitle(String title) {
                             ),
                           ),
                           const SizedBox(height: kSpacingMedium),
-                          SizedBox(
-  height: 180,
-  child: PageView.builder(
-    controller: PageController(viewportFraction: 0.85),
-    itemCount: state.recentSections.length,
-    itemBuilder: (context, index) {
-      final recentItem = state.recentSections[index];
-      final controller = PageController(viewportFraction: 0.85);
-      
-      return AnimatedBuilder(
-        animation: controller,
-        builder: (context, child) {
-          final pageOffset = controller.hasClients 
-              ? index - (controller.page ?? 0)
-              : 0.0;
-          final scale = 1 - (0.1 * pageOffset.abs());
-          
-          return Transform.scale(
-            scale: scale,
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-              child: Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(16),
-                  onTap: () {
-                    final sectionId = '${recentItem.chapter.id}_${recentItem.section.sectionNumber}';
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => SectionContentView(
-                          chapterNumber: recentItem.chapter.chapterNumber,
-                          sectionTitle: recentItem.section.sectionTitle,
-                          content: recentItem.section.content,
-                          settings: context.read<ReadingSettings>(),
-                          sectionId: sectionId,
-                          isFavorited: context.read<ReadingSettings>().isSectionFavorite(sectionId),
-                        ),
-                      ),
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(kSpacingMedium),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-                              child: Text(
-                                recentItem.section.sectionNumber,
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSecondaryContainer,
-                                  fontWeight: FontWeight.w600,
+SizedBox(
+                            height: 64,
+                            child: Column(
+                              children: [
+                                   SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  controller: _scrollController,
+                                  child: Row(
+                                    children: [
+                                      for (var recentItem
+                                          in state.recentSections.take(7))
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(right: 8),
+                                          child: OutlinedButton(
+                                            onPressed: () {
+                                              final sectionId =
+                                                  '${recentItem.chapter.id}_${recentItem.section.sectionNumber}';
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      SectionContentView(
+                                                    chapterNumber: recentItem
+                                                        .chapter.chapterNumber,
+                                                    sectionTitle: recentItem
+                                                        .section.sectionTitle,
+                                                    content: recentItem
+                                                        .section.content,
+                                                    settings: context.read<
+                                                        ReadingSettings>(),
+                                                    sectionId: sectionId,
+                                                    isFavorited: context
+                                                        .read<ReadingSettings>()
+                                                        .isSectionFavorite(sectionId),
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                            style: OutlinedButton.styleFrom(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 12,
+                                                      vertical: 8),
+                                              visualDensity:
+                                                  VisualDensity.compact,
+                                              side: BorderSide(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary
+                                                    .withOpacity(0.5),
+                                              ),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              'Ch ${recentItem.chapter.chapterNumber} sec ${recentItem.section.sectionNumber}',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .labelMedium
+                                                  ?.copyWith(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .primary,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
                                 ),
-                              ),
+                                const SizedBox(height: 8),
+                                ScrollBar(
+                                  scrollController: _scrollController,
+                                  
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: kSpacingMedium),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Chapter ${recentItem.chapter.chapterNumber} - Section ${recentItem.section.sectionNumber}',
-                                    style: Theme.of(context).textTheme.titleMedium,
-                                  ),
-                                  const SizedBox(height: kSpacingSmall),
-                                  Text(
-                                    recentItem.section.sectionTitle,
-                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      );
-    },
-  ),
-),
+                          ),
                           const SizedBox(height: kSpacingLarge),
                           Text(
                             'All Chapters',
@@ -496,6 +493,70 @@ String cleanTitle(String title) {
           ),
         );
       },
+    );
+  }
+}
+class ScrollBar extends StatefulWidget {
+  final ScrollController scrollController;
+
+  const ScrollBar({
+    super.key,
+    required this.scrollController,
+  });
+
+  @override
+  State<ScrollBar> createState() => _ScrollBarState();
+}
+class _ScrollBarState extends State<ScrollBar> {
+  double _scrollPosition = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.scrollController.addListener(_updateScrollPosition);
+  }
+
+  @override
+  void dispose() {
+    widget.scrollController.removeListener(_updateScrollPosition);
+    super.dispose();
+  }
+
+  void _updateScrollPosition() {
+    if (!mounted) return;
+    final maxScroll = widget.scrollController.position.maxScrollExtent;
+    if (maxScroll <= 0) return;
+
+    setState(() {
+      _scrollPosition = widget.scrollController.position.pixels / maxScroll;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 4,
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      child: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              borderRadius: BorderRadius.circular(1),
+            ),
+          ),
+          FractionallySizedBox(
+            widthFactor: 0.3,
+            alignment: Alignment((_scrollPosition * 2) - 1, 0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(1),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
