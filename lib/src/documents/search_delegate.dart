@@ -41,7 +41,7 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
     }
 
     documentBloc.add(SearchDocuments(query));
-    
+
     return BlocBuilder<DocumentBloc, DocumentState>(
       builder: (context, state) {
         if (state is DocumentLoading) {
@@ -66,81 +66,101 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
             }
           }
 
-          return ListView(
+          return ListView.builder(
             padding: const EdgeInsets.all(16),
-            children: resultsByChapter.entries.map((entry) {
-              final chapterName = entry.key;
-              final chapterResults = entry.value;
-              
+            itemCount: resultsByChapter.length,
+            itemBuilder: (context, index) {
+              final chapterEntry = resultsByChapter.entries.elementAt(index);
+              final chapterName = chapterEntry.key;
+              final chapterResults = chapterEntry.value;
+
               // Count total matches in this chapter
               final totalMatches = chapterResults.fold(0, (sum, result) {
                 final content = result.section?.content ?? '';
-                return sum + query.allMatches(content.toLowerCase()).length;
+                return sum +
+                    RegExp(query, caseSensitive: false)
+                        .allMatches(content)
+                        .length;
               });
 
               return Card(
-                margin: const EdgeInsets.only(bottom: 8),
+                margin: const EdgeInsets.only(bottom: 12),
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 child: ExpansionTile(
+                  leading: const Icon(Icons.book, color: Colors.blue),
                   title: Text(
                     chapterName,
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text(
-                    '${chapterResults.length} sections with matches ($totalMatches total)',
+                    '${chapterResults.length} sections with $totalMatches matches',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   children: chapterResults.map((result) {
                     final section = result.section!;
-                    final matchCount = query.allMatches(section.content.toLowerCase()).length;
-                    
+                    final matchCount = RegExp(query, caseSensitive: false)
+                        .allMatches(section.content)
+                        .length;
+
                     return ListTile(
+                      leading: const Icon(Icons.article, color: Colors.green),
                       title: Text(
                         'Section ${section.sectionNumber}: ${section.sectionTitle}',
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       subtitle: Text(
-                        '$matchCount matches',
+                        '$matchCount match${matchCount > 1 ? 'es' : ''}',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
-                      trailing: Text(
-                        '${result.score.toStringAsFixed(1)}%',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      onTap: () {
-                    if (result.section != null && result.chapter != null) {
-                      // Navigate directly to the section if available
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SectionContentView(
-                            chapterNumber: result.chapter!.chapterNumber,
-                            sectionTitle: result.section!.sectionTitle,
-                            content: result.section!.content,
-                            settings: context.read<ReadingSettings>(),
-                            sectionId: '${result.chapter!.id}_${result.section!.sectionNumber}',
-                            isFavorited: context.read<ReadingSettings>().isSectionFavorite(
-                              '${result.chapter!.id}_${result.section!.sectionNumber}'
-                            ),
+                      trailing: Chip(
+                        label: Text(
+                          '${result.score.toStringAsFixed(1)}%',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      );
-                    } else {
-                      // Fall back to document view
-                      Navigator.pushNamed(
-                        context,
-                        DocumentDetailView.routeName,
-                        arguments: result,
-                      );
-                    }
-                  },
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                      ),
+                      onTap: () {
+                        if (result.section != null && result.chapter != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SectionContentView(
+                                chapterNumber: result.chapter!.chapterNumber,
+                                sectionTitle: result.section!.sectionTitle,
+                                content: result.section!.content,
+                                settings: context.read<ReadingSettings>(),
+                                sectionId:
+                                    '${result.chapter!.id}_${result.section!.sectionNumber}',
+                                isFavorited: context
+                                    .read<ReadingSettings>()
+                                    .isSectionFavorite(
+                                      '${result.chapter!.id}_${result.section!.sectionNumber}',
+                                    ),
+                              ),
+                            ),
+                          );
+                        } else {
+                          Navigator.pushNamed(
+                            context,
+                            DocumentDetailView.routeName,
+                            arguments: result,
+                          );
+                        }
+                      },
                     );
                   }).toList(),
                 ),
               );
-            }).toList(),
+            },
           );
         }
 
@@ -156,7 +176,7 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
     }
 
     documentBloc.add(SearchDocuments(query));
-    
+
     return BlocBuilder<DocumentBloc, DocumentState>(
       builder: (context, state) {
         if (state is DocumentLoading) {
@@ -178,6 +198,8 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
             itemBuilder: (context, index) {
               final document = state.documents[index];
               return ListTile(
+                leading:
+                    const Icon(Icons.insert_drive_file, color: Colors.orange),
                 title: Text(document.title),
                 onTap: () {
                   query = document.title;
