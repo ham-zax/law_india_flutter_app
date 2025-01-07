@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
-import '../data/models/document_model.dart';
 import '../bloc/document/document_bloc.dart';
+import '../data/models/document_model.dart';
 import '../settings/reading_settings.dart';
 import '../widgets/favorite_button.dart';
 import '../navigation/document_detail_arguments.dart';
@@ -51,7 +52,7 @@ class EnhancedReadingView extends StatelessWidget {
           constraints: BoxConstraints(
             minHeight: constraints.maxHeight - (Spacing.sm * 2),
           ),
-          alignment: Alignment.topLeft, // Force top alignment
+          alignment: Alignment.topLeft,
           child: SelectableText.rich(
             TextSpan(
               style: TextStyle(
@@ -73,7 +74,6 @@ class EnhancedReadingView extends StatelessWidget {
     });
   }
 }
-
 class SectionContentView extends StatefulWidget {
   final String chapterNumber;
   final String sectionTitle;
@@ -95,7 +95,6 @@ class SectionContentView extends StatefulWidget {
   @override
   State<SectionContentView> createState() => _SectionContentViewState();
 }
-
 class _SectionContentViewState extends State<SectionContentView> {
   void _showSettingsBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -435,10 +434,12 @@ class DocumentDetailView extends StatefulWidget {
     required this.arguments,
   });
 
+  // Add static route method to handle navigation
   static Route<dynamic> route(RouteSettings settings) {
     final args = settings.arguments;
     DocumentDetailArguments arguments;
 
+    // Handle different argument types
     if (args is DocumentDetailArguments) {
       arguments = args;
     } else if (args is Map<String, dynamic>) {
@@ -451,6 +452,7 @@ class DocumentDetailView extends StatefulWidget {
       throw ArgumentError('Invalid arguments for DocumentDetailView');
     }
 
+    // Return MaterialPageRoute with proper arguments
     return MaterialPageRoute(
       settings: settings,
       builder: (context) => DocumentDetailView(arguments: arguments),
@@ -463,10 +465,6 @@ class DocumentDetailView extends StatefulWidget {
 
 class _DocumentDetailViewState extends State<DocumentDetailView> {
   final ScrollController _scrollController = ScrollController();
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   void dispose() {
@@ -474,148 +472,77 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
     super.dispose();
   }
 
-  Widget _buildChapterCard({
-    required BuildContext context,
-    required DocumentChapter chapter,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<DocumentBloc, DocumentState>(
+      builder: (context, state) {
+        if (state is DocumentLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-    // Split title into main title and subtitles
-    List<String> titleParts = chapter.chapterTitle.split(' - ');
-    String mainTitle = titleParts[0].trim();
-    List<String> subtitles = titleParts.length > 1 ? titleParts.sublist(1) : [];
+        if (state is DocumentError) {
+          return Center(child: Text('Error: ${state.message}'));
+        }
 
-    final Color surfaceColor = isSelected
-        ? Color.fromRGBO(colorScheme.primary.red, colorScheme.primary.green,
-            colorScheme.primary.blue, 0.08)
-        : colorScheme.surface;
-
-    return Card(
-      elevation: 0,
-      color: surfaceColor,
-      margin: Spacing.listItemSpacing,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      surfaceTintColor: colorScheme.primaryContainer,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(4),
-        onTap: onTap,
-        child: Padding(
-          padding: Spacing.cardPadding,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CircleAvatar(
-                backgroundColor: colorScheme.primaryContainer,
-                child: Text(
-                  chapter.chapterNumber,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: colorScheme.onPrimaryContainer,
-                    fontWeight: FontWeight.bold,
-                  ),
+        if (state is DocumentLoaded) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(
+                widget.arguments.chapter != null
+                    ? 'Chapter ${widget.arguments.chapter?.chapterNumber}'
+                    : (widget.arguments.document?.title ?? ''),
+              ),
+            ),
+            body: SafeArea(
+              child: ListView.builder(
+                controller: _scrollController,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: Spacing.sm,
                 ),
-              ),
-              const SizedBox(width: Spacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      mainTitle,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: isSelected
-                            ? colorScheme.onPrimaryContainer
-                            : colorScheme.onSurface,
-                        letterSpacing: 0.15,
-                        height: 1.4,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    if (subtitles.isNotEmpty) ...[
-                      const SizedBox(height: Spacing.xs),
-                      ...subtitles.map((subtitle) => Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text(
-                              subtitle,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: isSelected
-                                    ? colorScheme.onPrimaryContainer
-                                    : colorScheme.onSurfaceVariant,
-                                height: 1.4,
-                              ),
-                            ),
-                          )),
-                    ],
-                    const SizedBox(height: Spacing.xs),
-                    Text(
-                      '${chapter.sections.length} sections',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(
-                Icons.chevron_right,
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionCard({
-    required BuildContext context,
-    Key? key,
-    required String chapterNumber,
-    required String sectionTitle,
-    required String content,
-    required ReadingSettings settings,
-    required String sectionId,
-    required bool isFavorited,
-  }) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    String cleanTitle(String title) {
-      final regex = RegExp(r'^\d+[\.\s-]*\s*');
-      return title.replaceFirst(regex, '');
-    }
-
-    return Card(
-      key: key,
-      elevation: 0,
-      margin: Spacing.listItemSpacing,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: theme.colorScheme.surfaceContainerHighest,
-        ),
-      ),
-      surfaceTintColor: colorScheme.primaryContainer,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => SectionContentView(
-                chapterNumber: chapterNumber,
-                sectionTitle: sectionTitle,
-                content: content,
-                settings: settings,
-                sectionId: sectionId,
-                isFavorited: isFavorited,
+                itemCount: _getItemCount(),
+                itemBuilder: (context, index) {
+                  if (widget.arguments.document != null) {
+                    final chapter = widget.arguments.document!.chapters[index];
+                    return _buildChapterCard(context, chapter, index);
+                  } else if (widget.arguments.chapter != null) {
+                    final section = widget.arguments.chapter!.sections[index];
+                    return _buildSectionCard(context, section);
+                  }
+                  return const SizedBox.shrink();
+                },
               ),
             ),
           );
-        },
+        }
+
+        return const Center(child: Text('No document data available'));
+      },
+    );
+  }
+  int _getItemCount() {
+    if (widget.arguments.document != null) {
+      return widget.arguments.document!.chapters.length;
+    } else if (widget.arguments.chapter != null) {
+      return widget.arguments.chapter!.sections.length;
+    }
+    return 0;
+  }
+
+  Widget _buildChapterCard(
+      BuildContext context, DocumentChapter chapter, int index) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Card(
+      elevation: 0,
+      margin: Spacing.listItemSpacing,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => _navigateToChapter(context, chapter),
         child: Padding(
           padding: Spacing.cardPadding,
           child: Row(
@@ -624,7 +551,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
               CircleAvatar(
                 backgroundColor: colorScheme.secondaryContainer,
                 child: Text(
-                  sectionId.split('_').last,
+                  chapter.chapterNumber,
                   style: theme.textTheme.labelMedium?.copyWith(
                     color: colorScheme.onSecondaryContainer,
                     fontWeight: FontWeight.bold,
@@ -637,17 +564,24 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      cleanTitle(sectionTitle),
+                      chapter.chapterTitle,
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: colorScheme.onSurface,
-                        letterSpacing: 0.15,
                         height: 1.4,
                         fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: Spacing.xs),
+                    Text(
+                      '${chapter.sections.length} sections',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
                 ),
               ),
+              Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
             ],
           ),
         ),
@@ -655,166 +589,78 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
     );
   }
 
-  Document? get document => widget.arguments.document;
-  DocumentChapter? get chapter => widget.arguments.chapter;
-  String? get scrollToSectionId => widget.arguments.scrollToSectionId;
+  Widget _buildSectionCard(BuildContext context, DocumentSection section) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final settings = context.read<ReadingSettings>();
 
-  @override
-  Widget build(BuildContext context) {
-    final readingSettings = Provider.of<ReadingSettings>(context);
-
-    if (widget.arguments.document == null && widget.arguments.chapter == null) {
-      return Scaffold(
-        appBar: AppBar(),
-        body: Center(child: Text('No document or chapter selected')),
-      );
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.arguments.chapter != null
-              ? 'Chapter ${widget.arguments.chapter?.chapterNumber}'
-              : (widget.arguments.document?.title ?? ''),
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
+    return Card(
+      elevation: 0,
+      margin: Spacing.listItemSpacing,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => _navigateToSection(context, section),
+        child: Padding(
+          padding: Spacing.cardPadding,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                backgroundColor: colorScheme.secondaryContainer,
+                child: Text(
+                  section.sectionNumber,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: colorScheme.onSecondaryContainer,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
+              const SizedBox(width: Spacing.md),
+              Expanded(
+                child: Text(
+                  section.sectionTitle,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: colorScheme.onSurface,
+                    height: 1.4,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
+            ],
+          ),
         ),
       ),
-      body: _buildContent(context, readingSettings),
     );
   }
 
-  Widget _buildContent(BuildContext context, ReadingSettings settings) {
-    return SafeArea(
-      child: ListView.builder(
-        controller: _scrollController,
-        padding: EdgeInsets.symmetric(
-          horizontal: settings.margins,
-          vertical: Spacing.sm,
-        ),
-        itemCount: _getItemCount(),
-        itemBuilder: (context, index) {
-          if (widget.arguments.document != null) {
-            final chapter = widget.arguments.document!.chapters[index];
-            return _buildChapterCard(
-              context: context,
-              chapter: chapter,
-              isSelected: false,
-              onTap: () => _navigateToChapter(context, index),
-            );
-          } else if (widget.arguments.chapter != null) {
-            final section = widget.arguments.chapter!.sections[index];
-            final sectionId =
-                '${widget.arguments.chapter!.id}_${section.sectionNumber}';
-            return _buildSectionCard(
-              context: context,
-              chapterNumber: widget.arguments.chapter!.chapterNumber,
-              sectionTitle: section.sectionTitle,
-              content: section.content,
-              settings: settings,
-              sectionId: sectionId,
-              isFavorited: settings.isSectionFavorite(sectionId),
-            );
-          }
-          return const SizedBox.shrink();
-        },
-      ),
-    );
-  }
-
-  void _showSettingsBottomSheet(BuildContext context) {
-    final settings = Provider.of<ReadingSettings>(context, listen: false);
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => _buildSettingsSheet(settings),
-    );
-  }
-
-  Widget _buildSettingsSheet(ReadingSettings settings) {
-    return Container(
-      padding: Spacing.contentPadding,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text('Reading Settings',
-              style: Theme.of(context).textTheme.titleLarge),
-          Divider(),
-          _buildSettingsTile(
-            title: 'Font Size',
-            value: settings.fontSize.toInt().toString(),
-            onDecrease: () => settings.updateFontSize(settings.fontSize - 1),
-            onIncrease: () => settings.updateFontSize(settings.fontSize + 1),
-            decreaseIcon: Icons.text_decrease,
-            increaseIcon: Icons.text_increase,
-          ),
-          _buildSettingsTile(
-            title: 'Line Height',
-            value: settings.lineHeight.toStringAsFixed(1),
-            onDecrease: () =>
-                settings.updateLineHeight(settings.lineHeight - 0.1),
-            onIncrease: () =>
-                settings.updateLineHeight(settings.lineHeight + 0.1),
-            decreaseIcon: Icons.height,
-            increaseIcon: Icons.height,
-          ),
-          _buildSettingsTile(
-            title: 'Margins',
-            value: settings.margins.toInt().toString(),
-            onDecrease: () => settings.updateMargins(settings.margins - 4),
-            onIncrease: () => settings.updateMargins(settings.margins + 4),
-            decreaseIcon: Icons.format_indent_decrease,
-            increaseIcon: Icons.format_indent_increase,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSettingsTile({
-    required String title,
-    required String value,
-    required VoidCallback onDecrease,
-    required VoidCallback onIncrease,
-    required IconData decreaseIcon,
-    required IconData increaseIcon,
-  }) {
-    return ListTile(
-      title: Text(title),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: Icon(decreaseIcon),
-            onPressed: onDecrease,
-          ),
-          Text(value),
-          IconButton(
-            icon: Icon(increaseIcon),
-            onPressed: onIncrease,
-          ),
-        ],
-      ),
-    );
-  }
-
-  int _getItemCount() {
-    if (widget.arguments.document != null) {
-      return widget.arguments.document!.chapters.length;
-    } else if (widget.arguments.chapter != null) {
-      return widget.arguments.chapter!.sections.length;
-    }
-    return 0;
-  }
-
-  void _navigateToChapter(BuildContext context, int index) {
-    final chapter = widget.arguments.document!.chapters[index];
-    Navigator.pushReplacementNamed(
+  void _navigateToChapter(BuildContext context, DocumentChapter chapter) {
+    Navigator.pushNamed(
       context,
       DocumentDetailView.routeName,
-      arguments: DocumentDetailArguments(
-        chapter: chapter,
-        scrollToSectionId: null,
+      arguments: DocumentDetailArguments(chapter: chapter),
+    );
+  }
+
+  void _navigateToSection(BuildContext context, DocumentSection section) {
+    final settings = context.read<ReadingSettings>();
+    final chapter = widget.arguments.chapter!;
+    final sectionId = '${chapter.id}_${section.sectionNumber}';
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SectionContentView(
+          chapterNumber: chapter.chapterNumber,
+          sectionTitle: section.sectionTitle,
+          content: section.content,
+          settings: settings,
+          sectionId: sectionId,
+          isFavorited: settings.isSectionFavorite(sectionId),
+        ),
       ),
     );
   }
