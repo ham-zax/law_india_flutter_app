@@ -26,7 +26,6 @@ class Spacing {
 
   static const EdgeInsets listItemSpacing = EdgeInsets.only(bottom: xs);
 }
-
 class EnhancedReadingView extends StatelessWidget {
   final String content;
   final ReadingSettings settings;
@@ -41,32 +40,38 @@ class EnhancedReadingView extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return SingleChildScrollView(
-      
-      padding: EdgeInsets.symmetric(
-        horizontal: settings.margins,
-        vertical: Spacing.sm,
-      ),
-      child: SelectableText.rich(
-        TextSpan(
-          style: TextStyle(
-            fontSize: settings.fontSize,
-            height: settings.lineHeight,
-            fontFamily: settings.fontFamily,
-            color: theme.textTheme.bodyLarge?.color,
-          ),
-          children: [
-            TextSpan(text: content),
-          ],
+    return LayoutBuilder(builder: (context, constraints) {
+      return SingleChildScrollView(
+        padding: EdgeInsets.symmetric(
+          horizontal: settings.margins,
+          vertical: Spacing.sm,
         ),
-        textAlign: TextAlign.justify,
-        textScaler: MediaQuery.of(context).textScaler,
-        selectionControls: MaterialTextSelectionControls(),
-      ),
-    );
+        child: Container(
+          constraints: BoxConstraints(
+            minHeight: constraints.maxHeight - (Spacing.sm * 2),
+          ),
+          alignment: Alignment.topLeft, // Force top alignment
+          child: SelectableText.rich(
+            TextSpan(
+              style: TextStyle(
+                fontSize: settings.fontSize,
+                height: settings.lineHeight,
+                fontFamily: settings.fontFamily,
+                color: theme.textTheme.bodyLarge?.color,
+              ),
+              children: [
+                TextSpan(text: content),
+              ],
+            ),
+            textAlign: TextAlign.justify,
+            textScaler: MediaQuery.of(context).textScaler,
+            selectionControls: MaterialTextSelectionControls(),
+          ),
+        ),
+      );
+    });
   }
 }
-
 class SectionContentView extends StatefulWidget {
   final String chapterNumber;
   final String sectionTitle;
