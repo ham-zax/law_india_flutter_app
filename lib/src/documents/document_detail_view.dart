@@ -89,14 +89,15 @@ class SectionContentView extends StatefulWidget {
 }
 
 class _SectionContentViewState extends State<SectionContentView> {
-void _showSettingsBottomSheet(BuildContext context) {
-  showModalBottomSheet(
-    context: context,
-    builder: (BuildContext context) => Consumer<ReadingSettings>(
-      builder: (context, settings, _) => _buildSettingsSheet(context, settings),
-    ),
-  );
-}
+  void _showSettingsBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) => Consumer<ReadingSettings>(
+        builder: (context, settings, _) =>
+            _buildSettingsSheet(context, settings),
+      ),
+    );
+  }
 
 // In SectionContentView class:
 
@@ -277,9 +278,15 @@ void _showSettingsBottomSheet(BuildContext context) {
       body: Column(
         children: [
           Expanded(
-            child: EnhancedReadingView(
-              content: widget.content,
-              settings: widget.settings,
+            child: Consumer<ReadingSettings>(
+              builder: (context, settings, _) => AnimatedSwitcher(
+                duration: Duration(milliseconds: 300),
+                child: EnhancedReadingView(
+                  key: ValueKey(settings.hashCode),
+                  content: widget.content,
+                  settings: settings,
+                ),
+              ),
             ),
           ),
           Padding(
@@ -657,9 +664,8 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.arguments.document?.title ??
-            'Chapter ${widget.arguments.chapter?.chapterNumber ?? ''} - ${widget.arguments.chapter?.chapterTitle ?? ''}')
-      ),
+          title: Text(widget.arguments.document?.title ??
+              'Chapter ${widget.arguments.chapter?.chapterNumber ?? ''} - ${widget.arguments.chapter?.chapterTitle ?? ''}')),
       body: _buildContent(context, readingSettings),
     );
   }
