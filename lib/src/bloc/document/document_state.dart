@@ -54,12 +54,17 @@ class DocumentLoaded extends DocumentState {
 }
 
 class DocumentSearchResults extends DocumentState {
-  final List<Document> documents;
+  final List<SearchResult> results;
 
-  const DocumentSearchResults({required this.documents});
+  const DocumentSearchResults({required this.results});
+
+  List<Document> get documents => results
+      .map((result) => result.document)
+      .toSet()
+      .toList();
 
   @override
-  List<Object> get props => [documents];
+  List<Object> get props => [results];
 }
 
 class DocumentError extends DocumentState {

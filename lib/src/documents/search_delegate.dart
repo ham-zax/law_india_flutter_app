@@ -51,26 +51,57 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
         }
 
         if (state is DocumentSearchResults) {
-          if (state.documents.isEmpty) {
+          if (state.results.isEmpty) {
             return const Center(child: Text('No results found'));
           }
 
           return ListView.builder(
             padding: const EdgeInsets.all(16),
-            itemCount: state.documents.length,
+            itemCount: state.results.length,
             itemBuilder: (context, index) {
-              final document = state.documents[index];
+              final result = state.results[index];
+              final document = result.document;
+                
+              String subtitle = '';
+              if (result.chapter != null) {
+                subtitle = 'Chapter ${result.chapter!.chapterNumber}';
+                if (result.section != null) {
+                  subtitle += ', Section ${result.section!.sectionNumber}';
+                }
+              }
+
               return Card(
                 margin: const EdgeInsets.only(bottom: 8),
                 child: ListTile(
                   title: Text(document.title),
-                  subtitle: Text('${document.chapters.length} chapters'),
+                  subtitle: Text(subtitle.isNotEmpty ? subtitle : 'Document'),
+                  trailing: Text('${result.score.toStringAsFixed(1)}%'),
                   onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      DocumentDetailView.routeName,
-                      arguments: document,
-                    );
+                    if (result.section != null && result.chapter != null) {
+                      // Navigate directly to the section if available
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SectionContentView(
+                            chapterNumber: result.chapter!.chapterNumber,
+                            sectionTitle: result.section!.sectionTitle,
+                            content: result.section!.content,
+                            settings: context.read<ReadingSettings>(),
+                            sectionId: '${result.chapter!.id}_${result.section!.sectionNumber}',
+                            isFavorited: context.read<ReadingSettings>().isSectionFavorite(
+                              '${result.chapter!.id}_${result.section!.sectionNumber}'
+                            ),
+                          ),
+                        ),
+                      );
+                    } else {
+                      // Fall back to document view
+                      Navigator.pushNamed(
+                        context,
+                        DocumentDetailView.routeName,
+                        arguments: document,
+                      );
+                    }
                   },
                 ),
               );
