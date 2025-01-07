@@ -88,6 +88,80 @@ class SectionContentView extends StatefulWidget {
   State<SectionContentView> createState() => _SectionContentViewState();
 }
 class _SectionContentViewState extends State<SectionContentView> {
+  void _showSettingsBottomSheet(BuildContext context) {
+    final settings = Provider.of<ReadingSettings>(context, listen: false);
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => _buildSettingsSheet(settings),
+    );
+  }
+
+  Widget _buildSettingsSheet(ReadingSettings settings) {
+    return Container(
+      padding: Spacing.contentPadding,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('Reading Settings',
+              style: Theme.of(context).textTheme.titleLarge),
+          Divider(),
+          _buildSettingsTile(
+            title: 'Font Size',
+            value: settings.fontSize.toInt().toString(),
+            onDecrease: () => settings.updateFontSize(settings.fontSize - 1),
+            onIncrease: () => settings.updateFontSize(settings.fontSize + 1),
+            decreaseIcon: Icons.text_decrease,
+            increaseIcon: Icons.text_increase,
+          ),
+          _buildSettingsTile(
+            title: 'Line Height',
+            value: settings.lineHeight.toStringAsFixed(1),
+            onDecrease: () =>
+                settings.updateLineHeight(settings.lineHeight - 0.1),
+            onIncrease: () =>
+                settings.updateLineHeight(settings.lineHeight + 0.1),
+            decreaseIcon: Icons.height,
+            increaseIcon: Icons.height,
+          ),
+          _buildSettingsTile(
+            title: 'Margins',
+            value: settings.margins.toInt().toString(),
+            onDecrease: () => settings.updateMargins(settings.margins - 4),
+            onIncrease: () => settings.updateMargins(settings.margins + 4),
+            decreaseIcon: Icons.format_indent_decrease,
+            increaseIcon: Icons.format_indent_increase,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingsTile({
+    required String title,
+    required String value,
+    required VoidCallback onDecrease,
+    required VoidCallback onIncrease,
+    required IconData decreaseIcon,
+    required IconData increaseIcon,
+  }) {
+    return ListTile(
+      title: Text(title),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: Icon(decreaseIcon),
+            onPressed: onDecrease,
+          ),
+          Text(value),
+          IconButton(
+            icon: Icon(increaseIcon),
+            onPressed: onIncrease,
+          ),
+        ],
+      ),
+    );
+  }
   @override
   void initState() {
     super.initState();
@@ -132,6 +206,14 @@ class _SectionContentViewState extends State<SectionContentView> {
               return FavoriteButton(
                 sectionId: widget.sectionId,
                 isFavorited: settings.isSectionFavorite(widget.sectionId),
+              );
+            },
+          ),
+          Consumer<ReadingSettings>(
+            builder: (context, settings, child) {
+              return IconButton(
+                icon: Icon(Icons.format_size),
+                onPressed: () => _showSettingsBottomSheet(context),
               );
             },
           ),
