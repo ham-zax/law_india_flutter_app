@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:law_india/src/documents/search_delegate.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../data/models/document_model.dart';
 import '../settings/reading_settings.dart';
 import '../bloc/document/document_bloc.dart';
 import 'document_detail_view.dart';
@@ -316,13 +317,13 @@ class _DocumentListViewState extends State<DocumentListView>
                         .expand((doc) => doc.chapters)
                         .firstWhere(
                           (ch) => ch.id == chapterId,
-                          orElse: () => null,
+                          orElse: () => DocumentChapter(id: '', chapterNumber: '', sections: [], chapterTitle: ''),
                         );
                     
                     if (chapter != null) {
                       final section = chapter.sections.firstWhere(
                         (sec) => sec.sectionNumber == sectionNumber,
-                        orElse: () => null,
+                        orElse: () => DocumentSection(sectionNumber: '', sectionTitle: '', content: ''),
                       );
                       
                       if (section != null) {
