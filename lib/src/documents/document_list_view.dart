@@ -7,8 +7,8 @@ import '../data/models/document_model.dart';
 import '../bloc/document/document_bloc.dart';
 import 'document_detail_view.dart';
 
-const double kSpacing4 = 4.0;  // For minimal spacing
-const double kSpacing8 = 8.0;  // For standard spacing
+const double kSpacing4 = 4.0; // For minimal spacing
+const double kSpacing8 = 8.0; // For standard spacing
 const double kSpacing12 = 12.0; // For content padding
 const double kSpacing16 = 16.0; // For section padding
 
@@ -167,67 +167,90 @@ class _DocumentListViewState extends State<DocumentListView>
                       ),
                     );
                   },
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.secondaryContainer,
-                          child: Text(
-                            favorite.section.sectionNumber,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelMedium
-                                ?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSecondaryContainer,
-                                ),
-                          ),
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: 16,
+                          top: 16,
+                          bottom: 16,
+                          right: 48, // Increased to accommodate heart icon
                         ),
-                        const SizedBox(width: kSpacing8),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                favorite.section.sectionTitle.replaceFirst(
-                                  RegExp(r'^\d+\.\s*'),
-                                  '',
-                                ),
-                                style: Theme.of(context).textTheme.titleMedium,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: Theme.of(context)
+                                  .colorScheme
+                                  .secondaryContainer,
+                              child: Text(
+                                favorite.section.sectionNumber,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelMedium
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSecondaryContainer,
+                                    ),
                               ),
-                              const SizedBox(height: 4),
-                                Row(
+                            ),
+                            const SizedBox(width: kSpacing12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Expanded(
-                                      child:
-                                          Container()), // Pushes the text to the right
                                   Text(
-                                    'Chapter ${favorite.chapter.chapterNumber}',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurfaceVariant,
-                                        ),
+                                    favorite.section.sectionTitle.replaceFirst(
+                                      RegExp(r'^\d+\.\s*'),
+                                      '',
+                                    ),
+                                    style:
+                                        Theme.of(context).textTheme.titleMedium,
+                                  ),
+                                  const SizedBox(height: kSpacing8),
+                                  Column(
+                                    children: [
+                                      const SizedBox(height: kSpacing8),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          Transform.translate(
+                                            offset: const Offset(24, 0),
+                                            child: Text(
+                                              'Chapter ${favorite.chapter.chapterNumber}',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium
+                                                  ?.copyWith(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurfaceVariant,
+                                                  ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                        IconButton(
+                      ),
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: IconButton(
                           icon: const Icon(Icons.favorite, color: Colors.red),
                           onPressed: () {
                             settings.toggleSectionFavorite(sectionId);
                           },
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               );
@@ -330,7 +353,8 @@ class _DocumentListViewState extends State<DocumentListView>
                                       child: Row(
                                         mainAxisSize:
                                             MainAxisSize.min, // Add this
-                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
                                         children: [
                                           for (var recentItem
                                               in state.recentSections)
@@ -403,8 +427,8 @@ class _DocumentListViewState extends State<DocumentListView>
                                     ),
                                     const SizedBox(height: kSpacing8),
                                     Padding(
-                                      padding: const EdgeInsets.only(
-                                          top: kSpacing8),
+                                      padding:
+                                          const EdgeInsets.only(top: kSpacing8),
                                       child: ScrollBar(
                                         scrollController: _scrollController,
                                       ),
@@ -431,74 +455,83 @@ class _DocumentListViewState extends State<DocumentListView>
                               margin: EdgeInsets.symmetric(
                                 vertical: 2,
                               ),
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  side: BorderSide(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .surfaceContainerHighest,
-                                  ),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .surfaceContainerHighest,
                                 ),
-                                child: InkWell(
-                                  onTap: () {
-                                    Navigator.pushNamed(
-                                      context,
-                                      DocumentDetailView.routeName,
-                                      arguments: chapter,
-                                    );
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: kSpacing12,
-                                      vertical: kSpacing8,
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        CircleAvatar(
-                                          backgroundColor: Theme.of(context)
-                                              .colorScheme
-                                              .primaryContainer,
-                                          child: Text(
-                                            chapter.chapterNumber,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .titleMedium
-                                                ?.copyWith(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onPrimaryContainer,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                          ),
+                              ),
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    DocumentDetailView.routeName,
+                                    arguments: chapter,
+                                  );
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: kSpacing12,
+                                    vertical: kSpacing8,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      CircleAvatar(
+                                        backgroundColor: Theme.of(context)
+                                            .colorScheme
+                                            .primaryContainer,
+                                        child: Text(
+                                          chapter.chapterNumber,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.copyWith(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onPrimaryContainer,
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                         ),
-                                        const SizedBox(width: kSpacing8),
-                                        Expanded(
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      ..._buildTitleParts(context, chapter.chapterTitle, isBold: true),
-      const SizedBox(height: kSpacing4),
-      Row(
-        children: [
-          Expanded(child: Container()), // This pushes the text to the right
-          Text(
-            '${chapter.sections.length} Sections',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-    ],
-  ),
-),
-                                        
-                                      ],
-                                    ),
+                                      ),
+                                      const SizedBox(width: kSpacing8),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            ..._buildTitleParts(
+                                                context, chapter.chapterTitle,
+                                                isBold: true),
+                                            const SizedBox(height: kSpacing4),
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                    child:
+                                                        Container()), // This pushes the text to the right
+                                                Text(
+                                                  '${chapter.sections.length} Sections',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyMedium
+                                                      ?.copyWith(
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .onSurfaceVariant,
+                                                      ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              );
+                              ),
+                            );
                           },
                           childCount: state.documents.first.chapters.length,
                         ),
@@ -516,7 +549,6 @@ class _DocumentListViewState extends State<DocumentListView>
       ),
     );
   }
-
 }
 
 class ScrollBar extends StatefulWidget {
