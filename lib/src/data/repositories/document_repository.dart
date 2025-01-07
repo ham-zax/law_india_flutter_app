@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import '../models/document_model.dart';
+import 'package:string_similarity/string_similarity.dart';
 
 class SearchResult {
   final Document document;
@@ -32,11 +33,14 @@ abstract class DocumentRepository {
   Map<String, List<SearchResult>> get searchCache;
 }
 
+
 class LocalDocumentRepository implements DocumentRepository {
   final Map<String, List<SearchResult>> _searchCache = {};
+  final double _similarityThreshold = 0.7;
 
   @override
   Map<String, List<SearchResult>> get searchCache => _searchCache;
+
   @override
   Future<List<Document>> getRecentDocuments() async {
     // Return BNS document with all chapters
@@ -44,22 +48,27 @@ class LocalDocumentRepository implements DocumentRepository {
   }
 
   @override
+  Future<List<String>> getCategories() async {
+    return ['BNS', 'Constitutional', 'Criminal', 'Civil', 'Corporate', 'Tax'];
+  }
+
+  @override
   Future<List<Document>> getDocumentsByCategory(String category) async {
     if (category == 'BNS') {
       final List<DocumentChapter> chapters = [];
-      
+
       // Load all 20 chapters
       for (int i = 1; i <= 20; i++) {
-        final jsonString = await rootBundle.loadString('assets/data/chapter_$i.json');
+        final jsonString =
+            await rootBundle.loadString('assets/data/chapter_$i.json');
         final jsonData = jsonDecode(jsonString) as List;
-        
+
         final firstSection = jsonData.first;
-        final chapterTitle = firstSection['cn'] ?? 'Chapter $i'; // Use 'cn' for chapter name
+        final chapterTitle = firstSection['cn'] ?? 'Chapter $i';
         final sections = jsonData.map((section) {
-          // Extract section number from title (e.g. "4. Punishments" -> "4")
           final sectionTitle = section['st'] ?? 'Untitled Section';
           final sectionNumber = sectionTitle.split('.').first.trim();
-          
+
           return DocumentSection(
             sectionNumber: sectionNumber,
             sectionTitle: sectionTitle,
@@ -68,7 +77,7 @@ class LocalDocumentRepository implements DocumentRepository {
         }).toList();
 
         chapters.add(DocumentChapter(
-          id: 'bns_chapter_$i', // Unique ID for each chapter
+          id: 'bns_chapter_$i',
           chapterNumber: i.toString(),
           chapterTitle: chapterTitle,
           sections: sections,
@@ -88,15 +97,22 @@ class LocalDocumentRepository implements DocumentRepository {
   }
 
   @override
-  Future<List<String>> getCategories() async {
-    return ['BNS', 'Constitutional', 'Criminal', 'Civil', 'Corporate', 'Tax'];
+  Future<void> updateDocument(Document document) async {
+    // Not implemented for read-only BNS documents
   }
 
   @override
-  Future<List<Document>> searchDocuments(String query) async {
+  Future<List<DocumentVersion>> getDocumentVersions(String documentId) async {
+    // Not implemented for current BNS version
+    return [];
+  }
+
+  // Your existing searchDocuments implementation...
+  @override
+  @override
+Future<List<Document>> searchDocuments(String query) async {
     if (query.isEmpty) return [];
-    
-    // Check cache first
+
     if (_searchCache.containsKey(query)) {
       return _searchCache[query]!
           .map((result) => result.document)
@@ -106,50 +122,44 @@ class LocalDocumentRepository implements DocumentRepository {
 
     final allDocs = await getDocumentsByCategory('BNS');
     final results = <SearchResult>[];
-    
+    final queryLower = query.toLowerCase();
+
     for (final doc in allDocs) {
-      // Only search section content
       for (final chapter in doc.chapters) {
         for (final section in chapter.sections) {
-          final contentScore = tokenSetRatio(
-            query.toLowerCase(),
-            section.content.toLowerCase()
-          );
-          
-          if (contentScore > 60) {
+          double score = 0.0;
+          final contentLower = section.content.toLowerCase();
+          final titleLower = section.sectionTitle.toLowerCase();
+
+          // Check for exact matches first
+          if (contentLower.contains(queryLower) ||
+              titleLower.contains(queryLower)) {
+            score = 1.0;
+          } else {
+            // Fall back to similarity matching for fuzzy search
+            final words = contentLower.split(RegExp(r'\s+'));
+            for (final word in words) {
+              final similarity = queryLower.similarityTo(word);
+              score = max(score, similarity);
+            }
+          }
+
+          if (score > 0.6) {
+            // Lower threshold and prioritize exact matches
             results.add(SearchResult(
-              document: doc,
-              chapter: chapter,
-              section: section,
-              score: contentScore.toDouble(),
-              matchedField: 'content'
-            ));
+                document: doc,
+                chapter: chapter,
+                section: section,
+                score: score * 100,
+                matchedField: 'content'));
           }
         }
       }
     }
-    
-    // Sort by score descending
+
     results.sort((a, b) => b.score.compareTo(a.score));
-    
-    // Cache results
     _searchCache[query] = results;
-    
-    // Return unique documents
-    return results
-        .map((result) => result.document)
-        .toSet()
-        .toList();
-  }
 
-  @override
-  Future<void> updateDocument(Document document) async {
-    // Not needed for BNS document
-  }
-
-  @override
-  Future<List<DocumentVersion>> getDocumentVersions(String documentId) async {
-    // Not needed for BNS document
-    return [];
+    return results.map((result) => result.document).toSet().toList();
   }
 }
