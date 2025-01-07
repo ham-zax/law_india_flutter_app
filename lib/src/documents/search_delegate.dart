@@ -123,28 +123,26 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
                       final isLastItem = index == chapterResults.length - 1;
 
                       return InkWell(
-                        onTap: () async {
-                          // Make async
-                          if (result.section != null &&
-                              result.chapter != null) {
-                            await Navigator.of(context).push(
-                              // Wait for navigation
-                              MaterialPageRoute(
-                                builder: (context) => SectionContentView(
-                                  chapterNumber: result.chapter!.chapterNumber,
-                                  sectionTitle: result.section!.sectionTitle,
-                                  content: result.section!.content,
-                                  settings: context.read<ReadingSettings>(),
-                                  sectionId:
+                      onTap: () {
+                        if (result.section != null && result.chapter != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SectionContentView(
+                                chapterNumber: result.chapter!.chapterNumber,
+                                sectionTitle: result.section!.sectionTitle,
+                                content: result.section!.content,
+                                settings: context.read<ReadingSettings>(),
+                                sectionId:
+                                    '${result.chapter!.id}_${result.section!.sectionNumber}',
+                                isFavorited: context
+                                    .read<ReadingSettings>()
+                                    .isSectionFavorite(
                                       '${result.chapter!.id}_${result.section!.sectionNumber}',
-                                  isFavorited: context
-                                      .read<ReadingSettings>()
-                                      .isSectionFavorite(
-                                          '${result.chapter!.id}_${result.section!.sectionNumber}'),
-                                ),
+                                    ),
                               ),
-                            );
-                            close(context, '');
+                            ),
+                          );
                           }
                         },
                         child: Column(
