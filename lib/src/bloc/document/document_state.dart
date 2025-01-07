@@ -16,14 +16,14 @@ class DocumentLoaded extends DocumentState {
   final List<Document> documents;
   final List<String> categories;
   final String selectedCategory;
-  final List<DocumentChapter> recentChapters;
+  final List<({DocumentChapter chapter, DocumentSection section})> recentSections;
 
   const DocumentLoaded({
     required this.recentDocuments,
     required this.categories,
     this.selectedCategory = 'BNS',
     this.documents = const [],
-    this.recentChapters = const [],
+    this.recentSections = const [],
   });
 
   DocumentLoaded copyWith({
@@ -31,16 +31,17 @@ class DocumentLoaded extends DocumentState {
     List<Document>? documents,
     List<String>? categories,
     String? selectedCategory,
-    List<DocumentChapter>? recentChapters,
+    List<({DocumentChapter chapter, DocumentSection section})>? recentSections,
   }) {
     return DocumentLoaded(
       recentDocuments: recentDocuments ?? this.recentDocuments,
       documents: documents ?? this.documents,
       categories: categories ?? this.categories,
       selectedCategory: selectedCategory ?? this.selectedCategory,
-      recentChapters: recentChapters ?? this.recentChapters,
+      recentSections: recentSections ?? this.recentSections,
     );
   }
+
 
   @override
   List<Object> get props => [
@@ -48,7 +49,7 @@ class DocumentLoaded extends DocumentState {
         documents,
         categories,
         selectedCategory,
-        recentChapters,
+        recentSections,
       ];
 }
 

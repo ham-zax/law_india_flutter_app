@@ -14,7 +14,8 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     on<SearchDocuments>(_onSearchDocuments);
     on<UpdateDocument>(_onUpdateDocument);
     on<ChangeCategory>(_onChangeCategory);
-    on<ChapterViewed>(_onChapterViewed);
+    on<SectionViewed>(_onSectionViewed); // Add this line
+
   }
 
   Future<void> _onLoadDocuments(
@@ -83,26 +84,34 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     }
   }
 
-  void _onChapterViewed(
-    ChapterViewed event,
+  void _onSectionViewed(
+    SectionViewed event,
     Emitter<DocumentState> emit,
   ) {
     if (state is DocumentLoaded) {
       final currentState = state as DocumentLoaded;
-      
+
+      // Create new section record
+      final newSection = (
+        chapter: event.chapter,
+        section: event.section,
+      );
+
       // Remove if already exists to avoid duplicates
-      final updatedChapters = currentState.recentChapters
-        .where((c) => c.chapterNumber != event.chapter.chapterNumber)
-        .toList();
-      
+      final updatedSections = currentState.recentSections
+          .where((s) =>
+              s.chapter.id != event.chapter.id ||
+              s.section.sectionNumber != event.section.sectionNumber)
+          .toList();
+
       // Add to beginning of list
-      updatedChapters.insert(0, event.chapter);
-      
-      // Keep only last 3 chapters
-      final recentChapters = updatedChapters.take(3).toList();
-      
+      updatedSections.insert(0, newSection);
+
+      // Keep only last 3 sections
+      final recentSections = updatedSections.take(3).toList();
+
       emit(currentState.copyWith(
-        recentChapters: recentChapters,
+        recentSections: recentSections,
       ));
     }
   }
@@ -120,4 +129,3 @@ extension FindChapterById on DocumentLoaded {
     return null;
   }
 }
-

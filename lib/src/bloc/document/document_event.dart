@@ -36,11 +36,12 @@ class ChangeCategory extends DocumentEvent {
   List<Object> get props => [category];
 }
 
-class ChapterViewed extends DocumentEvent {
+class SectionViewed extends DocumentEvent {
   final DocumentChapter chapter;
+  final DocumentSection section;
 
-  const ChapterViewed(this.chapter);
+  const SectionViewed(this.chapter, this.section);
 
   @override
-  List<Object> get props => [chapter];
+  List<Object> get props => [chapter, section];
 }

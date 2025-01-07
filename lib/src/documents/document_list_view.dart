@@ -112,110 +112,100 @@ String cleanTitle(String title) {
                           ),
                           const SizedBox(height: kSpacingMedium),
                           SizedBox(
-                            height: 180,
-                            child: PageView.builder(
-                              controller: PageController(viewportFraction: 0.85),
-                              itemCount: state.recentChapters.length,
-                              itemBuilder: (context, index) {
-                                final chapter = state.recentChapters[index];
-                                final pageController = PageController(viewportFraction: 0.85);
-                                return AnimatedBuilder(
-                                  animation: pageController,
-                                  builder: (context, child) {
-                                    final pageOffset = pageController.hasClients 
-                                        ? index - (pageController.page ?? 0)
-                                        : 0.0;
-                                    final scale = 1 - (0.1 * pageOffset.abs());
-                                    final margin = pageOffset.abs() * 20;
-                                    
-                                    return Transform.scale(
-                                      scale: scale,
-                                      child: Container(
-                                        margin: EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 16,
-                                        ),
-                                        child: Card(
-                                          elevation: 4,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(16),
-                                          ),
-                                          child: InkWell(
-                                            borderRadius: BorderRadius.circular(16),
-                                            onTap: () {
-                                              Navigator.pushNamed(
-                                                context,
-                                                DocumentDetailView.routeName,
-                                                arguments: chapter,
-                                              );
-                                            },
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(kSpacingMedium),
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Row(
-                                                    children: [
-                                                      CircleAvatar(
-                                                        backgroundColor:
-                                                            Theme.of(context)
-                                                                .colorScheme
-                                                                .primaryContainer,
-                                                        child: Text(
-                                                          chapter.chapterNumber,
-                                                          style: Theme.of(context)
-                                                              .textTheme
-                                                              .titleMedium
-                                                              ?.copyWith(
-                                                                color: Theme.of(context)
-                                                                    .colorScheme
-                                                                    .onPrimaryContainer,
-                                                                fontWeight: FontWeight.w600,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: kSpacingMedium),
-                                                      Expanded(
-                                                        child: Column(
-                                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                                          children: [
-                                                            Text(
-                                                              'Chapter ${chapter.chapterNumber}',
-                                                              style: Theme.of(context)
-                                                                  .textTheme
-                                                                  .titleMedium,
-                                                            ),
-                                                            const SizedBox(height: kSpacingSmall),
-                                                            Text(
-                                                              chapter.chapterTitle,
-                                                              style: Theme.of(context)
-                                                                  .textTheme
-                                                                  .bodyMedium
-                                                                  ?.copyWith(
-                                                                    color: Theme.of(context)
-                                                                        .colorScheme
-                                                                        .onSurfaceVariant,
-                                                                  ),
-                                                              maxLines: 2,
-                                                              overflow: TextOverflow.ellipsis,
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
+  height: 180,
+  child: PageView.builder(
+    controller: PageController(viewportFraction: 0.85),
+    itemCount: state.recentSections.length,
+    itemBuilder: (context, index) {
+      final recentItem = state.recentSections[index];
+      final controller = PageController(viewportFraction: 0.85);
+      
+      return AnimatedBuilder(
+        animation: controller,
+        builder: (context, child) {
+          final pageOffset = controller.hasClients 
+              ? index - (controller.page ?? 0)
+              : 0.0;
+          final scale = 1 - (0.1 * pageOffset.abs());
+          
+          return Transform.scale(
+            scale: scale,
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+              child: Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () {
+                    final sectionId = '${recentItem.chapter.id}_${recentItem.section.sectionNumber}';
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => SectionContentView(
+                          chapterNumber: recentItem.chapter.chapterNumber,
+                          sectionTitle: recentItem.section.sectionTitle,
+                          content: recentItem.section.content,
+                          settings: context.read<ReadingSettings>(),
+                          sectionId: sectionId,
+                          isFavorited: context.read<ReadingSettings>().isSectionFavorite(sectionId),
+                        ),
+                      ),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(kSpacingMedium),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+                              child: Text(
+                                recentItem.section.sectionNumber,
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSecondaryContainer,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ),
-                          ),
+                            const SizedBox(width: kSpacingMedium),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Chapter ${recentItem.chapter.chapterNumber} - Section ${recentItem.section.sectionNumber}',
+                                    style: Theme.of(context).textTheme.titleMedium,
+                                  ),
+                                  const SizedBox(height: kSpacingSmall),
+                                  Text(
+                                    recentItem.section.sectionTitle,
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    },
+  ),
+),
                           const SizedBox(height: kSpacingLarge),
                           Text(
                             'All Chapters',

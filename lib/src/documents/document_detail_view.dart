@@ -5,14 +5,15 @@ import '../bloc/document/document_bloc.dart';
 import '../settings/reading_settings.dart';
 import '../widgets/favorite_button.dart';
 import '../navigation/document_detail_arguments.dart';
+
 // Spacing constants
 class Spacing {
-  static const double xs = 4.0;    // Micro adjustments
-  static const double sm = 8.0;    // Tight spacing
-  static const double md = 16.0;   // Standard spacing
-  static const double lg = 24.0;   // Section spacing
-  static const double xl = 32.0;   // Major section spacing
-  
+  static const double xs = 4.0; // Micro adjustments
+  static const double sm = 8.0; // Tight spacing
+  static const double md = 16.0; // Standard spacing
+  static const double lg = 24.0; // Section spacing
+  static const double xl = 32.0; // Major section spacing
+
   // Padding presets
   static const EdgeInsets contentPadding = EdgeInsets.all(md);
   static const EdgeInsets cardPadding = EdgeInsets.all(md);
@@ -134,7 +135,7 @@ class SectionContentView extends StatelessWidget {
     );
   }
 
-void _navigateToNextSection(BuildContext context) {
+  void _navigateToNextSection(BuildContext context) {
     print("_navigateToNextSection called");
     final bloc = context.read<DocumentBloc>();
     final state = bloc.state;
@@ -283,12 +284,16 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.arguments.chapter != null) {
-        context
-            .read<DocumentBloc>()
-            .add(ChapterViewed(widget.arguments.chapter!));
+      if (widget.arguments.chapter != null &&
+          widget.arguments.chapter!.sections.isNotEmpty) {
+        // Track the first section of the chapter instead
+        context.read<DocumentBloc>().add(
+              SectionViewed(
+                widget.arguments.chapter!,
+                widget.arguments.chapter!.sections.first,
+              ),
+            );
       }
     });
   }
