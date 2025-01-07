@@ -492,24 +492,15 @@ class _DocumentListViewState extends State<DocumentListView> with SingleTickerPr
                     ),
                   ),
                 ],
-              );
-            }
-            return const Center(child: Text('No documents found'));
-          },
-        ),
-      ]),
-      
-      floatingActionButton: FloatingActionButton.extended(
-        icon: const Icon(Icons.favorite),
-        label: const Text('Favorites'),
-        onPressed: () {
-          final currentState = context.read<DocumentBloc>().state;
-          if (currentState is DocumentLoaded) {
-            _showFavoriteSections(context, currentState.documents);
-          }
-        },
+                );
+              }
+              return const Center(child: Text('No documents found'));
+            },
+          ),
+          // Favorites tab
+          _buildFavoritesTab(context),
+        ],
       ),
-    )
     );
   }
   
