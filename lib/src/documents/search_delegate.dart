@@ -89,7 +89,7 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                   side: BorderSide(
-                    color: Theme.of(context).colorScheme.outlineVariant,
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
                     width: 1.0,
                   ),
                 ),

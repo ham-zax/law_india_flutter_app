@@ -291,7 +291,7 @@ class _SectionContentViewState extends State<SectionContentView> {
               color: theme.colorScheme.surface,
               border: Border(
                 bottom: BorderSide(
-                  color: theme.colorScheme.outlineVariant,
+                  color: theme.colorScheme.primary.withOpacity(0.2),
                   width: 1.0,
                 ),
               ),

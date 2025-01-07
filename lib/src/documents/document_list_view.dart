@@ -147,7 +147,7 @@ class _DocumentListViewState extends State<DocumentListView>
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                   side: BorderSide(
-                    color: Theme.of(context).colorScheme.outlineVariant,
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
                     width: 1.0,
                   ),
                 ),
@@ -510,7 +510,7 @@ class _DocumentListViewState extends State<DocumentListView>
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 side: BorderSide(
-                                  color: Theme.of(context).colorScheme.outlineVariant,
+                                  color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
                                   width: 1.0,
                                 ),
                               ),
