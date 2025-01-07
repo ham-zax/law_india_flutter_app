@@ -182,16 +182,17 @@ class _DocumentListViewState extends State<DocumentListView>
                             CircleAvatar(
                               backgroundColor: Theme.of(context)
                                   .colorScheme
-                                  .secondaryContainer,
+                                  .primaryContainer,
                               child: Text(
                                 favorite.section.sectionNumber,
                                 style: Theme.of(context)
                                     .textTheme
-                                    .labelMedium
+                                    .titleMedium
                                     ?.copyWith(
                                       color: Theme.of(context)
                                           .colorScheme
-                                          .onSecondaryContainer,
+                                          .onPrimaryContainer,
+                                      fontWeight: FontWeight.w600,
                                     ),
                               ),
                             ),
@@ -226,8 +227,8 @@ class _DocumentListViewState extends State<DocumentListView>
                                                   ?.copyWith(
                                                     color: Theme.of(context)
                                                         .colorScheme
-                                                        .primary
-                                                        .withOpacity(0.8),
+                                                        .primary,
+                                                    fontWeight: FontWeight.w500,
                                                   ),
                                             ),
                                           ),
@@ -460,7 +461,7 @@ class _DocumentListViewState extends State<DocumentListView>
                                                   ),
                                                 ),
                                                 child: Text(
-                                                  'Ch ${recentItem.chapter.chapterNumber} sec ${recentItem.section.sectionNumber}',
+                                                  'Chp ${recentItem.chapter.chapterNumber} sec ${recentItem.section.sectionNumber}',
                                                   style: Theme.of(context)
                                                       .textTheme
                                                       .labelMedium
@@ -570,7 +571,9 @@ class _DocumentListViewState extends State<DocumentListView>
                                                       ?.copyWith(
                                                         color: Theme.of(context)
                                                             .colorScheme
-                                                            .onSurfaceVariant,
+                                                            .primary,
+                                                        fontWeight:
+                                                            FontWeight.w500,
                                                       ),
                                                 ),
                                               ],
