@@ -576,11 +576,14 @@ class _ScrollBarState extends State<ScrollBar> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        if (!widget.scrollController.hasClients ||
+            widget.scrollController.position.maxScrollExtent <= 0) {
+          return const SizedBox.shrink();
+        }
+
         final viewportWidth = constraints.maxWidth;
-        final contentWidth = widget.scrollController.hasClients
-            ? widget.scrollController.position.viewportDimension +
-                widget.scrollController.position.maxScrollExtent
-            : viewportWidth;
+        final contentWidth = widget.scrollController.position.viewportDimension +
+            widget.scrollController.position.maxScrollExtent;
 
         final scrollBarWidth = (viewportWidth * viewportWidth / contentWidth)
             .clamp(50.0, viewportWidth);
