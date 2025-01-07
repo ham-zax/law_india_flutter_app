@@ -263,7 +263,7 @@ class _DocumentListViewState extends State<DocumentListView> {
                                 side: BorderSide(
                                   color: Theme.of(context)
                                       .colorScheme
-                                      .surfaceVariant,
+                                      .surfaceContainerHighest,
                                 ),
                               ),
                               child: InkWell(

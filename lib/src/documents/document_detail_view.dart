@@ -374,7 +374,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: isSelected
                                     ? colorScheme.onPrimaryContainer
-                                    : colorScheme.onSurfaceVariant,
+                                    : colorScheme.onSurfaceContainerHighest,
                                 height: 1.4,
                               ),
                             ),
@@ -392,7 +392,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
               ),
               Icon(
                 Icons.chevron_right,
-                color: colorScheme.onSurfaceVariant,
+                color: colorScheme.onSurfaceContainerHighest,
               ),
             ],
           ),
@@ -467,7 +467,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
               ),
               Icon(
                 Icons.chevron_right,
-                color: colorScheme.onSurfaceVariant,
+                color: colorScheme.onSurfaceContainerHighest,
               ),
             ],
           ),
