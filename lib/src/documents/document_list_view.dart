@@ -223,9 +223,9 @@ class _DocumentListViewState extends State<DocumentListView> {
                                 ],
                               ),
                             ),
-                            const SizedBox(height: kSpacingLarge),
+                            const SizedBox(height: kSpacingMedium),
                           ],
-                          const SizedBox(height: kSpacingMedium),
+                          const SizedBox(height: kSpacingSmall),
                           Text(
                             'All Chapters',
                             style: Theme.of(context)
