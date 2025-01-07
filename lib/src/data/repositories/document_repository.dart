@@ -70,45 +70,74 @@ class LocalDocumentRepository implements DocumentRepository {
 
   @override
   Future<List<Document>> searchDocuments(String query) async {
-    final allDocs = await getDocumentsByCategory('BNS');
+    if (query.isEmpty) return [];
     
-    return allDocs.where((doc) {
-      // Search in document title
-      if (extractOne(
+    final allDocs = await getDocumentsByCategory('BNS');
+    final results = <Document>[];
+    
+    for (final doc in allDocs) {
+      // Search document title
+      final docScore = extractOne(
         query: query.toLowerCase(),
         choices: [doc.title.toLowerCase()]
-      ).score > 80) {
-        return true;
-      }
+      ).score;
       
-      // Search in chapters
-      for (final chapter in doc.chapters) {
-        if (extractOne(
+      // Search chapters
+      final chapterScores = doc.chapters.map((chapter) {
+        return extractOne(
           query: query.toLowerCase(),
           choices: [chapter.chapterTitle.toLowerCase()]
-        ).score > 80) {
-          return true;
-        }
-        
-        // Search in sections
-        for (final section in chapter.sections) {
-          final titleMatch = extractOne(
+        ).score;
+      }).toList();
+      
+      // Search sections
+      final sectionScores = doc.chapters.expand((chapter) {
+        return chapter.sections.map((section) {
+          final titleScore = extractOne(
             query: query.toLowerCase(),
             choices: [section.sectionTitle.toLowerCase()]
-          ).score > 80;
+          ).score;
           
-          final contentMatch = extractOne(
+          final contentScore = extractOne(
             query: query.toLowerCase(),
             choices: [section.content.toLowerCase()]
-          ).score > 80;
+          ).score;
           
-          if (titleMatch || contentMatch) {
-            return true;
-          }
-        }
+          return max(titleScore, contentScore);
+        });
+      }).toList();
+      
+      // Get the highest score for this document
+      final maxScore = max(
+        docScore,
+        max(
+          chapterScores.isNotEmpty ? chapterScores.reduce(max) : 0,
+          sectionScores.isNotEmpty ? sectionScores.reduce(max) : 0,
+        ),
+      );
+      
+      // Add to results if score is above threshold
+      if (maxScore > 60) {
+        results.add(doc);
       }
-      return false;
-    }).toList();
+    }
+    
+    // Sort results by relevance
+    results.sort((a, b) {
+      final aScore = extractOne(
+        query: query.toLowerCase(),
+        choices: [a.title.toLowerCase()]
+      ).score;
+      
+      final bScore = extractOne(
+        query: query.toLowerCase(),
+        choices: [b.title.toLowerCase()]
+      ).score;
+      
+      return bScore.compareTo(aScore);
+    });
+    
+    return results;
   }
 
   @override
