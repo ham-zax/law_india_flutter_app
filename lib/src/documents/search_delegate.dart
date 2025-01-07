@@ -83,7 +83,7 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
                         .length;
               });
 
-              return Card(
+            return Card(
                 margin: const EdgeInsets.only(bottom: 12),
                 elevation: 2,
                 shape: RoundedRectangleBorder(
@@ -91,85 +91,85 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
                 ),
                 child: Theme(
                   data: Theme.of(context).copyWith(
-                    dividerColor: Colors.transparent, // Remove divider lines
+                    dividerColor: Colors.transparent,
                   ),
                   child: ExpansionTile(
-                  leading: const Icon(Icons.book, color: Colors.blue),
-                  title: Text(
-                    chapterName,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(
-                    '${chapterResults.length} sections with $totalMatches matches',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  children: chapterResults.map((result) {
-                    final section = result.section!;
-                    final matchCount = RegExp(query, caseSensitive: false)
-                        .allMatches(section.content)
-                        .length;
+                    leading: const Icon(Icons.book, color: Colors.blue),
+                    backgroundColor:
+                        Theme.of(context).colorScheme.surface.withOpacity(0.3),
+                    collapsedBackgroundColor: Colors.transparent,
+                    title: Text(
+                      chapterName,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                      '${chapterResults.length} sections with $totalMatches matches',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    children: chapterResults.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final result = entry.value;
+                      final section = result.section!;
+                      final matchCount = RegExp(query, caseSensitive: false)
+                          .allMatches(section.content)
+                          .length;
+                      final isLastItem = index == chapterResults.length - 1;
 
-                    return InkWell(
-                      onTap: () {
-                        if (result.section != null && result.chapter != null) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => SectionContentView(
-                                chapterNumber: result.chapter!.chapterNumber,
-                                sectionTitle: result.section!.sectionTitle,
-                                content: result.section!.content,
-                                settings: context.read<ReadingSettings>(),
-                                sectionId:
-                                    '${result.chapter!.id}_${result.section!.sectionNumber}',
-                                isFavorited: context
-                                    .read<ReadingSettings>()
-                                    .isSectionFavorite(
-                                      '${result.chapter!.id}_${result.section!.sectionNumber}',
+                      return InkWell(
+                        onTap: () {
+                          if (result.section != null &&
+                              result.chapter != null) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SectionContentView(
+                                    // ... existing parameters ...
                                     ),
                               ),
-                            ),
-                          );
-                        }
-                      },
-                      child: Column(
-                        children: [
-                          ListTile(
-                            leading: const Icon(Icons.article, color: Colors.green),
-                            title: Text(
-                              'Section ${section.sectionNumber}: ${section.sectionTitle.replaceFirst(
-                                RegExp(r'^\d+\.\s*'),
-                                '',
-                              )}',
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                            subtitle: Text(
-                              '$matchCount match${matchCount > 1 ? 'es' : ''}',
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                            trailing: Chip(
-                              label: Text(
-                                '${result.score.toStringAsFixed(1)}%',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            );
+                          }
+                        },
+                        child: Column(
+                          children: [
+                            ListTile(
+                              leading: const Icon(Icons.article,
+                                  color: Colors.green),
+                              title: Text(
+                                'Section ${section.sectionNumber}: ${section.sectionTitle.replaceFirst(
+                                  RegExp(r'^\d+\.\s*'),
+                                  '',
+                                )}',
+                                style: Theme.of(context).textTheme.bodyMedium,
                               ),
-                              backgroundColor: Theme.of(context).colorScheme.primary,
+                              subtitle: Text(
+                                '$matchCount match${matchCount > 1 ? 'es' : ''}',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                              trailing: Chip(
+                                label: Text(
+                                  '${result.score.toStringAsFixed(1)}%',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.primary,
+                              ),
                             ),
-                          ),
-                          const Divider(height: 1, thickness: 1),
-                        ],
-                      ),
-                    );
-                  }).toList(),
+                            if (!isLastItem && chapterResults.length > 1)
+                              const Divider(height: 1, thickness: 1),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
                 ),
-              ),
-            );  
-              
+              );
+
             },
           );
         }
