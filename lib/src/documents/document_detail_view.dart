@@ -14,10 +14,18 @@ class Spacing {
   static const double lg = 24.0; // Section spacing
   static const double xl = 32.0; // Major section spacing
 
-  // Padding presets
-  static const EdgeInsets contentPadding = EdgeInsets.all(md);
-  static const EdgeInsets cardPadding = EdgeInsets.all(md);
-  static const EdgeInsets listItemSpacing = EdgeInsets.only(bottom: sm);
+  // Optimized padding presets
+  static const EdgeInsets contentPadding = EdgeInsets.symmetric(
+    horizontal: md,
+    vertical: sm,
+  );
+
+  static const EdgeInsets cardPadding = EdgeInsets.symmetric(
+    horizontal: md,
+    vertical: sm, // Reduced from md
+  );
+
+  static const EdgeInsets listItemSpacing = EdgeInsets.only(bottom: xs);
 }
 
 class EnhancedReadingView extends StatelessWidget {
@@ -37,7 +45,7 @@ class EnhancedReadingView extends StatelessWidget {
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(
         horizontal: settings.margins,
-        vertical: 16,
+        vertical: Spacing.sm, // Reduced from 16
       ),
       child: SelectableText.rich(
         TextSpan(
