@@ -649,7 +649,10 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
               const SizedBox(width: Spacing.md),
               Expanded(
                 child: Text(
-                  section.sectionTitle,
+                  section.sectionTitle.replaceFirst(
+                    RegExp(r'^\d+\.\s*'),
+                    '',
+                  ),
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: colorScheme.onSurface,
                     height: 1.4,
