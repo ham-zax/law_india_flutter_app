@@ -226,7 +226,8 @@ class _DocumentListViewState extends State<DocumentListView>
                                                   ?.copyWith(
                                                     color: Theme.of(context)
                                                         .colorScheme
-                                                        .onSurfaceVariant,
+                                                        .primary
+                                                        .withOpacity(0.8),
                                                   ),
                                             ),
                                           ),
