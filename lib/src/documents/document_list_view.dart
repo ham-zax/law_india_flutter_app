@@ -293,6 +293,20 @@ class _DocumentListViewState extends State<DocumentListView>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (state.recentSections.isNotEmpty) ...[
+                              Text(
+                                'Continue Reading',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
+                                      letterSpacing: -0.5,
+                                    ),
+                              ),
+                              const SizedBox(height: kSpacing8),
                               SizedBox(
                                 height: 64,
                                 child: Column(
