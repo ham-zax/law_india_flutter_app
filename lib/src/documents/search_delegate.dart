@@ -163,7 +163,9 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
                     );
                   }).toList(),
                 ),
-              );
+              ),
+            );  
+              
             },
           );
         }
