@@ -42,6 +42,7 @@ class EnhancedReadingView extends StatelessWidget {
     final theme = Theme.of(context);
 
     return SingleChildScrollView(
+      
       padding: EdgeInsets.symmetric(
         horizontal: settings.margins,
         vertical: Spacing.sm,
