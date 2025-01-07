@@ -240,16 +240,6 @@ class _DocumentListViewState extends State<DocumentListView> with SingleTickerPr
         ),
         surfaceTintColor: Colors.transparent,
         backgroundColor: Theme.of(context).colorScheme.surface,
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: Theme.of(context).colorScheme.primary,
-          unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
-          indicatorColor: Theme.of(context).colorScheme.primary,
-          tabs: const [
-            Tab(text: 'ALL CHAPTERS'),
-            Tab(text: 'FAVORITES'),
-          ],
-        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
@@ -278,221 +268,221 @@ class _DocumentListViewState extends State<DocumentListView> with SingleTickerPr
 
               if (state is DocumentLoaded) {
                 return CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: kSpacingMedium,
-                        vertical: kSpacingLarge,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (state.recentSections.isNotEmpty) ...[
-                            Text(
-                              'Continue Reading',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color:
-                                        Theme.of(context).colorScheme.onSurface,
-                                    letterSpacing: -0.5,
-                                  ),
-                            ),
-                            const SizedBox(height: kSpacingSmall),
-                            SizedBox(
-                              height: 64,
-                              child: Column(
-                                children: [
-                                  SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    controller: _scrollController,
-                                    child: Row(
-                                      children: [
-                                        for (var recentItem
-                                            in state.recentSections)
-                                          Padding(
-                                            padding:
-                                                const EdgeInsets.only(right: 8),
-                                            child: OutlinedButton(
-                                              onPressed: () {
-                                                final sectionId =
-                                                    '${recentItem.chapter.id}_${recentItem.section.sectionNumber}';
-                                                Navigator.of(context).push(
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        SectionContentView(
-                                                      chapterNumber: recentItem
-                                                          .chapter.chapterNumber,
-                                                      sectionTitle: recentItem
-                                                          .section.sectionTitle,
-                                                      content: recentItem
-                                                          .section.content,
-                                                      settings: context.read<
-                                                          ReadingSettings>(),
-                                                      sectionId: sectionId,
-                                                      isFavorited: context
-                                                          .read<ReadingSettings>()
-                                                          .isSectionFavorite(
-                                                              sectionId),
+                  slivers: [
+                    if (state.recentSections.isNotEmpty) ...[
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: kSpacingMedium,
+                            vertical: kSpacingLarge,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Continue Reading',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
+                                      letterSpacing: -0.5,
+                                    ),
+                              ),
+                              const SizedBox(height: kSpacingSmall),
+                              SizedBox(
+                                height: 64,
+                                child: Column(
+                                  children: [
+                                    SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      controller: _scrollController,
+                                      child: Row(
+                                        children: [
+                                          for (var recentItem
+                                              in state.recentSections)
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.only(right: 8),
+                                              child: OutlinedButton(
+                                                onPressed: () {
+                                                  final sectionId =
+                                                      '${recentItem.chapter.id}_${recentItem.section.sectionNumber}';
+                                                  Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          SectionContentView(
+                                                        chapterNumber: recentItem
+                                                            .chapter.chapterNumber,
+                                                        sectionTitle: recentItem
+                                                            .section.sectionTitle,
+                                                        content: recentItem
+                                                            .section.content,
+                                                        settings: context.read<
+                                                            ReadingSettings>(),
+                                                        sectionId: sectionId,
+                                                        isFavorited: context
+                                                            .read<ReadingSettings>()
+                                                            .isSectionFavorite(
+                                                                sectionId),
+                                                      ),
                                                     ),
+                                                  );
+                                                },
+                                                style: OutlinedButton.styleFrom(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                          horizontal: 12,
+                                                          vertical: 8),
+                                                  visualDensity:
+                                                      VisualDensity.compact,
+                                                  side: BorderSide(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .primaryContainer,
                                                   ),
-                                                );
-                                              },
-                                              style: OutlinedButton.styleFrom(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 12,
-                                                        vertical: 8),
-                                                visualDensity:
-                                                    VisualDensity.compact,
-                                                side: BorderSide(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .primaryContainer,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(8),
+                                                  ),
                                                 ),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
+                                                child: Text(
+                                                  'Ch ${recentItem.chapter.chapterNumber} sec ${recentItem.section.sectionNumber}',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .labelMedium
+                                                      ?.copyWith(
+                                                        color: Theme.of(context)
+                                                            .colorScheme.primary,
+                                                        fontWeight: FontWeight.w500,
+                                                      ),
                                                 ),
-                                              ),
-                                              child: Text(
-                                                'Ch ${recentItem.chapter.chapterNumber} sec ${recentItem.section.sectionNumber}',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .labelMedium
-                                                    ?.copyWith(
-                                                      color: Theme.of(context)
-                                                          .colorScheme.primary,
-                                                      fontWeight: FontWeight.w500,
-                                                    ),
                                               ),
                                             ),
-                                          ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: kSpacingSmall),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: kSpacingSmall),
-                                    child: ScrollBar(
-                                      scrollController: _scrollController,
+                                    const SizedBox(height: kSpacingSmall),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: kSpacingSmall),
+                                      child: ScrollBar(
+                                        scrollController: _scrollController,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: kSpacingMedium),
-                          ],
-                          const SizedBox(height: kSpacingSmall),
-                          Text(
-                            'All Chapters',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color:
-                                      Theme.of(context).colorScheme.onSurface,
-                                  letterSpacing: -0.5,
+                                  ],
                                 ),
+                              ),
+                            ],
                           ),
+                        ),
+                      ),
+                    ],
+                    SliverToBoxAdapter(
+                      child: TabBar(
+                        controller: _tabController,
+                        labelColor: Theme.of(context).colorScheme.primary,
+                        unselectedLabelColor:
+                            Theme.of(context).colorScheme.onSurfaceVariant,
+                        indicatorColor: Theme.of(context).colorScheme.primary,
+                        tabs: const [
+                          Tab(text: 'ALL CHAPTERS'),
+                          Tab(text: 'FAVORITES'),
                         ],
                       ),
                     ),
-                  ),
-                  SliverPadding(
-                    padding: const EdgeInsets.only(
-                      left: kSpacingMedium,
-                      right: kSpacingMedium,
-                      bottom: kSpacingMedium,
-                    ),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          final chapter = state.documents.first.chapters[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: Card(
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: BorderSide(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .surfaceContainerHighest,
-                                ),
-                              ),
-                              child: InkWell(
-                                onTap: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    DocumentDetailView.routeName,
-                                    arguments: chapter,
-                                  );
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: kSpacingMedium,
-                                    vertical: kSpacingSmall,
+                    SliverPadding(
+                      padding: const EdgeInsets.only(
+                        left: kSpacingMedium,
+                        right: kSpacingMedium,
+                        bottom: kSpacingMedium,
+                      ),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final chapter = state.documents.first.chapters[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: Card(
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: BorderSide(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .surfaceContainerHighest,
                                   ),
-                                  child: Row(
-                                    children: [
-                                      CircleAvatar(
-                                        backgroundColor: Theme.of(context)
-                                            .colorScheme
-                                            .primaryContainer,
-                                        child: Text(
-                                          chapter.chapterNumber,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium
-                                              ?.copyWith(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onPrimaryContainer,
-                                                fontWeight: FontWeight.w600,
+                                ),
+                                child: InkWell(
+                                  onTap: () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      DocumentDetailView.routeName,
+                                      arguments: chapter,
+                                    );
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: kSpacingMedium,
+                                      vertical: kSpacingSmall,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        CircleAvatar(
+                                          backgroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .primaryContainer,
+                                          child: Text(
+                                            chapter.chapterNumber,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleMedium
+                                                ?.copyWith(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onPrimaryContainer,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: kSpacingSmall),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              ..._buildTitleParts(
+                                                  context, chapter.chapterTitle,
+                                                  isBold: true),
+                                              const SizedBox(
+                                                  height: kSpacingXSmall),
+                                              Text(
+                                                '${chapter.sections.length} Sections',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyMedium
+                                                    ?.copyWith(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .onSurfaceVariant,
+                                                    ),
                                               ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(width: kSpacingSmall),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            ..._buildTitleParts(
-                                                context, chapter.chapterTitle,
-                                                isBold: true),
-                                            const SizedBox(
-                                                height: kSpacingXSmall),
-                                            Text(
-                                              '${chapter.sections.length} Sections',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium
-                                                  ?.copyWith(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .onSurfaceVariant,
-                                                  ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          );
-                        },
-                        childCount: state.documents.first.chapters.length,
+                            );
+                          },
+                          childCount: state.documents.first.chapters.length,
+                        ),
                       ),
                     ),
-                  ),
                 ],
                 );
               }
