@@ -294,14 +294,12 @@ class _DocumentListViewState extends State<DocumentListView>
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () async {
-              final result = await showSearch(
+              await showSearch(
                 context: context,
                 delegate: DocumentSearchDelegate(context.read<DocumentBloc>()),
               );
-              
-              if (result != null) {
-                // Handle search result selection if needed
-              }
+              // Reload documents after search closes
+              context.read<DocumentBloc>().add(LoadDocuments());
             },
           ),
         ],
