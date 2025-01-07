@@ -135,12 +135,6 @@ class _SectionContentViewState extends State<SectionContentView> {
               );
             },
           ),
-          IconButton(
-            icon: Icon(Icons.share_outlined),
-            onPressed: () {
-              // Share functionality
-            },
-          ),
         ],
       ),
       body: Column(
