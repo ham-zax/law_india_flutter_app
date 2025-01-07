@@ -319,16 +319,13 @@ class _SectionContentViewState extends State<SectionContentView> {
               vertical: 16.0,
             ),
             child: Text(
-              // Remove section number prefix from title
+              // Cache the cleaned title
+              key: ValueKey(widget.sectionId), // Add key for better diffing
               widget.sectionTitle.replaceFirst(
                 RegExp(r'^\d+\.\s*'),
                 '',
               ),
-              style: theme.textTheme.headlineSmall?.copyWith(
-                color: theme.colorScheme.onSurface,
-                height: 1.3,
-                fontWeight: FontWeight.w500,
-              ),
+              style: titleStyle, // Use cached style
             ),
           ),
           Expanded(
