@@ -310,11 +310,17 @@ class _DocumentListViewState extends State<DocumentListView>
                               SizedBox(
                                 height: 64,
                                 child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start, // Add this
                                   children: [
                                     SingleChildScrollView(
                                       scrollDirection: Axis.horizontal,
                                       controller: _scrollController,
                                       child: Row(
+                                        mainAxisSize:
+                                            MainAxisSize.min, // Add this
+                                        mainAxisAlignment: MainAxisAlignment.start,
                                         children: [
                                           for (var recentItem
                                               in state.recentSections)
@@ -396,7 +402,6 @@ class _DocumentListViewState extends State<DocumentListView>
                                   ],
                                 ),
                               ),
-                              const SizedBox(height: kSpacing16),
                             ],
                           ],
                         ),
@@ -541,11 +546,9 @@ class _ScrollBarState extends State<ScrollBar> {
     if (!mounted) return;
 
     setState(() {
-      if (widget.scrollController.hasClients &&
-          widget.scrollController.position.maxScrollExtent > 0) {
+      if (widget.scrollController.hasClients) {
         _scrollPosition = widget.scrollController.position.pixels /
             widget.scrollController.position.maxScrollExtent;
-        // print('Scroll Progress: $_scrollPosition'); // Debug scroll progressr
       } else {
         _scrollPosition = 0.0;
       }
@@ -556,27 +559,50 @@ class _ScrollBarState extends State<ScrollBar> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (!widget.scrollController.hasClients ||
-            widget.scrollController.position.maxScrollExtent <= 0) {
-          return const SizedBox.shrink();
-        }
-
         const horizontalMargins = 32.0;
         final availableWidth = constraints.maxWidth - horizontalMargins;
+
+        // Default track widget that's always visible
+        Widget track = Container(
+          height: 4,
+          margin: const EdgeInsets.symmetric(horizontal: kSpacing8),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context)
+                  .colorScheme
+                  .surfaceContainerHighest
+                  .withOpacity(0.3),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+        );
+
+        // Return just the track if no scroll controller or clients
+        if (!widget.scrollController.hasClients) {
+          return track;
+        }
+
         final contentWidth =
             widget.scrollController.position.viewportDimension +
                 widget.scrollController.position.maxScrollExtent;
 
-        // Calculate proportional scrollbar width
+        final shouldShowThumb =
+            contentWidth > widget.scrollController.position.viewportDimension;
+
+        // Return just the track if content fits viewport
+        if (!shouldShowThumb) {
+          return track;
+        }
+
+        // Calculate thumb position and size
         final visiblePortion = availableWidth / contentWidth;
         final scrollBarWidth =
             (availableWidth * visiblePortion).clamp(35.0, availableWidth * 0.2);
-
-        // Calculate scroll position with boundary protection
         final maxScrollPosition = availableWidth - scrollBarWidth;
-        final scrollPosition = (_scrollPosition * maxScrollPosition)
-            .clamp(0.0, maxScrollPosition); // Add clamp here
+        final scrollPosition =
+            (_scrollPosition * maxScrollPosition).clamp(0.0, maxScrollPosition);
 
+        // Return track with thumb
         return Container(
           height: 4,
           margin: const EdgeInsets.symmetric(horizontal: kSpacing8),
