@@ -43,8 +43,7 @@ android {
             // Use the default ProGuard rules for Flutter
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             
-            // Enable R8 full mode for better optimization
-            useProguard = false
+            // R8 is enabled by default in newer AGP versions
         }
     }
     
