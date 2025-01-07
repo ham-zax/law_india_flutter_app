@@ -335,11 +335,10 @@ class _SectionContentViewState extends State<SectionContentView> {
                   icon: Icon(Icons.arrow_back, size: 20),
                   label: Text('Previous'),
                   style: OutlinedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    minimumSize: Size(120, 48),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    visualDensity: VisualDensity.compact,
                     side: BorderSide(
-                      color: Theme.of(context).colorScheme.outline,
-                      width: 1.0,
+                      color: Theme.of(context).colorScheme.primaryContainer,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -352,11 +351,10 @@ class _SectionContentViewState extends State<SectionContentView> {
                   icon: Icon(Icons.arrow_forward, size: 20),
                   label: Text('Next'),
                   style: OutlinedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    minimumSize: Size(120, 48),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    visualDensity: VisualDensity.compact,
                     side: BorderSide(
-                      color: Theme.of(context).colorScheme.outline,
-                      width: 1.0,
+                      color: Theme.of(context).colorScheme.primaryContainer,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
