@@ -84,20 +84,12 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     }
   }
 
- void _onSectionViewed(
+  void _onSectionViewed(
     SectionViewed event,
     Emitter<DocumentState> emit,
   ) {
     if (state is DocumentLoaded) {
       final currentState = state as DocumentLoaded;
-
-      // Debug - Initial State
-      print('=== START: Section Viewed Event ===');
-      print('Viewing Chapter ID: ${event.chapter.id}');
-      print('Viewing Section Number: ${event.section.sectionNumber}');
-      print('\nCurrent Recent Sections:');
-      currentState.recentSections.forEach((s) => print(
-          'Chapter ID: ${s.chapter.id}, Section: ${s.section.sectionNumber}'));
 
       // Create new section record
       final newSection = (
@@ -105,44 +97,22 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         section: event.section,
       );
 
-      // Create fresh list for modification
-      var updatedSections =
-          List<({DocumentChapter chapter, DocumentSection section})>.from(
-              currentState.recentSections);
+      // Remove only exact duplicate sections (same chapter AND section number)
+      var updatedSections = currentState.recentSections
+          .where((s) => !(s.chapter.id == event.chapter.id &&
+              s.section.sectionNumber == event.section.sectionNumber))
+          .toList();
 
-      print('\nProcessing Updates:');
-
-      // Check for exact same section
-      final exactMatchIndex = updatedSections.indexWhere((s) =>
-          s.chapter.id == event.chapter.id &&
-          s.section.sectionNumber == event.section.sectionNumber);
-
-      print('Exact match found at index: $exactMatchIndex');
-
-      if (exactMatchIndex != -1) {
-        print('Removing existing section at index: $exactMatchIndex');
-        updatedSections.removeAt(exactMatchIndex);
-      }
-
-      // Always add new section at start
-      print('Adding new section at beginning');
+      // Add new section at start
       updatedSections.insert(0, newSection);
 
-      // Limit to 7 most recent
+      // Limit to 7 most recent sections
       updatedSections = updatedSections.take(7).toList();
 
-      print('\nFinal Recent Sections:');
-      updatedSections.forEach((s) => print(
-          'Chapter ID: ${s.chapter.id}, Section: ${s.section.sectionNumber}'));
-
-      // Emit new state with updated sections
+      // Emit new state
       emit(currentState.copyWith(
         recentSections: updatedSections,
       ));
-
-      print('=== END: Section Viewed Event ===\n');
-    } else {
-      print('DEBUG: State is not DocumentLoaded');
     }
   }
 }
