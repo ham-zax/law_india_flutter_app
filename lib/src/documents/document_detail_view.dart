@@ -156,15 +156,24 @@ class _SectionContentViewState extends State<SectionContentView> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                ElevatedButton.icon(
+                FilledButton.icon(
                   onPressed: () => _navigateToPreviousSection(context),
                   icon: Icon(Icons.arrow_back, size: 20),
                   label: Text('Previous'),
+                  style: FilledButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    minimumSize: Size(120, 48),
+                  ),
                 ),
-                ElevatedButton.icon(
+                const SizedBox(width: 8),
+                FilledButton.icon(
                   onPressed: () => _navigateToNextSection(context),
                   icon: Icon(Icons.arrow_forward, size: 20),
                   label: Text('Next'),
+                  style: FilledButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    minimumSize: Size(120, 48),
+                  ),
                 ),
               ],
             ),
