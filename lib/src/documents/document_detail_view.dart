@@ -665,17 +665,7 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
                       ),
                     ),
                     const SizedBox(height: Spacing.xs),
-                    Row(
-                      children: [
-                        Expanded(child: Container()),
-                        Text(
-                          'Section ${section.sectionNumber}',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
+                    Container(), // Empty container to maintain spacing
                   ],
                 ),
               ),
