@@ -85,9 +85,13 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
 
             return Card(
                 margin: const EdgeInsets.only(bottom: 12),
-                elevation: 2,
+                elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(
+                    color: Theme.of(context).colorScheme.outline,
+                    width: 1,
+                  ),
                 ),
                 child: Theme(
                   data: Theme.of(context).copyWith(
