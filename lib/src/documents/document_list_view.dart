@@ -192,8 +192,7 @@ class _DocumentListViewState extends State<DocumentListView> {
                                                 side: BorderSide(
                                                   color: Theme.of(context)
                                                       .colorScheme
-                                                      .primary
-                                                      .withOpacity(0.5),
+                                                      .primaryContainer,
                                                 ),
                                                 shape: RoundedRectangleBorder(
                                                   borderRadius:
@@ -443,7 +442,7 @@ class _DocumentListViewState extends State<DocumentListView> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                           side: BorderSide(
-                            color: theme.colorScheme.surfaceVariant,
+                            color: theme.colorScheme.surfaceContainerHighest,
                             width: 1,
                           ),
                         ),
@@ -605,7 +604,7 @@ class _ScrollBarState extends State<ScrollBar> {
             children: [
               Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(1),
                 ),
               ),
@@ -615,8 +614,7 @@ class _ScrollBarState extends State<ScrollBar> {
                   width: scrollBarWidth,
                   height: 4,
                   decoration: BoxDecoration(
-                    color:
-                        Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                    color: Theme.of(context).colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(1),
                   ),
                 ),
