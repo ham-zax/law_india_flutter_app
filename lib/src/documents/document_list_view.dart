@@ -129,100 +129,102 @@ class _DocumentListViewState extends State<DocumentListView> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Continue Reading',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color:
-                                      Theme.of(context).colorScheme.onSurface,
-                                  letterSpacing: -0.5,
-                                ),
-                          ),
-                          const SizedBox(height: kSpacingMedium),
-                          SizedBox(
-                            height: 64,
-                            child: Column(
-                              children: [
-                                SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  controller: _scrollController,
-                                  child: Row(
-                                    children: [
-                                      for (var recentItem
-                                          in state.recentSections)
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(right: 8),
-                                          child: OutlinedButton(
-                                            onPressed: () {
-                                              final sectionId =
-                                                  '${recentItem.chapter.id}_${recentItem.section.sectionNumber}';
-                                              Navigator.of(context).push(
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      SectionContentView(
-                                                    chapterNumber: recentItem
-                                                        .chapter.chapterNumber,
-                                                    sectionTitle: recentItem
-                                                        .section.sectionTitle,
-                                                    content: recentItem
-                                                        .section.content,
-                                                    settings: context.read<
-                                                        ReadingSettings>(),
-                                                    sectionId: sectionId,
-                                                    isFavorited: context
-                                                        .read<ReadingSettings>()
-                                                        .isSectionFavorite(
-                                                            sectionId),
+                          if (state.recentSections.isNotEmpty) ...[
+                            Text(
+                              'Continue Reading',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
+                                    letterSpacing: -0.5,
+                                  ),
+                            ),
+                            const SizedBox(height: kSpacingMedium),
+                            SizedBox(
+                              height: 64,
+                              child: Column(
+                                children: [
+                                  SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    controller: _scrollController,
+                                    child: Row(
+                                      children: [
+                                        for (var recentItem
+                                            in state.recentSections)
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(right: 8),
+                                            child: OutlinedButton(
+                                              onPressed: () {
+                                                final sectionId =
+                                                    '${recentItem.chapter.id}_${recentItem.section.sectionNumber}';
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        SectionContentView(
+                                                      chapterNumber: recentItem
+                                                          .chapter.chapterNumber,
+                                                      sectionTitle: recentItem
+                                                          .section.sectionTitle,
+                                                      content: recentItem
+                                                          .section.content,
+                                                      settings: context.read<
+                                                          ReadingSettings>(),
+                                                      sectionId: sectionId,
+                                                      isFavorited: context
+                                                          .read<ReadingSettings>()
+                                                          .isSectionFavorite(
+                                                              sectionId),
+                                                    ),
                                                   ),
+                                                );
+                                              },
+                                              style: OutlinedButton.styleFrom(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 8),
+                                                visualDensity:
+                                                    VisualDensity.compact,
+                                                side: BorderSide(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary
+                                                      .withOpacity(0.5),
                                                 ),
-                                              );
-                                            },
-                                            style: OutlinedButton.styleFrom(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 12,
-                                                      vertical: 8),
-                                              visualDensity:
-                                                  VisualDensity.compact,
-                                              side: BorderSide(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary
-                                                    .withOpacity(0.5),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
                                               ),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
+                                              child: Text(
+                                                'Ch ${recentItem.chapter.chapterNumber} sec ${recentItem.section.sectionNumber}',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .labelMedium
+                                                    ?.copyWith(
+                                                      color: Theme.of(context)
+                                                          .colorScheme.primary,
+                                                      fontWeight: FontWeight.w500,
+                                                    ),
                                               ),
-                                            ),
-                                            child: Text(
-                                              'Ch ${recentItem.chapter.chapterNumber} sec ${recentItem.section.sectionNumber}',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .labelMedium
-                                                  ?.copyWith(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .primary,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
                                             ),
                                           ),
-                                        ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 8),
-                                ScrollBar(
-                                  scrollController: _scrollController,
-                                ),
-                              ],
+                                  const SizedBox(height: 8),
+                                  ScrollBar(
+                                    scrollController: _scrollController,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
+                            const SizedBox(height: kSpacingLarge),
+                          ],
                           const SizedBox(height: kSpacingLarge),
                           Text(
                             'All Chapters',
