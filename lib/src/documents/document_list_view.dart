@@ -144,13 +144,13 @@ class _DocumentListViewState extends State<DocumentListView>
                   '${favorite.chapter.id}_${favorite.section.sectionNumber}';
 
               return Card(
-                key: ValueKey(sectionId), // Add key for better diffing
+                key: ValueKey(sectionId),
                 margin: const EdgeInsets.only(bottom: kSpacing4),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(8),
                   side: BorderSide(
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                    color: Theme.of(context).colorScheme.primaryContainer,
                     width: 1.0,
                   ),
                 ),
@@ -517,15 +517,15 @@ class _DocumentListViewState extends State<DocumentListView>
                             final chapter =
                                 state.documents.first.chapters[index];
                             return Card(
-                              key: ValueKey(chapter.id), // Add key for better diffing
+                              key: ValueKey(chapter.id),
                               margin: EdgeInsets.symmetric(
                                 vertical: 2,
                               ),
                               elevation: 0,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(8),
                                 side: BorderSide(
-                                  color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                                  color: Theme.of(context).colorScheme.primaryContainer,
                                   width: 1.0,
                                 ),
                               ),

@@ -618,7 +618,11 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
       elevation: 0,
       margin: Spacing.listItemSpacing,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(
+          color: theme.colorScheme.primaryContainer,
+          width: 1.0,
+        ),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
@@ -678,9 +682,9 @@ class _DocumentDetailViewState extends State<DocumentDetailView> {
       elevation: 0,
       margin: Spacing.listItemSpacing,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         side: BorderSide(
-          color: theme.colorScheme.primary.withOpacity(0.2),
+          color: theme.colorScheme.primaryContainer,
           width: 1.0,
         ),
       ),
