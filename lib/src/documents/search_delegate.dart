@@ -126,8 +126,13 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => SectionContentView(
-                                    // ... existing parameters ...
-                                    ),
+                                  document: result.document,
+                                  chapter: result.chapter!,
+                                  section: result.section!,
+                                  onSectionChanged: (section) {
+                                    // Handle section change if needed
+                                  },
+                                ),
                               ),
                             );
                           }
