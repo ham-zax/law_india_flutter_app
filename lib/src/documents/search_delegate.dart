@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:math';
+import '../bloc/document/document_bloc.dart';
+import '../data/models/document_model.dart';
+import '../data/repositories/document_repository.dart';
+import 'document_detail_view.dart';
+import '../settings/reading_settings.dart';
 
 Widget buildScoreIndicator(double score, BuildContext context) {
   return Container(
@@ -44,11 +49,6 @@ Widget buildScoreIndicator(double score, BuildContext context) {
     ),
   );
 }
-import '../bloc/document/document_bloc.dart';
-import '../data/models/document_model.dart';
-import '../data/repositories/document_repository.dart';
-import 'document_detail_view.dart';
-import '../settings/reading_settings.dart';
 
 class DocumentSearchDelegate extends SearchDelegate<String> {
   final DocumentBloc documentBloc;
