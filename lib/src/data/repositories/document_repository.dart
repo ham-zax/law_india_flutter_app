@@ -39,11 +39,32 @@ abstract class DocumentRepository {
 
 
 class LocalDocumentRepository implements DocumentRepository {
+  static const int MAX_CACHE_SIZE = 100;
+  static const double SIMILARITY_THRESHOLD = 0.6;
   final Map<String, List<SearchResult>> _searchCache = {};
-  final double _similarityThreshold = 0.7;
 
   @override
   Map<String, List<SearchResult>> get searchCache => _searchCache;
+
+  void _manageCache() {
+    if (_searchCache.length > MAX_CACHE_SIZE) {
+      final entriesToRemove = _searchCache.length - MAX_CACHE_SIZE;
+      final oldestEntries = _searchCache.entries.take(entriesToRemove);
+      for (var entry in oldestEntries) {
+        _searchCache.remove(entry.key);
+      }
+    }
+  }
+
+  double _normalizeScore(double rawScore, String matchType) {
+    final weights = {
+      'exact': 1.0,
+      'section': 0.8,
+      'chapter': 0.6,
+      'content': 0.4
+    };
+    return (rawScore * (weights[matchType] ?? 0.5)).clamp(0.0, 1.0);
+  }
 
   @override
   Future<List<Document>> getRecentDocuments() async {
@@ -115,6 +136,7 @@ class LocalDocumentRepository implements DocumentRepository {
   @override
   @override
   Future<List<Document>> searchDocuments(String query) async {
+    try {
     if (_searchCache.containsKey(query)) {
       return _searchCache[query]!
           .map((result) => result.document)
@@ -136,11 +158,11 @@ class LocalDocumentRepository implements DocumentRepository {
     final numbersInQuery = numberMatches.map((m) => m.group(0)).toSet();
     
     // Check if query contains chapter/section terms
-    final chapterTerms = ['chapter', 'ch', 'chp'];
-    final sectionTerms = ['section', 'sec'];
+    final chapterTerms = RegExp(r'ch(apter)?(?:\s+|$)');
+    final sectionTerms = RegExp(r'sec(tion)?(?:\s+|$)');
     
-    bool hasChapterTerm = chapterTerms.any((term) => queryLower.contains(term));
-    bool hasSectionTerm = sectionTerms.any((term) => queryLower.contains(term));
+    bool hasChapterTerm = chapterTerms.hasMatch(queryLower);
+    bool hasSectionTerm = sectionTerms.hasMatch(queryLower);
     
     // If no specific terms, treat as general number search
     final isGeneralNumberSearch = !hasChapterTerm && !hasSectionTerm && numbersInQuery.isNotEmpty;
@@ -206,20 +228,15 @@ class LocalDocumentRepository implements DocumentRepository {
       }
     }
 
-    // Check if this is a section-specific search
-    final isSectionSearch = sectionTerms.any((term) => queryLower.contains(term));
-
     // Modified sorting logic
     results.sort((a, b) {
       // First priority: Section matches if user searched for section
-      if (isSectionSearch && numbersInQuery.isNotEmpty) {
-        final aSectionMatch = numbersInQuery.any((n) => n == a.section?.sectionNumber?.trim());
-        final bSectionMatch = numbersInQuery.any((n) => n == b.section?.sectionNumber?.trim());
-        
+      if (hasSectionTerm) {
+        final aSectionMatch = a.matchedField == 'section';
+        final bSectionMatch = b.matchedField == 'section';
         if (aSectionMatch != bSectionMatch) {
           return aSectionMatch ? -1 : 1;
         }
-        
         if (aSectionMatch && bSectionMatch) {
           return (a.sectionNumber ?? 0).compareTo(b.sectionNumber ?? 0);
         }
@@ -238,24 +255,30 @@ class LocalDocumentRepository implements DocumentRepository {
       }
       
       // Third priority: Chapter number matches
-      if (numbersInQuery.isNotEmpty) {
-        final aChapterMatch = numbersInQuery.contains(a.chapter?.chapterNumber);
-        final bChapterMatch = numbersInQuery.contains(b.chapter?.chapterNumber);
-        
+      if (hasChapterTerm) {
+        final aChapterMatch = a.matchedField == 'chapter';
+        final bChapterMatch = b.matchedField == 'chapter';
         if (aChapterMatch != bChapterMatch) {
           return aChapterMatch ? -1 : 1;
         }
-        
         if (aChapterMatch && bChapterMatch) {
           return (a.chapterNumber ?? 0).compareTo(b.chapterNumber ?? 0);
         }
       }
       
-      // Final priority: Score-based ordering
-      return b.score.compareTo(a.score);
+      // Final priority: Normalized score-based ordering
+      final aNormScore = _normalizeScore(a.score, a.matchedField);
+      final bNormScore = _normalizeScore(b.score, b.matchedField);
+      return bNormScore.compareTo(aNormScore);
     });
 
+    _manageCache();
+
     _searchCache[query] = results;
-    return results.map((result) => result.document).toSet().toList();
+      return results.map((result) => result.document).toSet().toList();
+    } catch (e) {
+      print('Search error: $e');
+      return [];
+    }
   }
 }
