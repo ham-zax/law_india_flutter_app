@@ -236,8 +236,8 @@ class LocalDocumentRepository implements DocumentRepository {
       
       // Third priority: Section number matches
       if (numbersInQuery.isNotEmpty) {
-        final aSectionMatch = numbersInQuery.contains(a.section?.sectionNumber);
-        final bSectionMatch = numbersInQuery.contains(b.section?.sectionNumber);
+        final aSectionMatch = numbersInQuery.any((n) => n == a.section?.sectionNumber?.trim());
+        final bSectionMatch = numbersInQuery.any((n) => n == b.section?.sectionNumber?.trim());
         
         if (aSectionMatch != bSectionMatch) {
           return aSectionMatch ? -1 : 1;
