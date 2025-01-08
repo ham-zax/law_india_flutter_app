@@ -1,5 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:math';
+
+Widget buildScoreIndicator(double score, BuildContext context) {
+  return Container(
+    width: 40,
+    height: 40,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: Theme.of(context).colorScheme.surface,
+      boxShadow: [
+        BoxShadow(
+          color: Theme.of(context).shadowColor.withOpacity(0.1),
+          blurRadius: 2,
+          offset: const Offset(0, 1),
+        ),
+      ],
+    ),
+    child: Stack(
+      alignment: Alignment.center,
+      children: [
+        SizedBox(
+          width: 32,
+          height: 32,
+          child: CircularProgressIndicator(
+            value: score / 100,
+            backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              score > 75 
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.secondary,
+            ),
+            strokeWidth: 3,
+          ),
+        ),
+        Text(
+          '${score.round()}',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    ),
+  );
+}
 import '../bloc/document/document_bloc.dart';
 import '../data/models/document_model.dart';
 import '../data/repositories/document_repository.dart';
@@ -181,22 +225,7 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
                                 '$matchCount match${matchCount > 1 ? 'es' : ''}',
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
-                              trailing: Container(
-                                width: 16,
-                                height: 16,
-                                decoration: BoxDecoration(
-                                  color: Color.lerp(
-                                    Colors.red,
-                                    Colors.green,
-                                    result.score / 100,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
-                                    width: 1,
-                                  ),
-                                ),
-                              ),
+                              trailing: buildScoreIndicator(result.score, context),
                             ),
                             if (!isLastItem && chapterResults.length > 1)
                               const Divider(height: 1, thickness: 1),
