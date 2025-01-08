@@ -110,14 +110,18 @@ class LocalDocumentRepository implements DocumentRepository {
   // Your existing searchDocuments implementation...
   @override
   @override
-Future<List<Document>> searchDocuments(String query) async {
-    if (query.isEmpty) return [];
-
+  Future<List<Document>> searchDocuments(String query) async {
+    // Return cached results immediately if available
     if (_searchCache.containsKey(query)) {
       return _searchCache[query]!
           .map((result) => result.document)
           .toSet()
           .toList();
+    }
+
+    // Return empty list for very short queries
+    if (query.length < 2) {
+      return [];
     }
 
     final allDocs = await getDocumentsByCategory('BNS');
