@@ -170,24 +170,39 @@ class LocalDocumentRepository implements DocumentRepository {
       final allDocs = await getDocumentsByCategory('BNS');
       final results = <SearchResult>[];
 
-      // Special case: pure chapter search
-      if (hasChapterTerm && numbersInQuery.isEmpty && !hasSectionTerm) {
+      // Chapter search (with or without specific chapter number)
+      if (hasChapterTerm) {
+        // Check if specific chapter number is requested
+        final specificChapter = numbersInQuery.isNotEmpty;
+        
         for (final doc in allDocs) {
           for (final chapter in doc.chapters) {
-            results.add(SearchResult(
-              document: doc,
-              chapter: chapter,
-              section: chapter.sections.first,
-              score: 100.0,
-              matchedField: 'chapter',
-              chapterNumber: int.tryParse(chapter.chapterNumber ?? ''),
-              sectionNumber: 1
-            ));
+            // If specific chapter requested, filter by number
+            if (specificChapter && !numbersInQuery.contains(chapter.chapterNumber)) {
+              continue;
+            }
+            
+            // Add all sections from matching chapters
+            for (final section in chapter.sections) {
+              results.add(SearchResult(
+                document: doc,
+                chapter: chapter,
+                section: section,
+                score: 100.0,
+                matchedField: 'chapter',
+                chapterNumber: int.tryParse(chapter.chapterNumber ?? ''),
+                sectionNumber: int.tryParse(section.sectionNumber)
+              ));
+            }
           }
         }
         
-        results.sort((a, b) => 
-          (a.chapterNumber ?? 0).compareTo(b.chapterNumber ?? 0));
+        // Sort results by chapter and section number
+        results.sort((a, b) {
+          final chapterCompare = (a.chapterNumber ?? 0).compareTo(b.chapterNumber ?? 0);
+          if (chapterCompare != 0) return chapterCompare;
+          return (a.sectionNumber ?? 0).compareTo(b.sectionNumber ?? 0);
+        });
       } else {
         // Regular search logic
         for (final doc in allDocs) {
