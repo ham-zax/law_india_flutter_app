@@ -43,6 +43,20 @@ class LocalDocumentRepository implements DocumentRepository {
   static const double SIMILARITY_THRESHOLD = 0.6;
   final Map<String, List<SearchResult>> _searchCache = {};
 
+  // Pre-compile RegExp patterns
+  static final numberPattern = RegExp(r'\d+');
+  static final chapterTerms = RegExp(r'ch(apter)?(?:\s+|\d+|$)');
+  static final sectionTerms = RegExp(r'sec(tion)?(?:\s+|\d+|$)');
+  
+  // Score normalization weights
+  static final weights = {
+    'exact': 1.0,
+    'section': 0.8,
+    'chapter': 0.6,
+    'content': 0.4,
+    'combined': 0.9  // New weight for combined matches
+  };
+
   @override
   Map<String, List<SearchResult>> get searchCache => _searchCache;
 
@@ -56,13 +70,8 @@ class LocalDocumentRepository implements DocumentRepository {
     }
   }
 
-  double _normalizeScore(double rawScore, String matchType) {
-    final weights = {
-      'exact': 1.0,
-      'section': 0.8,
-      'chapter': 0.6,
-      'content': 0.4
-    };
+  // Normalize during score calculation
+  double _calculateScore(String matchType, double rawScore) {
     return (rawScore * (weights[matchType] ?? 0.5)).clamp(0.0, 1.0);
   }
 
@@ -137,7 +146,10 @@ class LocalDocumentRepository implements DocumentRepository {
   @override
   Future<List<Document>> searchDocuments(String query) async {
     try {
-    if (_searchCache.containsKey(query)) {
+      // Manage cache before adding new results
+      _manageCache();
+      
+      if (_searchCache.containsKey(query)) {
       return _searchCache[query]!
           .map((result) => result.document)
           .toSet()
@@ -175,21 +187,27 @@ class LocalDocumentRepository implements DocumentRepository {
           final contentLower = section.content.toLowerCase();
           final titleLower = section.sectionTitle.toLowerCase();
           
-          // Check for number matches
+          // Check for number matches with normalized scores
           if (numbersInQuery.isNotEmpty) {
             // Chapter number match
             if (numbersInQuery.contains(chapter.chapterNumber)) {
-              score = max(score, 3.0);
+              score = max(score, _calculateScore('chapter', 3.0));
             }
             
             // Section number match
             if (numbersInQuery.contains(section.sectionNumber)) {
-              score = max(score, 2.5);
+              score = max(score, _calculateScore('section', 2.5));
+            }
+            
+            // Combined chapter-section match
+            if (numbersInQuery.contains(chapter.chapterNumber) && 
+                numbersInQuery.contains(section.sectionNumber)) {
+              score = max(score, _calculateScore('combined', 4.0));
             }
             
             // Content number match
             if (contentLower.contains(numbersInQuery.join(' '))) {
-              score = max(score, 1.5);
+              score = max(score, _calculateScore('content', 1.5));
             }
           }
           
@@ -228,48 +246,29 @@ class LocalDocumentRepository implements DocumentRepository {
       }
     }
 
-    // Modified sorting logic
+    // Updated sorting logic
     results.sort((a, b) {
-      // First priority: Section matches if user searched for section
+      // Handle combined chapter-section queries
+      if (hasChapterTerm && hasSectionTerm) {
+        final aMatch = a.matchedField == 'chapter' && numbersInQuery.contains(a.chapter?.chapterNumber) &&
+                      numbersInQuery.contains(a.section?.sectionNumber);
+        final bMatch = b.matchedField == 'chapter' && numbersInQuery.contains(b.chapter?.chapterNumber) &&
+                      numbersInQuery.contains(b.section?.sectionNumber);
+        if (aMatch != bMatch) return aMatch ? -1 : 1;
+      }
+      
+      // Prioritize section matches when explicitly searching for section
       if (hasSectionTerm) {
-        final aSectionMatch = a.matchedField == 'section';
-        final bSectionMatch = b.matchedField == 'section';
-        if (aSectionMatch != bSectionMatch) {
-          return aSectionMatch ? -1 : 1;
-        }
+        final aSectionMatch = numbersInQuery.contains(a.section?.sectionNumber);
+        final bSectionMatch = numbersInQuery.contains(b.section?.sectionNumber);
+        if (aSectionMatch != bSectionMatch) return aSectionMatch ? -1 : 1;
         if (aSectionMatch && bSectionMatch) {
           return (a.sectionNumber ?? 0).compareTo(b.sectionNumber ?? 0);
         }
       }
-      
-      // Second priority: Exact number matches
-      if (isGeneralNumberSearch) {
-        final aIsExactMatch = a.chapter?.chapterNumber == query.trim() || 
-                            a.section?.sectionNumber == query.trim();
-        final bIsExactMatch = b.chapter?.chapterNumber == query.trim() || 
-                            b.section?.sectionNumber == query.trim();
-        
-        if (aIsExactMatch != bIsExactMatch) {
-          return aIsExactMatch ? -1 : 1;
-        }
-      }
-      
-      // Third priority: Chapter number matches
-      if (hasChapterTerm) {
-        final aChapterMatch = a.matchedField == 'chapter';
-        final bChapterMatch = b.matchedField == 'chapter';
-        if (aChapterMatch != bChapterMatch) {
-          return aChapterMatch ? -1 : 1;
-        }
-        if (aChapterMatch && bChapterMatch) {
-          return (a.chapterNumber ?? 0).compareTo(b.chapterNumber ?? 0);
-        }
-      }
-      
-      // Final priority: Normalized score-based ordering
-      final aNormScore = _normalizeScore(a.score, a.matchedField);
-      final bNormScore = _normalizeScore(b.score, b.matchedField);
-      return bNormScore.compareTo(aNormScore);
+
+      // Final priority: Score-based ordering
+      return b.score.compareTo(a.score);
     });
 
     _manageCache();
