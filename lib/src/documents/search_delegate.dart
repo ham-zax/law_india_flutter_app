@@ -36,11 +36,16 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
 
   @override
   Widget buildResults(BuildContext context) {
-    if (query.isEmpty) {
-      return const Center(child: Text('Enter a search term'));
-    }
+    // Just use the same implementation as suggestions
+    return buildSuggestions(context);
+  }
 
-    documentBloc.add(SearchDocuments(query));
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    // Trigger search immediately when text changes
+    if (query.isNotEmpty) {
+      documentBloc.add(SearchDocuments(query));
+    }
 
     return BlocBuilder<DocumentBloc, DocumentState>(
       builder: (context, state) {
@@ -57,7 +62,7 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
             return const Center(child: Text('No results found'));
           }
 
-          // Group results by chapter
+          // Use the same results display as buildResults
           final resultsByChapter = <String, List<SearchResult>>{};
           for (final result in state.results) {
             if (result.chapter != null) {
@@ -83,7 +88,7 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
                         .length;
               });
 
-            return Card(
+              return Card(
                 margin: const EdgeInsets.only(bottom: 12),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
@@ -201,53 +206,6 @@ class DocumentSearchDelegate extends SearchDelegate<String> {
                     }).toList(),
                   ),
                 ),
-              );
-
-            },
-          );
-        }
-
-        return const Center(child: Text('Start searching...'));
-      },
-    );
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    if (query.isEmpty) {
-      return const Center(child: Text('Start typing to search'));
-    }
-
-    documentBloc.add(SearchDocuments(query));
-
-    return BlocBuilder<DocumentBloc, DocumentState>(
-      builder: (context, state) {
-        if (state is DocumentLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (state is DocumentError) {
-          return Center(child: Text('Error: ${state.message}'));
-        }
-
-        if (state is DocumentSearchResults) {
-          if (state.documents.isEmpty) {
-            return const Center(child: Text('No suggestions found'));
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: state.documents.length,
-            itemBuilder: (context, index) {
-              final document = state.documents[index];
-              return ListTile(
-                leading:
-                    const Icon(Icons.insert_drive_file, color: Colors.orange),
-                title: Text(document.title),
-                onTap: () {
-                  query = document.title;
-                  showResults(context);
-                },
               );
             },
           );
