@@ -45,7 +45,7 @@ class LocalDocumentRepository implements DocumentRepository {
 
   // Pre-compile RegExp patterns
   static final numberPattern = RegExp(r'\d+');
-  static final chapterTerms = RegExp(r'ch(apter)?(?:\s+|\d+|$)');
+  static final chapterTerms = RegExp(r'ch(apter|p)?(?:\s+|\d+|$)');
   static final sectionTerms = RegExp(r'sec(tion)?(?:\s+|\d+|$)');
   
   // Score normalization weights
@@ -146,23 +146,52 @@ class LocalDocumentRepository implements DocumentRepository {
   @override
   Future<List<Document>> searchDocuments(String query) async {
     try {
-      // Manage cache before adding new results
       _manageCache();
       
       if (_searchCache.containsKey(query)) {
-      return _searchCache[query]!
-          .map((result) => result.document)
-          .toSet()
-          .toList();
-    }
+        return _searchCache[query]!
+            .map((result) => result.document)
+            .toSet()
+            .toList();
+      }
 
-    if (query.length < 2) {
-      return [];
-    }
+      if (query.length < 2) {
+        return [];
+      }
 
-    final allDocs = await getDocumentsByCategory('BNS');
-    final results = <SearchResult>[];
-    final queryLower = query.toLowerCase();
+      final queryLower = query.toLowerCase();
+      final numberMatches = numberPattern.allMatches(queryLower);
+      final numbersInQuery = numberMatches.map((m) => m.group(0)).toSet();
+      
+      bool hasChapterTerm = chapterTerms.hasMatch(queryLower);
+      bool hasSectionTerm = sectionTerms.hasMatch(queryLower);
+      
+      final allDocs = await getDocumentsByCategory('BNS');
+      final results = <SearchResult>[];
+
+      // Special case: pure chapter search
+      if (hasChapterTerm && numbersInQuery.isEmpty && !hasSectionTerm) {
+        for (final doc in allDocs) {
+          for (final chapter in doc.chapters) {
+            results.add(SearchResult(
+              document: doc,
+              chapter: chapter,
+              section: chapter.sections.first,  // Add first section for context
+              score: 100.0,  // High score for all chapters
+              matchedField: 'chapter',
+              chapterNumber: int.tryParse(chapter.chapterNumber ?? ''),
+              sectionNumber: 1
+            ));
+          }
+        }
+        
+        // Sort by chapter number
+        results.sort((a, b) => 
+          (a.chapterNumber ?? 0).compareTo(b.chapterNumber ?? 0));
+          
+        _searchCache[query] = results;
+        return results.map((result) => result.document).toSet().toList();
+      }
 
     // Helper to extract numbers from query
     final numberPattern = RegExp(r'\d+');
