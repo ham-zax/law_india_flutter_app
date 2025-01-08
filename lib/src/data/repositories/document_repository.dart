@@ -147,21 +147,6 @@ class LocalDocumentRepository implements DocumentRepository {
 
     for (final doc in allDocs) {
       for (final chapter in doc.chapters) {
-        // For general chapter queries (including typos)
-        if (isChapterQuery) {
-          for (final section in chapter.sections) {
-            results.add(SearchResult(
-              document: doc,
-              chapter: chapter,
-              section: section,
-              score: 2.5,
-              matchedField: 'chapter',
-              chapterNumber: int.tryParse(chapter.chapterNumber ?? ''),
-              sectionNumber: int.tryParse(section.sectionNumber)
-            ));
-          }
-          continue;
-        }
 
         for (final section in chapter.sections) {
           double score = 0.0;
@@ -211,8 +196,8 @@ class LocalDocumentRepository implements DocumentRepository {
               chapter: chapter,
               section: section,
               score: score * 100,
-              matchedField: targetChapterNumber != null ? 'chapter' :
-                           targetSectionNumber != null ? 'section' : 'content',
+              matchedField: numbersInQuery.contains(chapter.chapterNumber) ? 'chapter' :
+                           numbersInQuery.contains(section.sectionNumber) ? 'section' : 'content',
               chapterNumber: int.tryParse(chapter.chapterNumber ?? ''),
               sectionNumber: int.tryParse(section.sectionNumber)
             ));
