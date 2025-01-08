@@ -207,7 +207,6 @@ class LocalDocumentRepository implements DocumentRepository {
     }
 
     // Check if this is a section-specific search
-    final sectionTerms = ['section', 'sec'];
     final isSectionSearch = sectionTerms.any((term) => queryLower.contains(term));
 
     // Modified sorting logic
