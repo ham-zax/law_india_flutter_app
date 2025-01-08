@@ -129,42 +129,78 @@ class LocalDocumentRepository implements DocumentRepository {
     final allDocs = await getDocumentsByCategory('BNS');
     final results = <SearchResult>[];
     final queryLower = query.toLowerCase();
+
+    // Base terms for fuzzy matching
+    final chapterTerms = ['chapter', 'ch', 'chp'];
     
-    // Add both chapter and section pattern detection
-    final chapterPattern = RegExp(r'ch(?:apter|p)?\s*(\d+)', caseSensitive: false);
+    // Check for typos in chapter terms
+    bool isChapterQuery = false;
+    String? matchedTerm;
+    double maxSimilarity = 0;
+    
+    for (final term in chapterTerms) {
+      final similarity = queryLower.similarityTo(term);
+      if (similarity > maxSimilarity) {
+        maxSimilarity = similarity;
+        matchedTerm = term;
+      }
+    }
+    
+    // Consider it a chapter query if similarity is high enough
+    isChapterQuery = maxSimilarity > 0.7;
+    
+    // Enhanced pattern detection
+    final specificChapterPattern = RegExp(r'ch[a-z]*\s*(\d+)', caseSensitive: false); // More lenient pattern
     final sectionPattern = RegExp(r'se?c(?:tion)?\s*(\d+)', caseSensitive: false);
     
-    final chapterMatch = chapterPattern.firstMatch(queryLower);
+    final specificChapterMatch = specificChapterPattern.firstMatch(queryLower);
     final sectionMatch = sectionPattern.firstMatch(queryLower);
     
-    final targetChapterNumber = chapterMatch?.group(1);
+    final targetChapterNumber = specificChapterMatch?.group(1);
     final targetSectionNumber = sectionMatch?.group(1);
 
     for (final doc in allDocs) {
       for (final chapter in doc.chapters) {
+        // For general chapter queries (including typos)
+        if (isChapterQuery) {
+          for (final section in chapter.sections) {
+            results.add(SearchResult(
+              document: doc,
+              chapter: chapter,
+              section: section,
+              score: 2.5,
+              matchedField: 'chapter',
+              chapterNumber: int.tryParse(chapter.chapterNumber ?? ''),
+              sectionNumber: int.tryParse(section.sectionNumber)
+            ));
+          }
+          continue;
+        }
+
         for (final section in chapter.sections) {
           double score = 0.0;
           final contentLower = section.content.toLowerCase();
           final titleLower = section.sectionTitle.toLowerCase();
 
-          // Hierarchical scoring system
           if (targetChapterNumber != null && 
               chapter.chapterNumber == targetChapterNumber) {
-            score = 3.0; // Highest score for chapter match
+            score = 3.0;
           }
           else if (targetSectionNumber != null && 
                    section.sectionNumber == targetSectionNumber) {
-            score = 2.0; // High score for section match
+            score = 2.0;
           }
-          else if (contentLower.contains(queryLower) ||
-                   titleLower.contains(queryLower)) {
-            score = 1.0; // Base score for content match
-          } else {
-            final words = contentLower.split(RegExp(r'\s+'));
-            for (final word in words) {
+          else {
+            // Fuzzy content matching
+            final contentWords = contentLower.split(RegExp(r'\s+'));
+            for (final word in contentWords) {
               final similarity = queryLower.similarityTo(word);
               score = max(score, similarity);
             }
+            
+            // Check title similarity
+            final titleSimilarity = queryLower.similarityTo(titleLower);
+            score = max(score, titleSimilarity);
           }
 
           if (score > 0.6) {
@@ -175,19 +211,20 @@ class LocalDocumentRepository implements DocumentRepository {
               score: score * 100,
               matchedField: targetChapterNumber != null ? 'chapter' :
                            targetSectionNumber != null ? 'section' : 'content',
-              chapterNumber: chapter.chapterNumber != null ? 
-                            int.tryParse(chapter.chapterNumber!) : null,
-              sectionNumber: section.sectionNumber != null ?
-                            int.tryParse(section.sectionNumber) : null
+              chapterNumber: int.tryParse(chapter.chapterNumber ?? ''),
+              sectionNumber: int.tryParse(section.sectionNumber)
             ));
           }
         }
       }
     }
 
-    // Enhanced sorting logic
+    // Modified sorting logic
     results.sort((a, b) {
-      // First priority: Chapter matches
+      if (isChapterQuery) {
+        return (a.chapterNumber ?? 0).compareTo(b.chapterNumber ?? 0);
+      }
+      
       if (targetChapterNumber != null) {
         final aIsChapterMatch = a.chapter?.chapterNumber == targetChapterNumber;
         final bIsChapterMatch = b.chapter?.chapterNumber == targetChapterNumber;
@@ -195,14 +232,11 @@ class LocalDocumentRepository implements DocumentRepository {
           return aIsChapterMatch ? -1 : 1;
         }
         
-        // For same chapter, sort by section number
         if (aIsChapterMatch && bIsChapterMatch) {
-          return int.parse(a.section?.sectionNumber ?? '0')
-              .compareTo(int.parse(b.section?.sectionNumber ?? '0'));
+          return (a.sectionNumber ?? 0).compareTo(b.sectionNumber ?? 0);
         }
       }
       
-      // Second priority: Section matches
       if (targetSectionNumber != null) {
         final aIsSectionMatch = a.section?.sectionNumber == targetSectionNumber;
         final bIsSectionMatch = b.section?.sectionNumber == targetSectionNumber;
@@ -211,7 +245,6 @@ class LocalDocumentRepository implements DocumentRepository {
         }
       }
       
-      // Final priority: Score-based ordering
       return b.score.compareTo(a.score);
     });
 
