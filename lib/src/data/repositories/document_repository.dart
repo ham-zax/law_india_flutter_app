@@ -206,9 +206,27 @@ class LocalDocumentRepository implements DocumentRepository {
       }
     }
 
+    // Check if this is a section-specific search
+    final sectionTerms = ['section', 'sec'];
+    final isSectionSearch = sectionTerms.any((term) => queryLower.contains(term));
+
     // Modified sorting logic
     results.sort((a, b) {
-      // First priority: Exact number matches
+      // First priority: Section matches if user searched for section
+      if (isSectionSearch && numbersInQuery.isNotEmpty) {
+        final aSectionMatch = numbersInQuery.any((n) => n == a.section?.sectionNumber?.trim());
+        final bSectionMatch = numbersInQuery.any((n) => n == b.section?.sectionNumber?.trim());
+        
+        if (aSectionMatch != bSectionMatch) {
+          return aSectionMatch ? -1 : 1;
+        }
+        
+        if (aSectionMatch && bSectionMatch) {
+          return (a.sectionNumber ?? 0).compareTo(b.sectionNumber ?? 0);
+        }
+      }
+      
+      // Second priority: Exact number matches
       if (isGeneralNumberSearch) {
         final aIsExactMatch = a.chapter?.chapterNumber == query.trim() || 
                             a.section?.sectionNumber == query.trim();
@@ -220,7 +238,7 @@ class LocalDocumentRepository implements DocumentRepository {
         }
       }
       
-      // Second priority: Chapter number matches
+      // Third priority: Chapter number matches
       if (numbersInQuery.isNotEmpty) {
         final aChapterMatch = numbersInQuery.contains(a.chapter?.chapterNumber);
         final bChapterMatch = numbersInQuery.contains(b.chapter?.chapterNumber);
@@ -231,20 +249,6 @@ class LocalDocumentRepository implements DocumentRepository {
         
         if (aChapterMatch && bChapterMatch) {
           return (a.chapterNumber ?? 0).compareTo(b.chapterNumber ?? 0);
-        }
-      }
-      
-      // Third priority: Section number matches
-      if (numbersInQuery.isNotEmpty) {
-        final aSectionMatch = numbersInQuery.any((n) => n == a.section?.sectionNumber?.trim());
-        final bSectionMatch = numbersInQuery.any((n) => n == b.section?.sectionNumber?.trim());
-        
-        if (aSectionMatch != bSectionMatch) {
-          return aSectionMatch ? -1 : 1;
-        }
-        
-        if (aSectionMatch && bSectionMatch) {
-          return (a.sectionNumber ?? 0).compareTo(b.sectionNumber ?? 0);
         }
       }
       
