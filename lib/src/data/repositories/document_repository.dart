@@ -130,34 +130,20 @@ class LocalDocumentRepository implements DocumentRepository {
     final results = <SearchResult>[];
     final queryLower = query.toLowerCase();
 
-    // Base terms for fuzzy matching
+    // Helper to extract numbers from query
+    final numberPattern = RegExp(r'\d+');
+    final numberMatches = numberPattern.allMatches(queryLower);
+    final numbersInQuery = numberMatches.map((m) => m.group(0)).toSet();
+    
+    // Check if query contains chapter/section terms
     final chapterTerms = ['chapter', 'ch', 'chp'];
+    final sectionTerms = ['section', 'sec'];
     
-    // Check for typos in chapter terms
-    bool isChapterQuery = false;
-    String? matchedTerm;
-    double maxSimilarity = 0;
+    bool hasChapterTerm = chapterTerms.any((term) => queryLower.contains(term));
+    bool hasSectionTerm = sectionTerms.any((term) => queryLower.contains(term));
     
-    for (final term in chapterTerms) {
-      final similarity = queryLower.similarityTo(term);
-      if (similarity > maxSimilarity) {
-        maxSimilarity = similarity;
-        matchedTerm = term;
-      }
-    }
-    
-    // Consider it a chapter query if similarity is high enough
-    isChapterQuery = maxSimilarity > 0.7;
-    
-    // Enhanced pattern detection
-    final specificChapterPattern = RegExp(r'ch[a-z]*\s*(\d+)', caseSensitive: false); // More lenient pattern
-    final sectionPattern = RegExp(r'se?c(?:tion)?\s*(\d+)', caseSensitive: false);
-    
-    final specificChapterMatch = specificChapterPattern.firstMatch(queryLower);
-    final sectionMatch = sectionPattern.firstMatch(queryLower);
-    
-    final targetChapterNumber = specificChapterMatch?.group(1);
-    final targetSectionNumber = sectionMatch?.group(1);
+    // If no specific terms, treat as general number search
+    final isGeneralNumberSearch = !hasChapterTerm && !hasSectionTerm && numbersInQuery.isNotEmpty;
 
     for (final doc in allDocs) {
       for (final chapter in doc.chapters) {
@@ -181,27 +167,43 @@ class LocalDocumentRepository implements DocumentRepository {
           double score = 0.0;
           final contentLower = section.content.toLowerCase();
           final titleLower = section.sectionTitle.toLowerCase();
-
-          if (targetChapterNumber != null && 
-              chapter.chapterNumber == targetChapterNumber) {
-            score = 3.0;
-          }
-          else if (targetSectionNumber != null && 
-                   section.sectionNumber == targetSectionNumber) {
-            score = 2.0;
-          }
-          else {
-            // Fuzzy content matching
-            final contentWords = contentLower.split(RegExp(r'\s+'));
-            for (final word in contentWords) {
-              final similarity = queryLower.similarityTo(word);
-              score = max(score, similarity);
+          
+          // Check for number matches
+          if (numbersInQuery.isNotEmpty) {
+            // Chapter number match
+            if (numbersInQuery.contains(chapter.chapterNumber)) {
+              score = max(score, 3.0);
             }
             
-            // Check title similarity
-            final titleSimilarity = queryLower.similarityTo(titleLower);
-            score = max(score, titleSimilarity);
+            // Section number match
+            if (numbersInQuery.contains(section.sectionNumber)) {
+              score = max(score, 2.5);
+            }
+            
+            // Content number match
+            if (contentLower.contains(numbersInQuery.join(' '))) {
+              score = max(score, 1.5);
+            }
           }
+          
+          // If general number search, boost score for exact matches
+          if (isGeneralNumberSearch) {
+            if (chapter.chapterNumber == query.trim() || 
+                section.sectionNumber == query.trim()) {
+              score = max(score, 4.0);
+            }
+          }
+          
+          // Regular content matching
+          final contentWords = contentLower.split(RegExp(r'\s+'));
+          for (final word in contentWords) {
+            final similarity = queryLower.similarityTo(word);
+            score = max(score, similarity);
+          }
+          
+          // Check title similarity
+          final titleSimilarity = queryLower.similarityTo(titleLower);
+          score = max(score, titleSimilarity);
 
           if (score > 0.6) {
             results.add(SearchResult(
@@ -221,30 +223,47 @@ class LocalDocumentRepository implements DocumentRepository {
 
     // Modified sorting logic
     results.sort((a, b) {
-      if (isChapterQuery) {
-        return (a.chapterNumber ?? 0).compareTo(b.chapterNumber ?? 0);
+      // First priority: Exact number matches
+      if (isGeneralNumberSearch) {
+        final aIsExactMatch = a.chapter?.chapterNumber == query.trim() || 
+                            a.section?.sectionNumber == query.trim();
+        final bIsExactMatch = b.chapter?.chapterNumber == query.trim() || 
+                            b.section?.sectionNumber == query.trim();
+        
+        if (aIsExactMatch != bIsExactMatch) {
+          return aIsExactMatch ? -1 : 1;
+        }
       }
       
-      if (targetChapterNumber != null) {
-        final aIsChapterMatch = a.chapter?.chapterNumber == targetChapterNumber;
-        final bIsChapterMatch = b.chapter?.chapterNumber == targetChapterNumber;
-        if (aIsChapterMatch != bIsChapterMatch) {
-          return aIsChapterMatch ? -1 : 1;
+      // Second priority: Chapter number matches
+      if (numbersInQuery.isNotEmpty) {
+        final aChapterMatch = numbersInQuery.contains(a.chapter?.chapterNumber);
+        final bChapterMatch = numbersInQuery.contains(b.chapter?.chapterNumber);
+        
+        if (aChapterMatch != bChapterMatch) {
+          return aChapterMatch ? -1 : 1;
         }
         
-        if (aIsChapterMatch && bIsChapterMatch) {
+        if (aChapterMatch && bChapterMatch) {
+          return (a.chapterNumber ?? 0).compareTo(b.chapterNumber ?? 0);
+        }
+      }
+      
+      // Third priority: Section number matches
+      if (numbersInQuery.isNotEmpty) {
+        final aSectionMatch = numbersInQuery.contains(a.section?.sectionNumber);
+        final bSectionMatch = numbersInQuery.contains(b.section?.sectionNumber);
+        
+        if (aSectionMatch != bSectionMatch) {
+          return aSectionMatch ? -1 : 1;
+        }
+        
+        if (aSectionMatch && bSectionMatch) {
           return (a.sectionNumber ?? 0).compareTo(b.sectionNumber ?? 0);
         }
       }
       
-      if (targetSectionNumber != null) {
-        final aIsSectionMatch = a.section?.sectionNumber == targetSectionNumber;
-        final bIsSectionMatch = b.section?.sectionNumber == targetSectionNumber;
-        if (aIsSectionMatch != bIsSectionMatch) {
-          return aIsSectionMatch ? -1 : 1;
-        }
-      }
-      
+      // Final priority: Score-based ordering
       return b.score.compareTo(a.score);
     });
 
