@@ -111,7 +111,6 @@ class LocalDocumentRepository implements DocumentRepository {
   @override
   @override
   Future<List<Document>> searchDocuments(String query) async {
-    // Return cached results immediately if available
     if (_searchCache.containsKey(query)) {
       return _searchCache[query]!
           .map((result) => result.document)
@@ -119,7 +118,6 @@ class LocalDocumentRepository implements DocumentRepository {
           .toList();
     }
 
-    // Return empty list for very short queries
     if (query.length < 2) {
       return [];
     }
@@ -127,6 +125,11 @@ class LocalDocumentRepository implements DocumentRepository {
     final allDocs = await getDocumentsByCategory('BNS');
     final results = <SearchResult>[];
     final queryLower = query.toLowerCase();
+    
+    // Add section number pattern detection
+    final sectionPattern = RegExp(r'se?c(?:tion)?\s*(\d+)', caseSensitive: false);
+    final sectionMatch = sectionPattern.firstMatch(queryLower);
+    final targetSectionNumber = sectionMatch?.group(1);
 
     for (final doc in allDocs) {
       for (final chapter in doc.chapters) {
@@ -135,12 +138,15 @@ class LocalDocumentRepository implements DocumentRepository {
           final contentLower = section.content.toLowerCase();
           final titleLower = section.sectionTitle.toLowerCase();
 
-          // Check for exact matches first
-          if (contentLower.contains(queryLower) ||
+          // Prioritize exact section number matches
+          if (targetSectionNumber != null && 
+              section.sectionNumber == targetSectionNumber) {
+            score = 2.0; // Double score for exact section match
+          }
+          else if (contentLower.contains(queryLower) ||
               titleLower.contains(queryLower)) {
             score = 1.0;
           } else {
-            // Fall back to similarity matching for fuzzy search
             final words = contentLower.split(RegExp(r'\s+'));
             for (final word in words) {
               final similarity = queryLower.similarityTo(word);
@@ -149,21 +155,31 @@ class LocalDocumentRepository implements DocumentRepository {
           }
 
           if (score > 0.6) {
-            // Lower threshold and prioritize exact matches
             results.add(SearchResult(
-                document: doc,
-                chapter: chapter,
-                section: section,
-                score: score * 100,
-                matchedField: 'content'));
+              document: doc,
+              chapter: chapter,
+              section: section,
+              score: score * 100,
+              matchedField: 'content'
+            ));
           }
         }
       }
     }
 
-    results.sort((a, b) => b.score.compareTo(a.score));
-    _searchCache[query] = results;
+    // Sort with section matches first, then by score
+    results.sort((a, b) {
+      if (targetSectionNumber != null) {
+        final aIsMatch = a.section?.sectionNumber == targetSectionNumber;
+        final bIsMatch = b.section?.sectionNumber == targetSectionNumber;
+        if (aIsMatch != bIsMatch) {
+          return aIsMatch ? -1 : 1;
+        }
+      }
+      return b.score.compareTo(a.score);
+    });
 
+    _searchCache[query] = results;
     return results.map((result) => result.document).toSet().toList();
   }
 }
