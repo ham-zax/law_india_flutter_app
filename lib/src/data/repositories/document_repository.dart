@@ -165,6 +165,7 @@ class LocalDocumentRepository implements DocumentRepository {
       
       bool hasChapterTerm = chapterTerms.hasMatch(queryLower);
       bool hasSectionTerm = sectionTerms.hasMatch(queryLower);
+      final isGeneralNumberSearch = !hasChapterTerm && !hasSectionTerm && numbersInQuery.isNotEmpty;
       
       final allDocs = await getDocumentsByCategory('BNS');
       final results = <SearchResult>[];
@@ -176,8 +177,8 @@ class LocalDocumentRepository implements DocumentRepository {
             results.add(SearchResult(
               document: doc,
               chapter: chapter,
-              section: chapter.sections.first,  // Add first section for context
-              score: 100.0,  // High score for all chapters
+              section: chapter.sections.first,
+              score: 100.0,
               matchedField: 'chapter',
               chapterNumber: int.tryParse(chapter.chapterNumber ?? ''),
               sectionNumber: 1
@@ -185,124 +186,99 @@ class LocalDocumentRepository implements DocumentRepository {
           }
         }
         
-        // Sort by chapter number
         results.sort((a, b) => 
           (a.chapterNumber ?? 0).compareTo(b.chapterNumber ?? 0));
-          
-        _searchCache[query] = results;
-        return results.map((result) => result.document).toSet().toList();
-      }
+      } else {
+        // Regular search logic
+        for (final doc in allDocs) {
+          for (final chapter in doc.chapters) {
+            for (final section in chapter.sections) {
+              double score = 0.0;
+              final contentLower = section.content.toLowerCase();
+              final titleLower = section.sectionTitle.toLowerCase();
+              
+              // Number matches
+              if (numbersInQuery.isNotEmpty) {
+                if (numbersInQuery.contains(chapter.chapterNumber)) {
+                  score = max(score, _calculateScore('chapter', 3.0));
+                }
+                
+                if (numbersInQuery.contains(section.sectionNumber)) {
+                  score = max(score, _calculateScore('section', 2.5));
+                }
+                
+                if (numbersInQuery.contains(chapter.chapterNumber) && 
+                    numbersInQuery.contains(section.sectionNumber)) {
+                  score = max(score, _calculateScore('combined', 4.0));
+                }
+                
+                if (contentLower.contains(numbersInQuery.join(' '))) {
+                  score = max(score, _calculateScore('content', 1.5));
+                }
+              }
+              
+              // General number search boost
+              if (isGeneralNumberSearch) {
+                if (chapter.chapterNumber == query.trim() || 
+                    section.sectionNumber == query.trim()) {
+                  score = max(score, 4.0);
+                }
+              }
+              
+              // Content matching
+              final contentWords = contentLower.split(RegExp(r'\s+'));
+              for (final word in contentWords) {
+                final similarity = queryLower.similarityTo(word);
+                score = max(score, similarity);
+              }
+              
+              // Title similarity
+              final titleSimilarity = queryLower.similarityTo(titleLower);
+              score = max(score, titleSimilarity);
 
-    // Helper to extract numbers from query
-    final numberPattern = RegExp(r'\d+');
-    final numberMatches = numberPattern.allMatches(queryLower);
-    final numbersInQuery = numberMatches.map((m) => m.group(0)).toSet();
-    
-    // Check if query contains chapter/section terms
-    final chapterTerms = RegExp(r'ch(apter)?(?:\s+|$)');
-    final sectionTerms = RegExp(r'sec(tion)?(?:\s+|$)');
-    
-    bool hasChapterTerm = chapterTerms.hasMatch(queryLower);
-    bool hasSectionTerm = sectionTerms.hasMatch(queryLower);
-    
-    // If no specific terms, treat as general number search
-    final isGeneralNumberSearch = !hasChapterTerm && !hasSectionTerm && numbersInQuery.isNotEmpty;
-
-    for (final doc in allDocs) {
-      for (final chapter in doc.chapters) {
-
-        for (final section in chapter.sections) {
-          double score = 0.0;
-          final contentLower = section.content.toLowerCase();
-          final titleLower = section.sectionTitle.toLowerCase();
-          
-          // Check for number matches with normalized scores
-          if (numbersInQuery.isNotEmpty) {
-            // Chapter number match
-            if (numbersInQuery.contains(chapter.chapterNumber)) {
-              score = max(score, _calculateScore('chapter', 3.0));
+              if (score > SIMILARITY_THRESHOLD) {
+                results.add(SearchResult(
+                  document: doc,
+                  chapter: chapter,
+                  section: section,
+                  score: score * 100,
+                  matchedField: numbersInQuery.contains(chapter.chapterNumber) ? 'chapter' :
+                               numbersInQuery.contains(section.sectionNumber) ? 'section' : 'content',
+                  chapterNumber: int.tryParse(chapter.chapterNumber ?? ''),
+                  sectionNumber: int.tryParse(section.sectionNumber)
+                ));
+              }
             }
-            
-            // Section number match
-            if (numbersInQuery.contains(section.sectionNumber)) {
-              score = max(score, _calculateScore('section', 2.5));
-            }
-            
-            // Combined chapter-section match
-            if (numbersInQuery.contains(chapter.chapterNumber) && 
-                numbersInQuery.contains(section.sectionNumber)) {
-              score = max(score, _calculateScore('combined', 4.0));
-            }
-            
-            // Content number match
-            if (contentLower.contains(numbersInQuery.join(' '))) {
-              score = max(score, _calculateScore('content', 1.5));
-            }
-          }
-          
-          // If general number search, boost score for exact matches
-          if (isGeneralNumberSearch) {
-            if (chapter.chapterNumber == query.trim() || 
-                section.sectionNumber == query.trim()) {
-              score = max(score, 4.0);
-            }
-          }
-          
-          // Regular content matching
-          final contentWords = contentLower.split(RegExp(r'\s+'));
-          for (final word in contentWords) {
-            final similarity = queryLower.similarityTo(word);
-            score = max(score, similarity);
-          }
-          
-          // Check title similarity
-          final titleSimilarity = queryLower.similarityTo(titleLower);
-          score = max(score, titleSimilarity);
-
-          if (score > 0.6) {
-            results.add(SearchResult(
-              document: doc,
-              chapter: chapter,
-              section: section,
-              score: score * 100,
-              matchedField: numbersInQuery.contains(chapter.chapterNumber) ? 'chapter' :
-                           numbersInQuery.contains(section.sectionNumber) ? 'section' : 'content',
-              chapterNumber: int.tryParse(chapter.chapterNumber ?? ''),
-              sectionNumber: int.tryParse(section.sectionNumber)
-            ));
           }
         }
+
+        // Sort results
+        results.sort((a, b) {
+          // Combined chapter-section matches
+          if (hasChapterTerm && hasSectionTerm) {
+            final aMatch = numbersInQuery.contains(a.chapter?.chapterNumber) &&
+                          numbersInQuery.contains(a.section?.sectionNumber);
+            final bMatch = numbersInQuery.contains(b.chapter?.chapterNumber) &&
+                          numbersInQuery.contains(b.section?.sectionNumber);
+            if (aMatch != bMatch) return aMatch ? -1 : 1;
+          }
+          
+          // Section matches
+          if (hasSectionTerm) {
+            final aSectionMatch = numbersInQuery.contains(a.section?.sectionNumber);
+            final bSectionMatch = numbersInQuery.contains(b.section?.sectionNumber);
+            if (aSectionMatch != bSectionMatch) return aSectionMatch ? -1 : 1;
+            if (aSectionMatch && bSectionMatch) {
+              return (a.sectionNumber ?? 0).compareTo(b.sectionNumber ?? 0);
+            }
+          }
+
+          // Score-based ordering
+          return b.score.compareTo(a.score);
+        });
       }
-    }
 
-    // Updated sorting logic
-    results.sort((a, b) {
-      // Handle combined chapter-section queries
-      if (hasChapterTerm && hasSectionTerm) {
-        final aMatch = a.matchedField == 'chapter' && numbersInQuery.contains(a.chapter?.chapterNumber) &&
-                      numbersInQuery.contains(a.section?.sectionNumber);
-        final bMatch = b.matchedField == 'chapter' && numbersInQuery.contains(b.chapter?.chapterNumber) &&
-                      numbersInQuery.contains(b.section?.sectionNumber);
-        if (aMatch != bMatch) return aMatch ? -1 : 1;
-      }
-      
-      // Prioritize section matches when explicitly searching for section
-      if (hasSectionTerm) {
-        final aSectionMatch = numbersInQuery.contains(a.section?.sectionNumber);
-        final bSectionMatch = numbersInQuery.contains(b.section?.sectionNumber);
-        if (aSectionMatch != bSectionMatch) return aSectionMatch ? -1 : 1;
-        if (aSectionMatch && bSectionMatch) {
-          return (a.sectionNumber ?? 0).compareTo(b.sectionNumber ?? 0);
-        }
-      }
-
-      // Final priority: Score-based ordering
-      return b.score.compareTo(a.score);
-    });
-
-    _manageCache();
-
-    _searchCache[query] = results;
+      _searchCache[query] = results;
       return results.map((result) => result.document).toSet().toList();
     } catch (e) {
       print('Search error: $e');
